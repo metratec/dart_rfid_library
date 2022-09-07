@@ -45,7 +45,7 @@ class DeskId extends UhfDevice {
         break;
     }
 
-    return metraTecDevice!.sendCmdExpectRsp("STD $std", "OK!", 1000);
+    return metraTecDevice!.sendCmdExpectRsp("STD $std", "OK!", 2000);
   }
 
   @override
@@ -54,6 +54,6 @@ class DeskId extends UhfDevice {
       return false;
     }
 
-    return metraTecDevice!.sendCmdExpectRsp("CFG PWR $power", "OK!", 1000);
+    return metraTecDevice!.sendCmdExpectRsp("CFG PWR $power", "OK!", 2000);
   }
 }

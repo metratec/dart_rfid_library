@@ -42,7 +42,7 @@ abstract class UhfDevice {
 
     String rev = "";
 
-    bool rc = await metraTecDevice.sendCmd("REV", 1000, (List<String> rx) {
+    bool rc = await metraTecDevice.sendCmd("REV", 2000, (List<String> rx) {
       rev = rx.first;
       return MetraTecCommandRc.commandRcOk;
     });
@@ -80,7 +80,7 @@ abstract class UhfDevice {
 
     String rev = "";
 
-    bool rc = await metraTecDevice!.sendCmd("REV", 1000, (List<String> rx) {
+    bool rc = await metraTecDevice!.sendCmd("REV", 2000, (List<String> rx) {
       rev = rx.first;
       return MetraTecCommandRc.commandRcOk;
     });
@@ -101,7 +101,7 @@ abstract class UhfDevice {
 
     List<String> inv = [];
 
-    bool rc = await metraTecDevice!.sendCmd("INV", 1000, (List<String> rx) {
+    bool rc = await metraTecDevice!.sendCmd("INV", 2000, (List<String> rx) {
       if (rx.last.contains("IVF")) {
         return MetraTecCommandRc.commandRcOk;
       }
