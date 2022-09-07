@@ -1,84 +1,53 @@
-// import 'dart:async';
-// import 'dart:io';
-// import 'dart:typed_data';
+import 'dart:async';
+import 'dart:io';
 
-// import 'package:metratec_device/metratec_device.dart';
-// import 'package:metratec_device/src/command.dart';
+import 'package:metratec_device/metratec_device.dart';
+import 'package:uhf_devices/uhf_devices.dart';
 
-// StreamSubscription? subscription;
+StreamSubscription? sub;
 
-// void main() async {
-//   SerialInterface iface = SerialInterface();
+void main() async {
+  CommInterface commInterface = SerialInterface();
 
-//   List<CommDevice> devices = await iface.listDevices();
+  List<CommDevice> devices = await commInterface.listDevices();
+  if (devices.isEmpty) {
+    print("No devices found!");
+    return;
+  }
 
-//   for (int i = 0; i < devices.length; i++) {
-//     CommDevice dev = devices[i];
-//     print("$i: ${dev.name} | ${dev.addr}");
-//   }
+  for (int i = 0; i < devices.length; i++) {
+    CommDevice dev = devices[i];
+    print("$i: ${dev.name} | ${dev.addr}");
+  }
 
-//   if (devices.isEmpty) {
-//     print("No devices found!");
-//     return;
-//   }
+  int num = int.parse(stdin.readLineSync()!);
+  if (num < 0 || num >= devices.length) {
+    print("No such interface!");
+    return;
+  }
 
-//   print("Choose interface number: ");
+  UhfDevice uhfDevice = DeskId();
+  if (!await uhfDevice.probe(commInterface, devices[num])) {
+    print("Failed to probe device!");
+    return;
+  }
 
-//   int num = int.parse(stdin.readLineSync()!);
-//   if (num < 0 || num >= devices.length) {
-//     print("No such interface!");
-//     return;
-//   }
+  print("Setting power: ${await uhfDevice.setTxPower(5)}");
+  print("Setting standard: ${await uhfDevice.setStandard(UhfStandard.ets)}");
+  print("Single inventory: ${await uhfDevice.inventory()}");
+  print("Continous inventory:");
 
-//   MetraTecDevice metraTecDevice = MetraTecDevice(iface);
-//   if (!await metraTecDevice.probe(devices[num])) {
-//     print("Could not probe device!");
-//     metraTecDevice.destroy();
-//     return;
-//   }
-
-//   print("Device ready...");
-
-//   bool rc = await metraTecDevice.sendCmdExpectRsp("MOD STD ETS", "OK!", 1000);
-//   if (!rc) {
-//     print("Failed to set STD!");
-//   } else {
-//     print("Standart set");
-//   }
-
-//   print("Testing single inventory...");
-
-//   rc = await metraTecDevice.sendCmd("INV", 1000, _invHandler);
-//   if (!rc) {
-//     print("INV failed!");
-//   }
-
-//   print("Testing continous mode...");
-
-//   Stream<String>? stream =
-//       metraTecDevice.sendContinousCommand("CNR INV", "BRK");
-//   if (stream == null) {
-//     print("No stream returned!");
-//   } else {
-//     int counter = 0;
-//     subscription = stream.listen((data) {
-//       print("$counter: $data");
-//       if (counter++ > 100) {
-//         subscription?.cancel();
-
-//         metraTecDevice.destroy();
-//         print("Device destroyed");
-//       }
-//     });
-//   }
-// }
-
-// MetraTecCommandRc _invHandler(List<String> rsp) {
-//   print(rsp.last);
-
-//   if (rsp.last.contains("IVF")) {
-//     return MetraTecCommandRc.commandRcOk;
-//   }
-
-//   return MetraTecCommandRc.commandRcAgain;
-// }
+  Stream<List<String>>? contInv = uhfDevice.continousInventory();
+  if (contInv != null) {
+    int counter = 0;
+    sub = contInv.listen((event) {
+      print("$counter: $event");
+      if (counter++ >= 99) {
+        sub?.cancel();
+        uhfDevice.destroy();
+      }
+    });
+  } else {
+    uhfDevice.destroy();
+  }
+}
