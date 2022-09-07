@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:metratec_device/metratec_device.dart';
+import 'package:uhf_devices/uhf_devices.dart';
 
 enum UhfStandard { ets, isr, fcc }
 
@@ -29,6 +30,38 @@ abstract class UhfDevice {
     }
 
     return true;
+  }
+
+  /// Factory function for uhf devices.
+  static Future<UhfDevice?> create(
+      CommInterface commInterface, CommDevice dev) async {
+    MetraTecDevice metraTecDevice = MetraTecDevice(commInterface);
+    if (!await metraTecDevice.probe(dev)) {
+      return null;
+    }
+
+    String rev = "";
+
+    bool rc = await metraTecDevice.sendCmd("REV", 1000, (List<String> rx) {
+      rev = rx.first;
+      return MetraTecCommandRc.commandRcOk;
+    });
+
+    if (!rc) {
+      metraTecDevice.destroy();
+      return null;
+    }
+
+    metraTecDevice.destroy();
+
+    String fwName = rev.split(" ").first;
+
+    switch (fwName) {
+      case "DESKID_UHF":
+        return DeskId();
+      default:
+        return null;
+    }
   }
 
   /// Destroy the UhfDevice.

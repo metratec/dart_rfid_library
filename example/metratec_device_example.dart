@@ -26,12 +26,18 @@ void main() async {
     return;
   }
 
-  UhfDevice uhfDevice = DeskId();
+  UhfDevice? uhfDevice = await UhfDevice.create(commInterface, devices[num]);
+  if (uhfDevice == null) {
+    print("No compatible UHF device found!");
+    return;
+  }
+
   if (!await uhfDevice.probe(commInterface, devices[num])) {
     print("Failed to probe device!");
     return;
   }
 
+  print("Found UHF device: ${await uhfDevice.queryRev()}");
   print("Setting power: ${await uhfDevice.setTxPower(5)}");
   print("Setting standard: ${await uhfDevice.setStandard(UhfStandard.ets)}");
   print("Single inventory: ${await uhfDevice.inventory()}");
