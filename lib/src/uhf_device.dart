@@ -197,7 +197,13 @@ abstract class UhfDevice {
         return MetraTecCommandRc.commandRcOk;
       }
 
-      inv.add(rx.last);
+      if (rx.last.startsWith('TOE') || rx.last.startsWith('TNR')) {
+        //ignore error message for now
+        //FIXME: handle this
+      } else {
+        inv.add(rx.last);
+      }
+
       return MetraTecCommandRc.commandRcAgain;
     });
 
