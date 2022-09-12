@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:metratec_device/metratec_device.dart';
 import 'package:uhf_devices/uhf_devices.dart';
 
 StreamSubscription? sub;
@@ -32,15 +31,15 @@ void main() async {
     return;
   }
 
-  if (!await uhfDevice.probe(commInterface, devices[num])) {
+  if (!await uhfDevice.connect(commInterface, devices[num])) {
     print("Failed to probe device!");
     return;
   }
 
   print("Found UHF device: ${await uhfDevice.queryRev()}");
   print("Setting power: ${await uhfDevice.setTxPower(5)}");
-  print("Setting standard: ${await uhfDevice.setStandard(UhfStandard.ets)}");
-  print("Single inventory: ${await uhfDevice.inventory()}");
+  print("Setting standard: ${await uhfDevice.setRegion(UhfStandard.etsi)}");
+  print("Single inventory: ${await uhfDevice.singleInventory()}");
   print("Continous inventory:");
 
   Stream<List<String>>? contInv = uhfDevice.continousInventory();

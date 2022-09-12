@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:metratec_device/metratec_device.dart';
+// import 'package:metratec_device/metratec_device.dart';
+// import 'package:uhf_devices/src/devices/ltz2b.dart';
 import 'package:uhf_devices/uhf_devices.dart';
 
-enum UhfStandard { ets, isr, fcc }
+enum UhfStandard { etsi, isr, fcc }
 
 abstract class UhfDevice {
   MetraTecDevice? metraTecDevice;
@@ -19,7 +20,7 @@ abstract class UhfDevice {
   ///
   /// In order to probe the device you need to give the [commInterface]
   /// and the [dev] to this function.
-  Future<bool> probe(CommInterface commInterface, CommDevice dev) async {
+  Future<bool> connect(CommInterface commInterface, CommDevice dev) async {
     if (metraTecDevice != null) {
       return true;
     }
@@ -40,10 +41,11 @@ abstract class UhfDevice {
       return null;
     }
 
-    String rev = "";
+    String revString = "";
 
     bool rc = await metraTecDevice.sendCmd("REV", 2000, (List<String> rx) {
-      rev = rx.first;
+      revString = rx.first;
+      print("Revison: $revString");
       return MetraTecCommandRc.commandRcOk;
     });
 
@@ -54,12 +56,17 @@ abstract class UhfDevice {
 
     metraTecDevice.destroy();
 
-    String fwName = rev.split(" ").first;
+    String fwName = revString.substring(0, 12).trim();
 
     switch (fwName) {
       case "DESKID_UHF":
         return DeskId();
+      case "DwarfG2b_Min":
+        return Ltz2b();
+      case "DwarfG2_Mini":
+        return Ltz2();
       default:
+        print("Unknown device: $fwName");
         return null;
     }
   }
@@ -78,10 +85,10 @@ abstract class UhfDevice {
       return null;
     }
 
-    String rev = "";
+    String revString = "";
 
     bool rc = await metraTecDevice!.sendCmd("REV", 2000, (List<String> rx) {
-      rev = rx.first;
+      revString = rx.first;
       return MetraTecCommandRc.commandRcOk;
     });
 
@@ -89,12 +96,12 @@ abstract class UhfDevice {
       return null;
     }
 
-    return rev;
+    return revString;
   }
 
   /// Query a single inventory from the uhf device.
   /// Returns a list of tags on success, null otherwise.
-  Future<List<String>?> inventory() async {
+  Future<List<String>?> singleInventory() async {
     if (metraTecDevice == null) {
       return null;
     }
@@ -151,9 +158,9 @@ abstract class UhfDevice {
     return _contInvCtrl!.stream;
   }
 
-  /// Set the uhf [standard].
+  /// Set the uhf [region].
   /// Returns true on success, false otherwise.
-  Future<bool> setStandard(UhfStandard standard);
+  Future<bool> setRegion(UhfStandard region);
 
   /// Set the transmit [power] level.
   /// Returns true on success, false otherwise.

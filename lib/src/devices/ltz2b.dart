@@ -1,8 +1,8 @@
 import 'package:metratec_device/metratec_device.dart';
 import 'package:uhf_devices/src/uhf_device.dart';
 
-class DeskId extends UhfDevice {
-  DeskId();
+class Ltz2b extends UhfDevice {
+  Ltz2b();
 
   @override
   Future<bool> connect(CommInterface commInterface, CommDevice dev) async {
@@ -10,14 +10,14 @@ class DeskId extends UhfDevice {
       return false;
     }
 
-    String? revString = await queryRev();
-    if (revString == null) {
+    String? rev = await queryRev();
+    if (rev == null) {
       destroy();
       return false;
     }
 
-    String fwName = revString.substring(0, 12).trim();
-    if (fwName != "DESKID_UHF") {
+    String fwName = rev.split(" ").first;
+    if (fwName != "DwarfG2b_Mini") {
       destroy();
       return false;
     }
@@ -38,11 +38,10 @@ class DeskId extends UhfDevice {
         regionStr = "ETS";
         break;
       case UhfStandard.isr:
-        regionStr = "ISR";
-        break;
+        throw Error();
+
       case UhfStandard.fcc:
-        regionStr = "FCC";
-        break;
+        throw Error();
     }
 
     return metraTecDevice!.sendCmdExpectRsp("STD $regionStr", "OK!", 2000);
@@ -50,7 +49,7 @@ class DeskId extends UhfDevice {
 
   @override
   Future<bool> setTxPower(int power) async {
-    if (power < -2 || power > 27 || metraTecDevice == null) {
+    if (power < -2 || power > 9 || metraTecDevice == null) {
       return false;
     }
 
