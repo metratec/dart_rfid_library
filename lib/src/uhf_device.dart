@@ -1,7 +1,5 @@
 import 'dart:async';
 
-// import 'package:metratec_device/metratec_device.dart';
-// import 'package:uhf_devices/src/devices/ltz2b.dart';
 import 'package:uhf_devices/uhf_devices.dart';
 
 enum UhfStandard { etsi, isr, fcc }
@@ -14,11 +12,11 @@ abstract class UhfDevice {
   StreamSubscription? _contSubscription;
   final List<String> _contInv = [];
 
-  UhfDevice();
+  // UhfDevice();
 
   /// Probes the device.
   ///
-  /// In order to probe the device you need to give the [commInterface]
+  /// In order to connect to the device you need to give the [commInterface]
   /// and the [dev] to this function.
   Future<bool> connect(CommInterface commInterface, CommDevice dev) async {
     if (metraTecDevice != null) {
@@ -45,7 +43,7 @@ abstract class UhfDevice {
 
     bool rc = await metraTecDevice.sendCmd("REV", 2000, (List<String> rx) {
       revString = rx.first;
-      print("Revison: $revString");
+      // print("Revison: $revString");
       return MetraTecCommandRc.commandRcOk;
     });
 
@@ -57,7 +55,6 @@ abstract class UhfDevice {
     metraTecDevice.destroy();
 
     String fwName = revString.substring(0, 12).trim();
-
     switch (fwName) {
       case "DESKID_UHF":
         return DeskId();

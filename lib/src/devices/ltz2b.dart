@@ -10,13 +10,13 @@ class Ltz2b extends UhfDevice {
       return false;
     }
 
-    String? rev = await queryRev();
-    if (rev == null) {
+    String? revString = await queryRev();
+    if (revString == null) {
       destroy();
       return false;
     }
 
-    String fwName = rev.split(" ").first;
+    String fwName = revString.substring(0, 12).trim();
     if (fwName != "DwarfG2b_Mini") {
       destroy();
       return false;
