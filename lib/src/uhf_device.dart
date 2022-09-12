@@ -96,6 +96,93 @@ abstract class UhfDevice {
     return revString;
   }
 
+  /// Set the Q Value
+  Future<bool?> setQValue(int qValue) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    if (qValue < 0 || qValue > 15 || metraTecDevice == null) {
+      return false;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("SQV $qValue", "OK!", 2000);
+  }
+
+  /// Set inventory retry value
+  Future<bool?> setInventoryRetry(int retryValue) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    if (retryValue < 0 || retryValue > 10 || metraTecDevice == null) {
+      return false;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("SIR $retryValue", "OK!", 2000);
+  }
+
+  /// Set the channel mask
+  Future<bool?> setChannelMask(int channelMask) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    if (channelMask < 0 || channelMask > 8 || metraTecDevice == null) {
+      return false;
+    }
+    return metraTecDevice!
+        .sendCmdExpectRsp("SRI MSK $channelMask", "OK!", 2000);
+  }
+
+  /// Set the Rx Wait Time
+  Future<bool?> setRxGain(int rxGain) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    if (rxGain < -3 || rxGain > 3 || metraTecDevice == null) {
+      return false;
+    }
+    return metraTecDevice!.sendCmdExpectRsp("CFG RXG $rxGain", "OK!", 2000);
+  }
+
+  /// Set the Rx Wait Time
+  Future<bool?> setRxWaitTime(int rwTime) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    if (rwTime < 0 || rwTime > 255 || metraTecDevice == null) {
+      return false;
+    }
+    return metraTecDevice!.sendCmdExpectRsp("CFG RWT $rwTime", "OK!", 2000);
+  }
+
+  /// Set the Rx Wait Time
+  Future<bool?> setRxWaitTimeLong(int rwTimeLong) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    if (rwTimeLong < 0 || rwTimeLong > 20000 || metraTecDevice == null) {
+      return false;
+    }
+    return metraTecDevice!.sendCmdExpectRsp("CFG RWL $rwTimeLong", "OK!", 2000);
+  }
+
+  /// Set the Rx Wait Time
+  Future<bool?> rampDown() async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("SRI ON", "OK!", 2000);
+  }
+
+  /// Set the Rx Wait Time
+  Future<bool?> rampUp() async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("SRI OFF", "OK!", 2000);
+  }
+
   /// Query a single inventory from the uhf device.
   /// Returns a list of tags on success, null otherwise.
   Future<List<String>?> singleInventory() async {
