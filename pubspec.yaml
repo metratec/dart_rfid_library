@@ -12,4 +12,4 @@ environment:
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.16.0
-dependencies: {libserialport: ^0.3.0+1, metratec_device: {git: https://gitlab.metratec.com/dart-libraries/metratec_device.git}}
+dependencies: {libserialport: ^0.3.0+1, metratec_device: {git: https://gitlab.metratec.com/dart-libraries/metratec_device.git}, string_validator: ^0.3.0}

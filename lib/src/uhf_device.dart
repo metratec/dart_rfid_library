@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:string_validator/string_validator.dart';
 
 import 'package:uhf_devices/uhf_devices.dart';
 
@@ -132,12 +133,12 @@ abstract class UhfDevice {
         .sendCmdExpectRsp("SRI MSK $channelMask", "OK!", 2000);
   }
 
-  /// Set the Rx Wait Time
+  /// Set the Rx Gain
   Future<bool?> setRxGain(int rxGain) async {
     if (metraTecDevice == null) {
       return null;
     }
-    if (rxGain < -3 || rxGain > 3 || metraTecDevice == null) {
+    if (rxGain < 0 || rxGain > 70 || metraTecDevice == null) {
       return false;
     }
     return metraTecDevice!.sendCmdExpectRsp("CFG RXG $rxGain", "OK!", 2000);
@@ -183,6 +184,36 @@ abstract class UhfDevice {
     return metraTecDevice!.sendCmdExpectRsp("SRI OFF", "OK!", 2000);
   }
 
+  /// Write the EPC
+  Future<bool?> writeEpc(String data) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+    //check for hex characters and length (divisible by 4)
+    if (!isHexadecimal(data)) {
+      return false;
+    }
+    if (data.length > 16 || data.length % 4 == 0) {
+      return false;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("WDT EPC 2 $data", "OK!", 2000);
+  }
+
+  /// Write the PC
+  Future<bool?> writePc(int pcLength) async {
+    if (metraTecDevice == null) {
+      return null;
+    }
+
+    //check for length
+    if (pcLength < 0 || pcLength > 31 || metraTecDevice == null) {
+      return false;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("WDT LEN $pcLength", "OK!", 2000);
+  }
+
   /// Query a single inventory from the uhf device.
   /// Returns a list of tags on success, null otherwise.
   Future<List<String>?> singleInventory() async {
@@ -197,9 +228,11 @@ abstract class UhfDevice {
         return MetraTecCommandRc.commandRcOk;
       }
 
-      if (rx.last.startsWith('TOE') || rx.last.startsWith('TNR')) {
+      if (rx.last.startsWith('TOE') ||
+          rx.last.startsWith('TNR') ||
+          rx.last.startsWith('CER') ||
+          rx.last.startsWith('HBE')) {
         //ignore error message for now
-        //FIXME: handle this
       } else {
         inv.add(rx.last);
       }
@@ -241,6 +274,7 @@ abstract class UhfDevice {
         _contInvCtrl!.add(List<String>.from(_contInv));
         _contInv.clear();
       } else {
+        //TODO ad check for error codes
         _contInv.add(event);
       }
     });
