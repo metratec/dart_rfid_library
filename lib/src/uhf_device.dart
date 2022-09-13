@@ -98,9 +98,9 @@ abstract class UhfDevice {
   }
 
   /// Set the Q Value
-  Future<bool?> setQValue(int qValue) async {
+  Future<bool> setQValue(int qValue) async {
     if (metraTecDevice == null) {
-      return null;
+      return false;
     }
     if (qValue < 0 || qValue > 15 || metraTecDevice == null) {
       return false;
@@ -110,9 +110,9 @@ abstract class UhfDevice {
   }
 
   /// Set inventory retry value
-  Future<bool?> setInventoryRetry(int retryValue) async {
+  Future<bool> setInventoryRetry(int retryValue) async {
     if (metraTecDevice == null) {
-      return null;
+      return false;
     }
     if (retryValue < 0 || retryValue > 10 || metraTecDevice == null) {
       return false;
@@ -122,9 +122,9 @@ abstract class UhfDevice {
   }
 
   /// Set the channel mask
-  Future<bool?> setChannelMask(int channelMask) async {
+  Future<bool> setChannelMask(int channelMask) async {
     if (metraTecDevice == null) {
-      return null;
+      return false;
     }
     if (channelMask < 0 || channelMask > 8 || metraTecDevice == null) {
       return false;
@@ -134,9 +134,9 @@ abstract class UhfDevice {
   }
 
   /// Set the Rx Gain
-  Future<bool?> setRxGain(int rxGain) async {
+  Future<bool> setRxGain(int rxGain) async {
     if (metraTecDevice == null) {
-      return null;
+      return false;
     }
     if (rxGain < 0 || rxGain > 70 || metraTecDevice == null) {
       return false;
@@ -167,37 +167,67 @@ abstract class UhfDevice {
   }
 
   /// Set the Rx Wait Time
-  Future<bool?> rampDown() async {
+  Future<bool> rampDown() async {
     if (metraTecDevice == null) {
-      return null;
-    }
-
-    return metraTecDevice!.sendCmdExpectRsp("SRI ON", "OK!", 2000);
-  }
-
-  /// Set the Rx Wait Time
-  Future<bool?> rampUp() async {
-    if (metraTecDevice == null) {
-      return null;
+      return false;
     }
 
     return metraTecDevice!.sendCmdExpectRsp("SRI OFF", "OK!", 2000);
   }
 
+  /// Set the Rx Wait Time
+  Future<bool> rampUp() async {
+    if (metraTecDevice == null) {
+      return false;
+    }
+
+    return metraTecDevice!.sendCmdExpectRsp("SRI ON", "OK!", 2000);
+  }
+
   /// Write the EPC
-  Future<bool?> writeEpc(String data) async {
+  Future<List<String>?> writeEpc(String data) async {
     if (metraTecDevice == null) {
       return null;
     }
     //check for hex characters and length (divisible by 4)
     if (!isHexadecimal(data)) {
-      return false;
+      print("not hex");
+      return null;
     }
-    if (data.length > 16 || data.length % 4 == 0) {
-      return false;
+    if (data.length > 16 || (data.length % 4) != 0) {
+      print("wrong data length");
+      return null;
     }
 
-    return metraTecDevice!.sendCmdExpectRsp("WDT EPC 2 $data", "OK!", 2000);
+    // return metraTecDevice!.sendCmdExpectRsp("WDT EPC 2 $data", "OK!", 2000);
+
+    List<String> resultList = [];
+
+    bool rc = await metraTecDevice!.sendCmd("WDT EPC 2 $data", 2000,
+        (List<String> rx) {
+      print(rx);
+      if (rx.last.contains("IVF")) {
+        return MetraTecCommandRc.commandRcOk;
+      }
+
+      if (rx.last.startsWith('TOE') ||
+          rx.last.startsWith('TNR') ||
+          rx.last.startsWith('CER') ||
+          rx.last.startsWith('TOR') ||
+          rx.last.startsWith('HBE')) {
+        //ignore error message for now
+      } else {
+        resultList.add(rx.last);
+      }
+
+      return MetraTecCommandRc.commandRcAgain;
+    });
+
+    if (!rc) {
+      return null;
+    }
+
+    return resultList;
   }
 
   /// Write the PC

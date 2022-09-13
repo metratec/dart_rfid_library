@@ -49,7 +49,7 @@ class Ltz2 extends UhfDevice {
 
   @override
   Future<bool> setTxPower(int power) async {
-    if (power < -2 || power > 9 || metraTecDevice == null) {
+    if (power < -2 || power > 11 || metraTecDevice == null) {
       return false;
     }
 
