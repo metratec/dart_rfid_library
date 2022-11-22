@@ -44,7 +44,7 @@ abstract class UhfDevice {
 
     bool rc = await metraTecDevice.sendCmd("REV", 2000, (List<String> rx) {
       revString = rx.first;
-      // print("Revison: $revString");
+      print("Revison: $revString");
       return MetraTecCommandRc.commandRcOk;
     });
 
@@ -59,7 +59,7 @@ abstract class UhfDevice {
     switch (fwName) {
       case "DESKID_UHF":
         return DeskId();
-      case "DwarfG2b_Min":
+      case "LTZ2b":
         return Ltz2b();
       case "DwarfG2_Mini":
         return Ltz2();
@@ -254,6 +254,7 @@ abstract class UhfDevice {
     List<String> inv = [];
 
     bool rc = await metraTecDevice!.sendCmd("INV", 2000, (List<String> rx) {
+      print(rx);
       if (rx.last.contains("IVF")) {
         return MetraTecCommandRc.commandRcOk;
       }

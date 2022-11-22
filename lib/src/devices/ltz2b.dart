@@ -18,7 +18,7 @@ class Ltz2b extends UhfDevice {
 
     String fwName = revString.substring(0, 12).trim();
 
-    if (fwName != "DwarfG2b_Min") {
+    if (fwName != "LTZ2b") {
       destroy();
       return false;
     }
