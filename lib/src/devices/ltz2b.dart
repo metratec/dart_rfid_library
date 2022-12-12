@@ -6,29 +6,27 @@ class Ltz2b extends UhfDevice {
 
   @override
   Future<bool> connect(CommInterface commInterface, CommDevice dev) async {
-    print("connecting to LTZ2b");
-
     if (!await super.connect(commInterface, dev)) {
       return false;
     }
 
     String? revString = await queryRev();
     if (revString == null) {
-      print("something went wrong");
       await destroy();
       return false;
     }
 
-    //TODO make safe
-    String fwName = revString.substring(0, 12).trim();
+    // check against too short answered (CRT, UCO, etc)
+    if (revString.length > 5) {
+      String fwName = revString.substring(0, 12).trim();
+      if (fwName != "LTZ2b") {
+        await destroy();
+        return false;
+      }
 
-    if (fwName != "LTZ2b") {
-      print("something went really wrong");
-      await destroy();
-      return false;
+      return true;
     }
-
-    return true;
+    return false;
   }
 
   @override
