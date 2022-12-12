@@ -12,13 +12,13 @@ class Ltz2 extends UhfDevice {
 
     String? revString = await queryRev();
     if (revString == null) {
-      destroy();
+      await destroy();
       return false;
     }
 
     String fwName = revString.substring(0, 12).trim();
     if (fwName != "DwarfG2_Mini") {
-      destroy();
+      await destroy();
       return false;
     }
 

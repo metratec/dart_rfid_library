@@ -26,6 +26,7 @@ abstract class UhfDevice {
 
     metraTecDevice = MetraTecDevice(commInterface);
     if (!await metraTecDevice!.probe(dev)) {
+      print("Could not probe");
       return false;
     }
 
@@ -42,18 +43,37 @@ abstract class UhfDevice {
 
     String revString = "";
 
-    bool rc = await metraTecDevice.sendCmd("REV", 2000, (List<String> rx) {
+    bool returnValue =
+        await metraTecDevice.sendCmd("RFW", 2000, (List<String> rx) {
       revString = rx.first;
-      print("Revison: $revString");
       return MetraTecCommandRc.commandRcOk;
     });
 
-    if (!rc) {
-      metraTecDevice.destroy();
+    if (!returnValue) {
+      await metraTecDevice.destroy();
       return null;
     }
 
-    metraTecDevice.destroy();
+    // some devices (like RP2040 based) can have noise on the UART which leads to an "UCO" with the first command - just try again
+    if (revString == 'UCO') {
+      bool returnValue =
+          await metraTecDevice.sendCmd("RFW", 2000, (List<String> rx) {
+        revString = rx.first;
+        return MetraTecCommandRc.commandRcOk;
+      });
+
+      if (!returnValue) {
+        await metraTecDevice.destroy();
+        return null;
+      }
+    }
+
+    await metraTecDevice.destroy();
+
+    if (revString.length < 16) {
+      print("Illegal device response: $revString");
+      return null;
+    }
 
     String fwName = revString.substring(0, 12).trim();
     switch (fwName) {
@@ -70,9 +90,10 @@ abstract class UhfDevice {
   }
 
   /// Destroy the UhfDevice.
-  void destroy() {
-    metraTecDevice?.destroy();
+  Future<void> destroy() async {
+    await metraTecDevice?.destroy();
     metraTecDevice = null;
+    print("device destroyed");
   }
 
   /// Query the revision from the device.
@@ -85,7 +106,7 @@ abstract class UhfDevice {
 
     String revString = "";
 
-    bool rc = await metraTecDevice!.sendCmd("REV", 2000, (List<String> rx) {
+    bool rc = await metraTecDevice!.sendCmd("RFW", 2000, (List<String> rx) {
       revString = rx.first;
       return MetraTecCommandRc.commandRcOk;
     });
