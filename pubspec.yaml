@@ -15,7 +15,8 @@ dev_dependencies:
 dependencies:
   libserialport: ^0.3.0+1
   metratec_device:
-    path: ../metratec_device
-    #git:
-    #  https://gitlab.metratec.com/dart-libraries/metratec_device.git}
+    # path: ../metratec_device
+    git:
+      url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
+      ref: 1.1.0
   string_validator: ^0.3.0
