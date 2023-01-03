@@ -93,7 +93,6 @@ abstract class UhfDevice {
   Future<void> destroy() async {
     await metraTecDevice?.destroy();
     metraTecDevice = null;
-    print("device destroyed");
   }
 
   /// Query the revision from the device.
