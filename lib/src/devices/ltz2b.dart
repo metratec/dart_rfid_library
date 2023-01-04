@@ -2,11 +2,13 @@ import 'package:metratec_device/metratec_device.dart';
 import 'package:uhf_devices/src/uhf_device.dart';
 
 class Ltz2b extends UhfDevice {
-  Ltz2b();
+  final CommInterface _commInterface;
+
+  Ltz2b(this._commInterface) : super(_commInterface);
 
   @override
-  Future<bool> connect(CommInterface commInterface, CommDevice dev) async {
-    if (!await super.connect(commInterface, dev)) {
+  Future<bool> connect() async {
+    if (!await super.connect()) {
       return false;
     }
 

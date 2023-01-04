@@ -1,6 +1,6 @@
 name: uhf_devices
 description: Implementation of Dart lib for Metratec UHF devices
-version: 1.0.0
+version: 2.0.0
 homepage: https://www.metratec.com
 
 publish_to: none
@@ -18,5 +18,5 @@ dependencies:
     # path: ../metratec_device
     git:
       url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
-      ref: 1.1.0
+    #   ref: 1.1.0
   string_validator: ^0.3.0

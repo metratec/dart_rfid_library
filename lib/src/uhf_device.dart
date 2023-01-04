@@ -12,21 +12,22 @@ abstract class UhfDevice {
   StreamController<List<String>>? _contInvCtrl;
   StreamSubscription? _contSubscription;
   final List<String> _contInv = [];
+  final CommInterface _commInterface;
 
-  // UhfDevice();
+  UhfDevice(this._commInterface);
 
   /// Probes the device.
   ///
   /// In order to connect to the device you need to give the [commInterface]
   /// and the [dev] to this function.
-  Future<bool> connect(CommInterface commInterface, CommDevice dev) async {
+  Future<bool> connect() async {
     if (metraTecDevice != null) {
       return true;
     }
 
-    metraTecDevice = MetraTecDevice(commInterface);
-    if (!await metraTecDevice!.probe(dev)) {
-      print("Could not probe");
+    metraTecDevice = MetraTecDevice(_commInterface);
+    if (!await metraTecDevice!.connect()) {
+      print("Could not connect");
       return false;
     }
 
@@ -34,19 +35,17 @@ abstract class UhfDevice {
   }
 
   /// Factory function for uhf devices.
-  static Future<UhfDevice?> create(
-      CommInterface commInterface, CommDevice dev) async {
+  Future<UhfDevice?> create(CommInterface commInterface) async {
     MetraTecDevice metraTecDevice = MetraTecDevice(commInterface);
-    if (!await metraTecDevice.probe(dev)) {
+    if (!await metraTecDevice.connect()) {
       return null;
     }
 
     String revString = "";
 
-    bool returnValue =
-        await metraTecDevice.sendCmd("RFW", 2000, (List<String> rx) {
+    bool returnValue = await metraTecDevice.sendCmd("RFW", 2000, (List<String> rx) {
       revString = rx.first;
-      return MetraTecCommandRc.commandRcOk;
+      return MetraTecCommandResp.commandRcOk;
     });
 
     if (!returnValue) {
@@ -56,10 +55,9 @@ abstract class UhfDevice {
 
     // some devices (like RP2040 based) can have noise on the UART which leads to an "UCO" with the first command - just try again
     if (revString == 'UCO') {
-      bool returnValue =
-          await metraTecDevice.sendCmd("RFW", 2000, (List<String> rx) {
+      bool returnValue = await metraTecDevice.sendCmd("RFW", 2000, (List<String> rx) {
         revString = rx.first;
-        return MetraTecCommandRc.commandRcOk;
+        return MetraTecCommandResp.commandRcOk;
       });
 
       if (!returnValue) {
@@ -78,11 +76,11 @@ abstract class UhfDevice {
     String fwName = revString.substring(0, 12).trim();
     switch (fwName) {
       case "DESKID_UHF":
-        return DeskId();
+        return DeskIdUhf(_commInterface);
       case "LTZ2b":
-        return Ltz2b();
+        return Ltz2b(_commInterface);
       case "DwarfG2_Mini":
-        return Ltz2();
+        return Ltz2(_commInterface);
       default:
         print("Unknown device: $fwName");
         return null;
@@ -107,7 +105,7 @@ abstract class UhfDevice {
 
     bool rc = await metraTecDevice!.sendCmd("RFW", 2000, (List<String> rx) {
       revString = rx.first;
-      return MetraTecCommandRc.commandRcOk;
+      return MetraTecCommandResp.commandRcOk;
     });
 
     if (!rc) {
@@ -149,8 +147,7 @@ abstract class UhfDevice {
     if (channelMask < 0 || channelMask > 8 || metraTecDevice == null) {
       return false;
     }
-    return metraTecDevice!
-        .sendCmdExpectRsp("SRI MSK $channelMask", "OK!", 2000);
+    return metraTecDevice!.sendCmdExpectRsp("SRI MSK $channelMask", "OK!", 2000);
   }
 
   /// Set the Rx Gain
@@ -223,11 +220,10 @@ abstract class UhfDevice {
 
     List<String> resultList = [];
 
-    bool rc = await metraTecDevice!.sendCmd("WDT EPC 2 $data", 2000,
-        (List<String> rx) {
+    bool rc = await metraTecDevice!.sendCmd("WDT EPC 2 $data", 2000, (List<String> rx) {
       print(rx);
       if (rx.last.contains("IVF")) {
-        return MetraTecCommandRc.commandRcOk;
+        return MetraTecCommandResp.commandRcOk;
       }
 
       if (rx.last.startsWith('TOE') ||
@@ -240,7 +236,7 @@ abstract class UhfDevice {
         resultList.add(rx.last);
       }
 
-      return MetraTecCommandRc.commandRcAgain;
+      return MetraTecCommandResp.commandRcAgain;
     });
 
     if (!rc) {
@@ -276,7 +272,7 @@ abstract class UhfDevice {
     bool rc = await metraTecDevice!.sendCmd("INV", 2000, (List<String> rx) {
       print(rx);
       if (rx.last.contains("IVF")) {
-        return MetraTecCommandRc.commandRcOk;
+        return MetraTecCommandResp.commandRcOk;
       }
 
       if (rx.last.startsWith('TOE') ||
@@ -288,7 +284,7 @@ abstract class UhfDevice {
         inv.add(rx.last);
       }
 
-      return MetraTecCommandRc.commandRcAgain;
+      return MetraTecCommandResp.commandRcAgain;
     });
 
     if (!rc) {
@@ -305,8 +301,7 @@ abstract class UhfDevice {
       return null;
     }
 
-    Stream<String>? stream =
-        metraTecDevice!.sendContinousCommand("CNR INV", "BRK");
+    Stream<String>? stream = metraTecDevice!.sendContinousCommand("CNR INV", "BRK");
     if (stream == null) {
       return null;
     }
