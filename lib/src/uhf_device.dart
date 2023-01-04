@@ -35,7 +35,7 @@ abstract class UhfDevice {
   }
 
   /// Factory function for uhf devices.
-  Future<UhfDevice?> create(CommInterface commInterface) async {
+  static Future<UhfDevice?> create(CommInterface commInterface) async {
     MetraTecDevice metraTecDevice = MetraTecDevice(commInterface);
     if (!await metraTecDevice.connect()) {
       return null;
@@ -76,11 +76,11 @@ abstract class UhfDevice {
     String fwName = revString.substring(0, 12).trim();
     switch (fwName) {
       case "DESKID_UHF":
-        return DeskIdUhf(_commInterface);
+        return DeskIdUhf(commInterface);
       case "LTZ2b":
-        return Ltz2b(_commInterface);
+        return Ltz2b(commInterface);
       case "DwarfG2_Mini":
-        return Ltz2(_commInterface);
+        return Ltz2(commInterface);
       default:
         print("Unknown device: $fwName");
         return null;
