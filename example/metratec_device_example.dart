@@ -1,58 +1,33 @@
-// import 'dart:async';
-// import 'dart:io';
+import 'dart:async';
 
-// import 'package:uhf_devices/uhf_devices.dart';
+import 'package:reader_library/reader_library.dart';
+import 'package:logger/logger.dart';
+import 'package:reader_library/src/at_reader/at_reader_common.dart';
 
-// StreamSubscription? sub;
+void main() async {
+  SerialSettings serialSettings = SerialSettings("/dev/ttyACM0");
+  CommInterface commInterface = SerialInterface(serialSettings);
 
-// void main() async {
-//   CommInterface commInterface = SerialInterface();
+  Logger.level = Level.error;
 
-//   List<CommDevice> devices = await commInterface.listDevices();
-//   if (devices.isEmpty) {
-//     print("No devices found!");
-//     return;
-//   }
+  AtReaderCommon reader = AtReaderCommon(commInterface);
 
-//   for (int i = 0; i < devices.length; i++) {
-//     CommDevice dev = devices[i];
-//     print("$i: ${dev.name} | ${dev.addr}");
-//   }
+  print("Connecting reader");
 
-//   int num = int.parse(stdin.readLineSync()!);
-//   if (num < 0 || num >= devices.length) {
-//     print("No such interface!");
-//     return;
-//   }
+  if (await reader.connect() == false) {
+    print("Failed to connect");
+  }
 
-//   UhfDevice? uhfDevice = await UhfDevice.create(commInterface, devices[num]);
-//   if (uhfDevice == null) {
-//     print("No compatible UHF device found!");
-//     return;
-//   }
+  print("Connected");
 
-//   if (!await uhfDevice.connect(commInterface, devices[num])) {
-//     print("Failed to probe device!");
-//     return;
-//   }
+  StreamSubscription cinvSub = reader.getInventoryStream().listen((inv) {
+    print(inv.uids);
+  });
 
-//   print("Found UHF device: ${await uhfDevice.queryRev()}");
-//   print("Setting power: ${await uhfDevice.setTxPower(5)}");
-//   print("Setting standard: ${await uhfDevice.setRegion(UhfStandard.etsi)}");
-//   print("Single inventory: ${await uhfDevice.singleInventory()}");
-//   print("Continous inventory:");
+  await reader.startContinuousInventory();
+  await Future.delayed(Duration(seconds: 5));
+  await reader.stopContinuousInventory();
+  cinvSub.cancel();
 
-//   Stream<List<String>>? contInv = uhfDevice.continousInventory();
-//   if (contInv != null) {
-//     int counter = 0;
-//     sub = contInv.listen((event) {
-//       print("$counter: $event");
-//       if (counter++ >= 99) {
-//         sub?.cancel();
-//         uhfDevice.destroy();
-//       }
-//     });
-//   } else {
-//     uhfDevice.destroy();
-//   }
-// }
+  reader.disconnect();
+}
