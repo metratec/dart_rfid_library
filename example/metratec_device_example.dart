@@ -10,7 +10,7 @@ void main() async {
 
   Logger.level = Level.error;
 
-  AtReaderCommon reader = AtReaderCommon(commInterface);
+  DeskIdNfc reader = DeskIdNfc(commInterface);
 
   print("Connecting reader");
 
@@ -23,6 +23,11 @@ void main() async {
   StreamSubscription cinvSub = reader.getInventoryStream().listen((inv) {
     print(inv.uids);
   });
+
+  AtReaderInfo info = await reader.queryInfo();
+  print("FW : ${info.fwName}:${info.fwRevision}");
+  print("HW : ${info.hwName}:${info.hwRevision}");
+  print("SER: ${info.serial}");
 
   await reader.startContinuousInventory();
   await Future.delayed(Duration(seconds: 5));
