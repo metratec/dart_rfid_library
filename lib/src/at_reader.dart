@@ -11,23 +11,41 @@ enum CmdExitCode {
   canceled,
 }
 
+class AtReaderInfo {
+  String fwName;
+  String fwRevision;
+  String hwName;
+  String hwRevision;
+  String serial;
+
+  AtReaderInfo(
+      this.fwName, this.fwRevision, this.hwName, this.hwRevision, this.serial);
+}
+
+class AtRsp {
+  /// The response prefix to match
+  String rsp;
+
+  /// Callback function for received data
+  void Function(String) dataCb;
+
+  AtRsp(this.rsp, this.dataCb);
+}
+
 class AtCmd {
   /// Response to the command
   String cmd;
 
-  /// The response prefix to match
-  String? rsp;
-
   /// Command timeout in milliseconds
   int timeout;
+
+  /// Possible responses to the command
+  List<AtRsp> responses;
 
   /// Completer for async notification
   Completer<CmdExitCode> completer = Completer();
 
-  /// Callback function for received data
-  void Function(String)? dataCb;
-
-  AtCmd(this.cmd, this.rsp, this.timeout, this.dataCb);
+  AtCmd(this.cmd, this.timeout, this.responses);
 }
 
 class AtUrc {
@@ -49,8 +67,8 @@ abstract class AtReader extends BaseReader {
   AtReader(super.commInterface);
 
   Future<CmdExitCode> sendAtCommand(
-      String cmd, String? rsp, int timeout, void Function(String)? dataCb) {
-    return _queueAtCmd(cmd, rsp, timeout, dataCb);
+      String cmd, int timeout, List<AtRsp> responses) {
+    return _queueAtCmd(cmd, timeout, responses);
   }
 
   void registerUrc(AtUrc urc) {
@@ -89,22 +107,22 @@ abstract class AtReader extends BaseReader {
     }
 
     // Check for prefix match
-    if (cmd.rsp == null) {
+    if (cmd.responses.isEmpty) {
       readerLogger.w("Received data but did not expect any: $rx");
       return;
     }
 
-    if (rx.startsWith(cmd.rsp!)) {
-      if (cmd.dataCb != null) {
-        cmd.dataCb!(rx.replaceFirst("${cmd.rsp!}: ", ''));
+    for (AtRsp rsp in cmd.responses) {
+      if (rx.startsWith(rsp.rsp)) {
+        rsp.dataCb(rx.replaceFirst("${rsp.rsp}: ", ''));
       }
     }
   }
 
   /// Place a new command in the command queue.
   Future<CmdExitCode> _queueAtCmd(
-      String cmd, String? rsp, int timeout, void Function(String)? dataCb) {
-    AtCmd atCmd = AtCmd(cmd, rsp, timeout, dataCb);
+      String cmd, int timeout, List<AtRsp> responses) {
+    AtCmd atCmd = AtCmd(cmd, timeout, responses);
 
     bool first = _cmdQueue.isEmpty;
 
