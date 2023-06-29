@@ -66,15 +66,35 @@ abstract class AtReader extends BaseReader {
 
   AtReader(super.commInterface);
 
+  /// Place a command in the command queue.
+  ///
+  /// This functions queues a [cmd] to send. The
+  /// line ending is added by the send function.
+  /// If a [timeout] != 0 is provided this function
+  /// will return with a timeout return code if no
+  /// response is received in the specified time in milliseconds.
+  /// The [responses] list contains a list of all possible
+  /// response prefixes to the command and data callbacks.
   Future<CmdExitCode> sendAtCommand(
       String cmd, int timeout, List<AtRsp> responses) {
     return _queueAtCmd(cmd, timeout, responses);
   }
 
+  /// Register a [urc].
   void registerUrc(AtUrc urc) {
     _urcRegistry.add(urc);
   }
 
+  /// This function handles received data.
+  ///
+  /// First it checks if any urc matches.
+  /// After that it checks if the received
+  /// data terminates a running command and
+  /// then sends the next command. If the data does
+  /// not terminate a running command it is checked
+  /// if it matches any registered response for the command.
+  /// If it does the callback is called. Otherwise the data
+  /// is discarded.
   @override
   void handleRxData(String rx) {
     /// Check if a urc was received

@@ -39,6 +39,8 @@ abstract class BaseReader {
   ///
   /// This function will initialize the underlying
   /// communication interface and connect to the reader.
+  /// This function will throw a ReaderCommException if
+  /// the reader is already connected.
   Future<bool> connect() async {
     if (_rxSub != null) {
       throw ReaderCommException("Device already connected!");
@@ -57,6 +59,10 @@ abstract class BaseReader {
     return true;
   }
 
+  /// Disconnect the reader.
+  ///
+  /// This function will throw a ReaderCommException if
+  /// the reader is not connected.
   Future<void> disconnect() async {
     if (_rxSub == null) {
       throw ReaderCommException("No device connected!");
@@ -67,7 +73,9 @@ abstract class BaseReader {
     _rxSub = null;
   }
 
-  /// Set the status callback
+  /// Set the status callback.
+  ///
+  /// The status [cb] will be called once the reader state changes.
   void setStatusCb({Function(ReaderState, String)? cb}) {
     _statusCb = cb;
   }
@@ -82,7 +90,12 @@ abstract class BaseReader {
     return _stateDesc;
   }
 
-  void _setStateAndDesc(ReaderState state, String txt) {
+  /// Set the state and description of the reader.
+  ///
+  /// Set a reader [state] and a [txt] description.
+  /// This function is called by the reader classes
+  /// and should never be called from user code.
+  void setStateAndDesc(ReaderState state, String txt) {
     _state = state;
     _stateDesc = txt;
 
@@ -91,13 +104,21 @@ abstract class BaseReader {
     }
   }
 
+  /// Write [data] directly to the comm interface.
+  ///
+  /// Never call this function directly from user code.
+  /// It is used by the protocol abstractions.
   bool write(Uint8List data) {
     return _commInterface.write(data);
   }
 
+  /// Retrieve a stream for continuous inventories.
   Stream<Inventory> getInventoryStream() {
     return invStreamCtrl.stream;
   }
 
+  /// Abstract method that is implemented by
+  /// protocol abstractions. Never call from
+  /// user code!
   void handleRxData(String rx);
 }

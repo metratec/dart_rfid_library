@@ -10,6 +10,10 @@ class AtReaderCommon extends AtReader {
     registerUrc(AtUrc("+CINV", _handleCinvUrc));
   }
 
+  /// Start a continuous inventory.
+  ///
+  /// The inventories can be retrieved through `getInventoryStream()`.
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<void> startContinuousInventory() async {
     CmdExitCode exitCode = await sendAtCommand("AT+CINV", 500, []);
     if (exitCode == CmdExitCode.timeout) {
@@ -19,6 +23,9 @@ class AtReaderCommon extends AtReader {
     }
   }
 
+  /// Stops a running continuous inventory.
+  ///
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<void> stopContinuousInventory() async {
     CmdExitCode exitCode = await sendAtCommand("AT+BINV", 500, []);
     if (exitCode == CmdExitCode.timeout) {
@@ -28,6 +35,9 @@ class AtReaderCommon extends AtReader {
     }
   }
 
+  /// Query the device information.
+  ///
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<AtReaderInfo> queryInfo() async {
     AtReaderInfo info =
         AtReaderInfo("undef", "undef", "undef", "undef", "undef");
@@ -75,6 +85,7 @@ class AtReaderCommon extends AtReader {
     return info;
   }
 
+  /// Run a single inventory.
   Future<Inventory> inventory() async {
     Inventory inv = Inventory();
 

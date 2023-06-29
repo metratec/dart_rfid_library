@@ -13,7 +13,9 @@ enum MfcKeyType { A, B }
 class DeskIdNfc extends AtReaderCommon {
   DeskIdNfc(super.commInterface);
 
-  /// Set the operation mode of the deskId
+  /// Set the operation [mode] of the deskId.
+  ///
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<void> setMode(DeskIdNfcMode mode) async {
     String modeStr = "";
 
@@ -44,6 +46,8 @@ class DeskIdNfc extends AtReaderCommon {
   }
 
   /// Select a tag by [uid].
+  ///
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<void> selectTag(String uid) async {
     String errString = "";
     CmdExitCode exitCode = await sendAtCommand("AT+SEL=$uid", 500, [
@@ -61,6 +65,7 @@ class DeskIdNfc extends AtReaderCommon {
   /// Authenticate with a mifare classic tag.
   ///
   /// The given [block] is authenticated with [key] of [keyType];
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<void> mfcAuth(int block, String key, MfcKeyType keyType) async {
     String typeStr = "";
 
@@ -87,7 +92,9 @@ class DeskIdNfc extends AtReaderCommon {
     }
   }
 
-  /// Write a single block of data.
+  /// Write a single [block] of [data].
+  ///
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<void> writeBlock(int block, String data) async {
     String errString = "";
     CmdExitCode exitCode = await sendAtCommand("AT+WRT=$block,$data", 1000, [
@@ -102,7 +109,9 @@ class DeskIdNfc extends AtReaderCommon {
     }
   }
 
-  /// Read a single block of data
+  /// Read a single [block] of data
+  ///
+  /// Can throw a ReaderTimeoutException or a ReaderException.
   Future<String> readBlock(int block) async {
     String rcvData = "";
     String errString = "";
