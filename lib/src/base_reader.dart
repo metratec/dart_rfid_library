@@ -5,8 +5,6 @@ import 'dart:typed_data';
 import 'package:reader_library/reader_library.dart';
 import 'package:logger/logger.dart';
 
-enum ReaderState { undef, idle, busy, error }
-
 class Inventory {
   /// List of all received UIDs.
   List<String> uids = [];
@@ -16,13 +14,6 @@ abstract class BaseReader {
   /// Interface for low level communication
   final CommInterface _commInterface;
   StreamSubscription? _rxSub;
-
-  /// Current state
-  ReaderState _state = ReaderState.undef;
-  String _stateDesc = "undefined";
-
-  /// Callback function definitions
-  void Function(ReaderState, String)? _statusCb;
 
   /// Logger
   final Logger _readerLogger = Logger();
@@ -71,37 +62,6 @@ abstract class BaseReader {
     await _rxSub?.cancel();
     await _commInterface.disconnect();
     _rxSub = null;
-  }
-
-  /// Set the status callback.
-  ///
-  /// The status [cb] will be called once the reader state changes.
-  void setStatusCb({Function(ReaderState, String)? cb}) {
-    _statusCb = cb;
-  }
-
-  /// Get the current reader state.
-  ReaderState getState() {
-    return _state;
-  }
-
-  /// Get the current state description.
-  String getStateDescription() {
-    return _stateDesc;
-  }
-
-  /// Set the state and description of the reader.
-  ///
-  /// Set a reader [state] and a [txt] description.
-  /// This function is called by the reader classes
-  /// and should never be called from user code.
-  void setStateAndDesc(ReaderState state, String txt) {
-    _state = state;
-    _stateDesc = txt;
-
-    if (_statusCb != null) {
-      _statusCb!(_state, _stateDesc);
-    }
   }
 
   /// Write [data] directly to the comm interface.

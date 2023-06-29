@@ -1,4 +1,4 @@
-export 'base_reader.dart' show BaseReader, ReaderState, Inventory;
+export 'base_reader.dart' show BaseReader, Inventory;
 export 'at_reader.dart' show AtReader, CmdExitCode, AtReaderInfo;
 export 'reader_exception.dart' show ReaderCommException;
 export 'at_reader/at_reader_common.dart' show AtReaderCommon;
