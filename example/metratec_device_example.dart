@@ -32,6 +32,15 @@ void main() async {
   print("SER: ${info.serial}");
 
   try {
+    await reader.setHeartBeat(5, () {
+      print("No heartbeat received! Device dead?");
+    });
+  } catch (e) {
+    print("Setting heartbeat failed!");
+    return;
+  }
+
+  try {
     print("Mfc test:");
     stdout.write("Setting mode to ISO14A... ");
     await reader.setMode(DeskIdNfcMode.iso14a);
@@ -71,9 +80,11 @@ void main() async {
   }
 
   await reader.startContinuousInventory();
-  await Future.delayed(Duration(seconds: 5));
+  await Future.delayed(Duration(seconds: 10));
   await reader.stopContinuousInventory();
   cinvSub.cancel();
+
+  await reader.stopHeartBeat();
 
   reader.disconnect();
 }

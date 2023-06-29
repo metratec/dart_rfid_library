@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:async/async.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/at_reader.dart';
 import 'package:reader_library/src/reader_exception.dart';
@@ -6,8 +9,48 @@ class AtReaderCommon extends AtReader {
   // Buffer for continuous inventory
   final Inventory _cinvBuffer = Inventory();
 
+  // Heartbeat handling
+  RestartableTimer? _heartBeatTimer;
+
   AtReaderCommon(super.commInterface) {
     registerUrc(AtUrc("+CINV", _handleCinvUrc));
+    registerUrc(AtUrc("+HBT", _handleHbtUrc));
+  }
+
+  void _handleHbtUrc(String data) {
+    _heartBeatTimer?.reset();
+  }
+
+  /// Set the heartbeat of the reader.
+  ///
+  /// The heartbeat is given in [seconds]. If no heartbeat
+  /// is received for seconds + 4 seconds [onTimeout] will
+  /// be called.
+  Future<void> setHeartBeat(int seconds, Function onTimeout) async {
+    CmdExitCode exitCode = await sendAtCommand("AT+HBT=$seconds", 500, []);
+    if (exitCode == CmdExitCode.timeout) {
+      throw ReaderTimeoutException("HBT failed due to timeout");
+    } else if (exitCode != CmdExitCode.ok) {
+      throw ReaderException("HBT failed with $exitCode");
+    }
+
+    _heartBeatTimer = RestartableTimer(Duration(seconds: seconds + 4), () {
+      _heartBeatTimer = null;
+      onTimeout();
+    });
+  }
+
+  /// Stop the heartbeat detection.
+  Future<void> stopHeartBeat() async {
+    _heartBeatTimer?.cancel();
+    _heartBeatTimer = null;
+
+    CmdExitCode exitCode = await sendAtCommand("AT+HBT=0", 500, []);
+    if (exitCode == CmdExitCode.timeout) {
+      throw ReaderTimeoutException("HBT failed due to timeout");
+    } else if (exitCode != CmdExitCode.ok) {
+      throw ReaderException("HBT failed with $exitCode");
+    }
   }
 
   /// Start a continuous inventory.
