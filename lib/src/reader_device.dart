@@ -9,8 +9,6 @@ class ReaderDevice extends GenericDevice {
 
   Stream<Inventory>? getInventoryStream() => _reader?.getInventoryStream();
 
-  /// [onRxData] and [onMetraTecEvent] are ignored as the data is handled internally
-  ///
   /// Use [inventoryStream] instead to gain access to parsed rx data
   @override
   Future<bool> connect({
@@ -20,6 +18,8 @@ class ReaderDevice extends GenericDevice {
     void Function(Object?, StackTrace)? onError,
   }) async {
     return super.connect(
+      onRxData: onRxData,
+      onMetraTecEvent: onMetraTecEvent,
       rawStream: false,
       onError: onError,
     );
@@ -27,12 +27,12 @@ class ReaderDevice extends GenericDevice {
 
   @override
   Future<bool> identify({bool isFirmwareInfoRequired = true, bool isHardwareInfoRequired = true}) async {
-    var value = await super.identify(
+    final identifySuccessful = await super.identify(
       isFirmwareInfoRequired: isFirmwareInfoRequired,
       isHardwareInfoRequired: isHardwareInfoRequired,
     );
 
-    if (value) {
+    if (identifySuccessful) {
       switch (deviceInfo.hardwareName) {
         case "DeskID_NFC":
           _reader = DeskIdNfc(commInterface);
@@ -40,7 +40,7 @@ class ReaderDevice extends GenericDevice {
       }
     }
 
-    return value;
+    return identifySuccessful;
   }
 
   /// Run a single inventory.
@@ -52,7 +52,7 @@ class ReaderDevice extends GenericDevice {
   /// !: Throws an [ArgumentError.notNull] if called before the reader has been identified
   Future<Inventory> inventory() async {
     if (_reader == null) {
-      throw ArgumentError.notNull("Reader must be connected before calling inventory");
+      throw ArgumentError.notNull("_reader");
     }
 
     return _reader!.inventory();
@@ -69,7 +69,7 @@ class ReaderDevice extends GenericDevice {
   /// !: Throws an [ArgumentError.notNull] if called before the reader has been identified
   Future<void> startContInventory() async {
     if (_reader == null) {
-      throw ArgumentError.notNull("Reader must be connected before calling startContInventory");
+      throw ArgumentError.notNull("_reader");
     }
 
     _reader!.startContinuousInventory();
@@ -86,7 +86,7 @@ class ReaderDevice extends GenericDevice {
   /// !: Throws an [ArgumentError.notNull] if called before the reader has been identified
   Future<void> stopContInventory() async {
     if (_reader == null) {
-      throw ArgumentError.notNull("Reader must be connected before calling stopContInventory");
+      throw ArgumentError.notNull("_reader");
     }
 
     _reader!.stopContinuousInventory();
