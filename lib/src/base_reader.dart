@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:reader_library/reader_library.dart';
 import 'package:logger/logger.dart';
+import 'package:reader_library/reader_library.dart';
 
 class Inventory {
   /// List of all received UIDs.
@@ -81,4 +81,27 @@ abstract class BaseReader {
   /// protocol abstractions. Never call from
   /// user code!
   void handleRxData(String rx);
+
+  /// Run a single inventory.
+  ///
+  /// !: Throws an [UnsupportedError] if the reader does not support [inventory]
+  Future<Inventory> inventory() => throw UnsupportedError("Reader does not support inventory");
+
+  /// Start a continuous inventory.
+  ///
+  /// The inventories can be retrieved through [getInventoryStream].
+  ///
+  /// !: Can throw a [ReaderTimeoutException] or a [ReaderException].
+  ///
+  /// !: Throws an [UnsupportedError] if the reader does not support [startContinuousInventory]
+  Future<void> startContinuousInventory() => throw UnsupportedError("Reader does not support startContinuousInventory");
+
+  /// Stops a running continuous inventory.
+  ///
+  /// The inventories can be retrieved through [getInventoryStream].
+  ///
+  /// !: Can throw a [ReaderTimeoutException] or a [ReaderException].
+  ///
+  /// !: Throws an [UnsupportedError] if the reader does not support [startContinuousInventory]
+  Future<void> stopContinuousInventory() => throw UnsupportedError("Reader does not support stopContinuousInventory");
 }

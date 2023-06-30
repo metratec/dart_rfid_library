@@ -20,5 +20,5 @@ dependencies:
     # path: ../metratec_device
     git:
       url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
-    #   ref: 1.1.0
+      ref: identifiable-device
   string_validator: ^0.3.0

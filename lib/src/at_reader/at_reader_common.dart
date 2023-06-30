@@ -57,6 +57,7 @@ class AtReaderCommon extends AtReader {
   ///
   /// The inventories can be retrieved through `getInventoryStream()`.
   /// Can throw a ReaderTimeoutException or a ReaderException.
+  @override
   Future<void> startContinuousInventory() async {
     CmdExitCode exitCode = await sendAtCommand("AT+CINV", 500, []);
     if (exitCode == CmdExitCode.timeout) {
@@ -69,6 +70,7 @@ class AtReaderCommon extends AtReader {
   /// Stops a running continuous inventory.
   ///
   /// Can throw a ReaderTimeoutException or a ReaderException.
+  @override
   Future<void> stopContinuousInventory() async {
     CmdExitCode exitCode = await sendAtCommand("AT+BINV", 500, []);
     if (exitCode == CmdExitCode.timeout) {
@@ -129,6 +131,7 @@ class AtReaderCommon extends AtReader {
   }
 
   /// Run a single inventory.
+  @override
   Future<Inventory> inventory() async {
     Inventory inv = Inventory();
 
