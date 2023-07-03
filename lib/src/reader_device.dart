@@ -17,8 +17,8 @@ class ReaderDevice extends GenericDevice {
     );
 
     if (identifySuccessful) {
-      switch (deviceInfo.hardwareName) {
-        case "DeskID_NFC":
+      switch (deviceInfo.hardwareName?.toUpperCase()) {
+        case "DESKID_NFC":
           _reader = DeskIdNfc(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
           break;
@@ -26,11 +26,11 @@ class ReaderDevice extends GenericDevice {
           _reader = AtReaderCommon(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
           break;
-        case "Dwarf_NFC":
+        case "DWARF_NFC":
           _reader = AtReaderCommon(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
           break;
-        case "PulsarLR":
+        case "PULSARLR":
           _reader = AtReaderCommon(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
           break;
@@ -38,7 +38,7 @@ class ReaderDevice extends GenericDevice {
           _reader = AtReaderCommon(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
           break;
-        case "DeskID_UHF_v2":
+        case "DESKID_UHF_V2":
           _reader = AtReaderCommon(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
           break;
