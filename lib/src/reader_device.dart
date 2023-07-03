@@ -9,22 +9,6 @@ class ReaderDevice extends GenericDevice {
 
   Stream<Inventory>? getInventoryStream() => _reader?.getInventoryStream();
 
-  /// Use [inventoryStream] instead to gain access to parsed rx data
-  @override
-  Future<bool> connect({
-    bool rawStream = false,
-    void Function(dynamic)? onRxData,
-    void Function(MetraTecEvent)? onMetraTecEvent,
-    void Function(Object?, StackTrace)? onError,
-  }) async {
-    return super.connect(
-      onRxData: onRxData,
-      onMetraTecEvent: onMetraTecEvent,
-      rawStream: false,
-      onError: onError,
-    );
-  }
-
   @override
   Future<bool> identify({bool isFirmwareInfoRequired = true, bool isHardwareInfoRequired = true}) async {
     final identifySuccessful = await super.identify(
@@ -37,6 +21,27 @@ class ReaderDevice extends GenericDevice {
         case "DeskID_NFC":
           _reader = DeskIdNfc(commInterface);
           onRxData = (data) => _reader?.handleRxData(data as String);
+          break;
+        case "QR_NFC":
+          _reader = AtReaderCommon(commInterface);
+          onRxData = (data) => _reader?.handleRxData(data as String);
+          break;
+        case "Dwarf_NFC":
+          _reader = AtReaderCommon(commInterface);
+          onRxData = (data) => _reader?.handleRxData(data as String);
+          break;
+        case "PulsarLR":
+          _reader = AtReaderCommon(commInterface);
+          onRxData = (data) => _reader?.handleRxData(data as String);
+          break;
+        case "QRG2":
+          _reader = AtReaderCommon(commInterface);
+          onRxData = (data) => _reader?.handleRxData(data as String);
+          break;
+        case "DeskID_UHF_v2":
+          _reader = AtReaderCommon(commInterface);
+          onRxData = (data) => _reader?.handleRxData(data as String);
+          break;
       }
     }
 
