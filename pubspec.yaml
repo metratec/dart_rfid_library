@@ -14,11 +14,12 @@ dev_dependencies:
 
 dependencies:
   async: ^2.11.0
+  collection: ^1.17.1
   libserialport: ^0.3.0+1
   logger: ^1.4.0
   metratec_device:
     # path: ../metratec_device
     git:
       url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
-      ref: identifiable-device
+      ref: master
   string_validator: ^0.3.0
