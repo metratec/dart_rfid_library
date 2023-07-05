@@ -11,3 +11,5 @@ pubspec.lock
 
 # Android stuido settings
 .idea/
+
+.flutter-*
