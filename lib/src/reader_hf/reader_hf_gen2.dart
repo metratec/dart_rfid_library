@@ -9,8 +9,7 @@ import 'package:reader_library/src/utils/convert.dart';
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
 
-  HfReaderGen2(CommInterface commInterface)
-      : super(ParserAt(commInterface, "\r")) {
+  HfReaderGen2(CommInterface commInterface) : super(ParserAt(commInterface, "\r")) {
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
     registerEvent(ParserResponse("+HBT", _handleHbtUrc));
   }
@@ -27,7 +26,7 @@ class HfReaderGen2 extends HfReader {
     }
 
     String uid = line.split(': ').last;
-    _inventory.add(HfTag(uid));
+    _inventory.add(HfTag(uid, "Unknown"));
   }
 
   void _handleHbtUrc(String line) {
@@ -55,7 +54,7 @@ class HfReaderGen2 extends HfReader {
             return;
           }
 
-          inv.add(HfTag(line));
+          inv.add(HfTag(line, "Unknown"));
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -77,8 +76,7 @@ class HfReaderGen2 extends HfReader {
     String error = "";
 
     try {
-      CmdExitCode exitCode =
-          await sendCommand("AT+AUT=$block,$keyString,$typeString", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+AUT=$block,$keyString,$typeString", 1000, [
         ParserResponse("+AUT", (line) {
           error = line;
         })
@@ -95,8 +93,7 @@ class HfReaderGen2 extends HfReader {
     String dataString = uint8ListToString(data);
 
     try {
-      CmdExitCode exitCode =
-          await sendCommand("AT+WRT=$block,$dataString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$dataString", 2000, [
         ParserResponse("+WRT", (line) {
           error = line;
         })
@@ -165,8 +162,7 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<void> startHeartBeat(
-      int seconds, Function onHbt, Function onTimeout) async {
+  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout) async {
     heartbeat.stop();
 
     try {

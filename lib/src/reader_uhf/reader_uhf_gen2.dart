@@ -1,5 +1,5 @@
-import 'dart:typed_data';
 import 'dart:core';
+import 'dart:typed_data';
 
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
@@ -7,11 +7,11 @@ import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
 import 'package:reader_library/src/utils/convert.dart';
-import 'package:reader_library/src/utils/tags.dart';
+import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 
 class UhfReaderGen2 extends UhfReader {
   UhfInvSettings? _cinvSettings;
-  final List<UhfInventoryEntry> _cinv = [];
+  final List<UhfInventoryResult> _cinv = [];
 
   UhfReaderGen2(CommInterface commInterface, UhfReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -33,13 +33,13 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     if (line.contains("ROUND FINISHED")) {
-      List<UhfInventoryEntry> inv = [];
+      List<UhfInventoryResult> inv = [];
       inv.addAll(_cinv);
       _cinv.clear();
 
       int antenna = _parseAntenna(line);
-      for (UhfInventoryEntry entry in inv) {
-        entry.antenna = antenna;
+      for (UhfInventoryResult entry in inv) {
+        entry.lastAntenna = antenna;
       }
 
       cinvStreamCtrl.add(inv);
@@ -53,7 +53,7 @@ class UhfReaderGen2 extends UhfReader {
       return;
     }
 
-    _cinv.add(UhfInventoryEntry(tag, 0, 1));
+    _cinv.add(UhfInventoryResult(tag: tag, lastAntenna: 0, count: 1, timestamp: DateTime.now()));
   }
 
   /// Parse the antenna number from a inventory report.
@@ -62,8 +62,7 @@ class UhfReaderGen2 extends UhfReader {
       return 0;
     }
 
-    return int.parse(line.split(',').last.split('=').last.replaceAll(">", ""),
-        radix: 10);
+    return int.parse(line.split(',').last.split('=').last.replaceAll(">", ""), radix: 10);
   }
 
   /// Parse a tag from an inventory response.
@@ -134,15 +133,13 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<void> setByteMask(
-      UhfMemoryBank bank, int start, Uint8List mask) async {
+  Future<void> setByteMask(UhfMemoryBank bank, int start, Uint8List mask) async {
     String error = "";
     String maskString = uint8ListToString(mask);
     String bankString = bank.toString().split('.').last;
 
     try {
-      CmdExitCode exitCode =
-          await sendCommand("AT+MSK=$bankString,$start,$maskString", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+MSK=$bankString,$start,$maskString", 1000, [
         ParserResponse("+MSK", (line) {
           error = line;
         })
@@ -178,8 +175,7 @@ class UhfReaderGen2 extends UhfReader {
 
     try {
       CmdExitCode exitCode = await sendCommand(
-          "AT+INVS=${_boolTo01(settings.ont)},${_boolTo01(settings.rssi)},${_boolTo01(settings.tid)}",
-          1000, [
+          "AT+INVS=${_boolTo01(settings.ont)},${_boolTo01(settings.rssi)},${_boolTo01(settings.tid)}", 1000, [
         ParserResponse("+INVS", (line) {
           error = line;
         })
@@ -193,8 +189,7 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<void> setOutputPower(int val) async {
     if (val < settings.minPower || val > settings.maxPower) {
-      throw ReaderException(
-          "Power value not in range [${settings.minPower}, ${settings.maxPower}]");
+      throw ReaderException("Power value not in range [${settings.minPower}, ${settings.maxPower}]");
     }
 
     String error = "";
@@ -214,14 +209,11 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<void> setQ(int val, int min, int max) async {
     if (val < UhfReaderSettings.minQ || val > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     } else if (min < UhfReaderSettings.minQ || min > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q min not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q min not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     } else if (max < UhfReaderSettings.minQ || max > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q max not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q max not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     } else if (min > max) {
       throw ReaderException("Q min greater than Q max");
     }
@@ -243,8 +235,7 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<void> setQStart(int val) async {
     if (val < UhfReaderSettings.minQ || val > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     }
 
     String error = "";
@@ -291,8 +282,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<void> startHeartBeat(
-      int seconds, Function onHbt, Function onTimeout) async {
+  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout) async {
     heartbeat.stop();
 
     try {
@@ -317,8 +307,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<List<UhfRwResult>> write(UhfMemoryBank bank, int start, Uint8List data,
-      {Uint8List? mask}) async {
+  Future<List<UhfRwResult>> write(UhfMemoryBank bank, int start, Uint8List data, {Uint8List? mask}) async {
     String error = "";
     String bankString = bank.toString().split('.').last;
     String maskString = mask == null ? "" : ",${uint8ListToString(mask)}";
@@ -326,8 +315,7 @@ class UhfReaderGen2 extends UhfReader {
     List<UhfRwResult> res = [];
 
     try {
-      CmdExitCode exitCode = await sendCommand(
-          "AT+WRT=$bankString,$start,$dataString$maskString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$bankString,$start,$dataString$maskString", 2000, [
         ParserResponse("+WRT", (line) {
           if (line.contains("<")) {
             error = line;
@@ -347,16 +335,14 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<List<UhfRwResult>> read(UhfMemoryBank bank, int start, int length,
-      {Uint8List? mask}) async {
+  Future<List<UhfRwResult>> read(UhfMemoryBank bank, int start, int length, {Uint8List? mask}) async {
     List<UhfRwResult> res = [];
     String error = "";
     String bankString = bank.toString().split('.').last;
     String maskString = mask == null ? "" : ",${uint8ListToString(mask)}";
 
     try {
-      CmdExitCode exitCode = await sendCommand(
-          "AT+READ=$bankString,$start,$length$maskString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+READ=$bankString,$start,$length$maskString", 2000, [
         ParserResponse("+READ", (line) {
           if (line.contains("<")) {
             error = line;

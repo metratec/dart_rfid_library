@@ -48,24 +48,6 @@ class UhfInvSettings {
   }
 }
 
-class UhfInventoryEntry {
-  /// Uhf tag information
-  UhfTag tag;
-
-  /// Antenna on which the tag was detected
-  int antenna;
-
-  /// How many times the tag was seen
-  int timesSeen;
-
-  UhfInventoryEntry(this.tag, this.antenna, this.timesSeen);
-
-  @override
-  String toString() {
-    return "TAG=$tag;ANT=$antenna;SEEN=$timesSeen";
-  }
-}
-
 class UhfRwResult {
   /// EPC of the tag read/written
   String epc;
@@ -94,8 +76,7 @@ abstract class UhfReader extends Reader {
   Heartbeat heartbeat = Heartbeat();
 
   /// Stream for continuous inventory.
-  StreamController<List<UhfInventoryEntry>> cinvStreamCtrl =
-      StreamController.broadcast();
+  StreamController<List<InventoryResult>> cinvStreamCtrl = StreamController.broadcast();
 
   /// Settings for the reader.
   final UhfReaderSettings settings;
@@ -187,19 +168,17 @@ abstract class UhfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<UhfRwResult>> write(UhfMemoryBank bank, int start, Uint8List data,
-      {Uint8List? mask});
+  Future<List<UhfRwResult>> write(UhfMemoryBank bank, int start, Uint8List data, {Uint8List? mask});
 
   /// Read data of [length] n from memory [bank] starting at [start].
   /// Optionally an epc [mask] can be given.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<UhfRwResult>> read(UhfMemoryBank bank, int start, int length,
-      {Uint8List? mask});
+  Future<List<UhfRwResult>> read(UhfMemoryBank bank, int start, int length, {Uint8List? mask});
 
   /// Get the tag stream for continuous inventories.
-  Stream<List<UhfInventoryEntry>> getInvStream() {
+  Stream<List<InventoryResult>> getInvStream() {
     return cinvStreamCtrl.stream;
   }
 }
