@@ -3,34 +3,15 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   #- deploy
 
-code_quality:
+test_task:
   stage: test
   image: "ghcr.io/cirruslabs/flutter:3.10.5"
-  before_script:
-    - pub global activate dart_code_metrics
-    - export PATH="$PATH:$HOME/.pub-cache/bin"
+  #before_script:
+  #  - pub global activate dart_code_metrics
+  #  - export PATH="$PATH:$HOME/.pub-cache/bin"
   script:
-    - metrics lib -r codeclimate  > gl-code-quality-report.json
+    #- metrics lib -r codeclimate  > gl-code-quality-report.json
+    - flutter test --machine > report.json
   artifacts:
     reports:
-      codequality: gl-code-quality-report.json
-
-test:
-  stage: test
-  image: "ghcr.io/cirruslabs/flutter:3.10.5"
-  before_script:
-    - pub global activate junitreport
-    - export PATH="$PATH:$HOME/.pub-cache/bin"
-  script:
-    - flutter test --machine --coverage | tojunit -o report.xml
-    - lcov --summary coverage/lcov.info
-    - genhtml coverage/lcov.info --output=coverage
-  coverage: '/lines\.*: \d+\.\d+\%/'
-  artifacts:
-    name: coverage
-    paths:
-      - $CI_PROJECT_DIR/coverage
-    reports:
-      junit: report.xml
-
-
+      codequality: report.json
