@@ -1,17 +1,19 @@
 import 'dart:core';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
-import 'package:reader_library/src/utils/convert.dart';
+import 'package:reader_library/src/utils/extensions.dart';
 import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 
 class UhfReaderGen2 extends UhfReader {
   UhfInvSettings? _cinvSettings;
   final List<UhfInventoryResult> _cinv = [];
+  final RegExp _hexRegEx = RegExp(r"^[a-fA-F0-9]+$");
 
   UhfReaderGen2(CommInterface commInterface, UhfReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -133,13 +135,16 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<void> setByteMask(UhfMemoryBank bank, int start, Uint8List mask) async {
-    String error = "";
-    String maskString = uint8ListToString(mask);
-    String bankString = bank.toString().split('.').last;
+  Future<void> setByteMask(String memBank, int start, String mask) async {
+    if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
+      throw ReaderException("Unsupported memory bank: $memBank");
+    } else if (!_hexRegEx.hasMatch(mask)) {
+      throw ReaderException("Unsupported mask! Must be a hex string");
+    }
 
+    String error = "";
     try {
-      CmdExitCode exitCode = await sendCommand("AT+MSK=$bankString,$start,$maskString", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+MSK=$memBank,$start,$mask", 1000, [
         ParserResponse("+MSK", (line) {
           error = line;
         })
@@ -307,15 +312,21 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<List<UhfRwResult>> write(UhfMemoryBank bank, int start, Uint8List data, {Uint8List? mask}) async {
+  Future<List<UhfRwResult>> write(String memBank, int start, String data, {String? mask}) async {
+    if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
+      throw ReaderException("Unsupported memory bank: $memBank");
+    } else if (!_hexRegEx.hasMatch(data)) {
+      throw ReaderException("Unsupported data! Must be a hex string");
+    } else if (mask != null && !_hexRegEx.hasMatch(mask)) {
+      throw ReaderException("Unsupported mask! Must be a hex string");
+    }
+
     String error = "";
-    String bankString = bank.toString().split('.').last;
-    String maskString = mask == null ? "" : ",${uint8ListToString(mask)}";
-    String dataString = uint8ListToString(data);
+    String maskString = mask == null ? "" : ",$mask";
     List<UhfRwResult> res = [];
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WRT=$bankString,$start,$dataString$maskString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$memBank,$start,$data$maskString", 2000, [
         ParserResponse("+WRT", (line) {
           if (line.contains("<")) {
             error = line;
@@ -335,14 +346,19 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<List<UhfRwResult>> read(UhfMemoryBank bank, int start, int length, {Uint8List? mask}) async {
+  Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask}) async {
+    if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
+      throw ReaderException("Unsupported memory bank: $memBank");
+    } else if (mask != null && !_hexRegEx.hasMatch(mask)) {
+      throw ReaderException("Unsupported mask! Must be a hex string");
+    }
+
     List<UhfRwResult> res = [];
     String error = "";
-    String bankString = bank.toString().split('.').last;
-    String maskString = mask == null ? "" : ",${uint8ListToString(mask)}";
+    String maskString = mask == null ? "" : ",$mask";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+READ=$bankString,$start,$length$maskString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+READ=$memBank,$start,$length$maskString", 2000, [
         ParserResponse("+READ", (line) {
           if (line.contains("<")) {
             error = line;
@@ -351,7 +367,7 @@ class UhfReaderGen2 extends UhfReader {
 
           List<String> tokens = line.split(',');
           if (tokens[1] == "OK") {
-            res.add(UhfRwResult(tokens[0], true, stringToUint8List(tokens[2])));
+            res.add(UhfRwResult(tokens[0], true, tokens[2].hexStringToBytes()));
           } else {
             res.add(UhfRwResult(tokens[0], false, Uint8List(0)));
           }

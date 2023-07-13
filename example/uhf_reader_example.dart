@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
+import 'package:reader_library/src/utils/extensions.dart';
 
 Future<void> _heartbeatTest(UhfReader reader) async {
   stdout.write("Starting heartbeat... ");
@@ -74,17 +75,17 @@ void main() async {
 
     Uint8List data = Uint8List.fromList([0xDE, 0xAD, 0xBE, 0xEF]);
     stdout.write("Writing data to USR: $data... ");
-    List<UhfRwResult> writeRes = await reader.write(UhfMemoryBank.USR, 0, data);
+    List<UhfRwResult> writeRes = await reader.write(UhfMemoryBank.usr.protocolString, 0, data.toHexString());
     stdout.writeln("Done!");
     stdout.writeln(writeRes);
 
     stdout.write("Reading data from USR... ");
-    List<UhfRwResult> readRes = await reader.read(UhfMemoryBank.USR, 0, 4);
+    List<UhfRwResult> readRes = await reader.read(UhfMemoryBank.usr.protocolString, 0, 4);
     stdout.writeln("Done!");
     stdout.writeln(readRes);
 
     stdout.write("Setting mask to 0x2993... ");
-    await reader.setByteMask(UhfMemoryBank.EPC, 10, Uint8List.fromList([0x29, 0x93]));
+    await reader.setByteMask(UhfMemoryBank.epc.protocolString, 10, Uint8List.fromList([0x29, 0x93]).toHexString());
     stdout.writeln("Done!");
 
     stdout.write("Running inventory... ");

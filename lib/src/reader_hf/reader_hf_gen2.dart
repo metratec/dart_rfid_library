@@ -4,7 +4,7 @@ import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/utils/convert.dart';
+import 'package:reader_library/src/utils/extensions.dart';
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
@@ -72,7 +72,7 @@ class HfReaderGen2 extends HfReader {
     }
 
     String typeString = keyType.toString().split('.').last;
-    String keyString = uint8ListToString(key);
+    String keyString = key.toHexString();
     String error = "";
 
     try {
@@ -90,7 +90,7 @@ class HfReaderGen2 extends HfReader {
   @override
   Future<void> write(Uint8List data, int block) async {
     String error = "";
-    String dataString = uint8ListToString(data);
+    String dataString = data.toHexString();
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$dataString", 2000, [
@@ -125,7 +125,7 @@ class HfReaderGen2 extends HfReader {
       throw ReaderException(e.toString());
     }
 
-    return stringToUint8List(data);
+    return data.hexStringToBytes();
   }
 
   @override

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
 
 /// Class for uhf reader settings.
@@ -27,7 +26,19 @@ class UhfReaderSettings {
 enum UhfReaderRegion { ETSI, ETSI_HIGH, FCC }
 
 /// Available memory banks on UHF tags
-enum UhfMemoryBank { PC, EPC, TID, USR }
+enum UhfMemoryBank {
+  pc,
+  epc,
+  tid,
+  usr;
+
+  String get protocolString => switch (this) {
+        UhfMemoryBank.pc => "PC",
+        UhfMemoryBank.epc => "EPC",
+        UhfMemoryBank.tid => "TID",
+        UhfMemoryBank.usr => "USR",
+      };
+}
 
 /// Settings for uhf inventories.
 class UhfInvSettings {
@@ -116,11 +127,11 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<UhfInvSettings> getInventorySettings();
 
-  /// Sets a byte [mask] for Memory bank [bank] starting at [start].
+  /// Sets a byte [mask] hex string for Memory bank [memBank] starting at [start].
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> setByteMask(UhfMemoryBank bank, int start, Uint8List mask);
+  Future<void> setByteMask(String memBank, int start, String mask);
 
   /// Clears set mask.
   ///
@@ -163,19 +174,19 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> stopHeartBeat();
 
-  /// Write [data] to memory [bank] starting at byte [start].
-  /// Optionally an epc [mask] can be given.
+  /// Write [data] to memory [memBank] starting at byte [start].
+  /// Optionally an epc [mask] hex string  can be given.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<UhfRwResult>> write(UhfMemoryBank bank, int start, Uint8List data, {Uint8List? mask});
+  Future<List<UhfRwResult>> write(String memBank, int start, String data, {String? mask});
 
-  /// Read data of [length] n from memory [bank] starting at [start].
-  /// Optionally an epc [mask] can be given.
+  /// Read data of [length] n from memory [memBank] starting at [start].
+  /// Optionally an epc [mask] hex string can be given.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<UhfRwResult>> read(UhfMemoryBank bank, int start, int length, {Uint8List? mask});
+  Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask});
 
   /// Get the tag stream for continuous inventories.
   Stream<List<InventoryResult>> getInvStream() {
