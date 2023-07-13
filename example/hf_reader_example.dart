@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:reader_library/reader_library.dart';
 import 'package:logger/logger.dart';
+import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
 
 Future<void> _readTest(HfReader reader) async {
@@ -29,24 +29,8 @@ Future<void> _readTest(HfReader reader) async {
   await reader.mfcAuth(6, mfcKey, MfcKeyType.A);
   stdout.writeln("Done!");
 
-  Uint8List data = Uint8List.fromList([
-    0xDE,
-    0xAD,
-    0xBE,
-    0xEF,
-    0xDE,
-    0xAD,
-    0xBE,
-    0xEF,
-    0xDE,
-    0xAD,
-    0xBE,
-    0xEF,
-    0xDE,
-    0xAD,
-    0xBE,
-    0xEF
-  ]);
+  Uint8List data = Uint8List.fromList(
+      [0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF]);
 
   stdout.write("Writing data: $data... ");
   await reader.write(data, 6);
@@ -112,7 +96,7 @@ void main() async {
 
   print("Connecting reader");
 
-  if (await reader.connect() == false) {
+  if (await reader.connect(onError: (ex, stack) => reader.disconnect()) == false) {
     print("Failed to connect");
     return;
   }

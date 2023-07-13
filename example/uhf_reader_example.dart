@@ -54,7 +54,7 @@ void main() async {
 
   print("Connecting reader");
 
-  if (await reader.connect() == false) {
+  if (await reader.connect(onError: (ex, stack) => reader.disconnect()) == false) {
     print("Failed to connect");
     return;
   }
@@ -84,8 +84,7 @@ void main() async {
     stdout.writeln(readRes);
 
     stdout.write("Setting mask to 0x2993... ");
-    await reader.setByteMask(
-        UhfMemoryBank.EPC, 10, Uint8List.fromList([0x29, 0x93]));
+    await reader.setByteMask(UhfMemoryBank.EPC, 10, Uint8List.fromList([0x29, 0x93]));
     stdout.writeln("Done!");
 
     stdout.write("Running inventory... ");
