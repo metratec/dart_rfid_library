@@ -54,12 +54,14 @@ abstract class Parser {
   /// Connect the low level communication interface.
   ///
   /// !: Will throw a [Exception] if already connected.
-  Future<bool> connect() async {
+  Future<bool> connect({required void Function(Object?, StackTrace) onError}) async {
     if (_commInterface.isConnected()) {
       throw Exception("Already connected");
     }
 
-    if (!await _commInterface.connect()) {
+    _commInterface.onSocketException = onError;
+
+    if (!await _commInterface.connect(onError: onError)) {
       return false;
     }
 
@@ -84,16 +86,14 @@ abstract class Parser {
   /// The [timeout] specifies the command timeout in milliseconds.
   /// !: Throws an [Exception] if a command is already running.
   /// !: Throws an [Exception] if sending the command fails.
-  Future<CmdExitCode> sendCommand(
-      String cmd, int timeout, List<ParserResponse> responses) async {
+  Future<CmdExitCode> sendCommand(String cmd, int timeout, List<ParserResponse> responses) async {
     if (responseEntry != null) {
       throw Exception("Another command is already running!");
     }
 
     responseEntry = ParserResponseEntry(responses);
 
-    if (_commInterface.write(Uint8List.fromList("$cmd$_eol".codeUnits)) ==
-        false) {
+    if (_commInterface.write(Uint8List.fromList("$cmd$_eol".codeUnits)) == false) {
       responseEntry = null;
       throw Exception("Sending command failed!");
     }

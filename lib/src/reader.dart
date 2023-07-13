@@ -16,8 +16,8 @@ abstract class Reader {
   /// communication interface and connect to the reader.
   /// This function will throw a ReaderCommException if
   /// the reader is already connected.
-  Future<bool> connect() async {
-    return _parser.connect();
+  Future<bool> connect({required void Function(Object?, StackTrace) onError}) async {
+    return _parser.connect(onError: onError);
   }
 
   /// Disconnect the reader.
@@ -31,8 +31,7 @@ abstract class Reader {
   /// Send a command.
   ///
   /// See Parser.sendCommand()
-  Future<CmdExitCode> sendCommand(
-      String cmd, int timeout, List<ParserResponse> responses) {
+  Future<CmdExitCode> sendCommand(String cmd, int timeout, List<ParserResponse> responses) {
     return _parser.sendCommand(cmd, timeout, responses);
   }
 
