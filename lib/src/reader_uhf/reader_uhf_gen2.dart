@@ -227,6 +227,31 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
+  Future<int> getOutputPower() async {
+    String error = "";
+    var power = settings.minPower;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+PWR?", 1000, [
+        ParserResponse("+PWR", (line) {
+          final split = line.split(":");
+          if (split.length < 2) {
+            return;
+          }
+
+          final powerString = split[1].split(",")[0];
+          power = int.tryParse(powerString) ?? settings.minPower;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return power;
+  }
+
+  @override
   Future<void> setOutputPower(int val) async {
     if (val < settings.minPower || val > settings.maxPower) {
       throw ReaderException("Power value not in range [${settings.minPower}, ${settings.maxPower}]");
@@ -244,6 +269,38 @@ class UhfReaderGen2 extends UhfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+  }
+
+  @override
+  Future<(int, int, int)> getQ() async {
+    String error = "";
+    var qValues = (0, 0, 0);
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+Q?", 1000, [
+        ParserResponse("+Q", (line) {
+          final split = line.split(":");
+          if (split.length < 2) {
+            return;
+          }
+          final splitValues = split[1].split(",");
+          if (split.length != 3) {
+            return;
+          }
+
+          qValues = (
+            int.tryParse(splitValues[0]) ?? UhfReaderSettings.minQ,
+            int.tryParse(splitValues[1]) ?? UhfReaderSettings.minQ,
+            int.tryParse(splitValues[2]) ?? UhfReaderSettings.maxQ,
+          );
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return qValues;
   }
 
   @override

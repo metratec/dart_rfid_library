@@ -98,6 +98,12 @@ abstract class UhfReader extends Reader {
 
   // TODO: add all uhf functions here
 
+  /// Returns the output power of the reader
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<int> getOutputPower();
+
   /// Set the output power of the reader to [val].
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
@@ -115,6 +121,12 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setQ(int val, int min, int max);
+
+  /// Returns the initial Q, min Q and max Q in a tuple.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(int, int, int)> getQ();
 
   /// Set the inventory output format.
   ///
