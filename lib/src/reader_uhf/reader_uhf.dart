@@ -94,6 +94,8 @@ abstract class UhfReader extends Reader {
 
   UhfReader(super.parser, this.settings);
 
+  int invAntenna = 1;
+
   // TODO: add all uhf functions here
 
   /// Set the output power of the reader to [val].
@@ -145,7 +147,7 @@ abstract class UhfReader extends Reader {
   /// The output format depends on the settings given to setInventoryFormat()
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<UhfTag>> inventory();
+  Future<List<InventoryResult>> inventory();
 
   /// Starts a continuous inventory.
   ///

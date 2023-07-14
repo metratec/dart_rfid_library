@@ -69,7 +69,7 @@ void main() async {
 
     stdout.write("Running inventory... ");
     await reader.setInventorySettings(UhfInvSettings(false, true, true));
-    List<UhfTag> inventory = await reader.inventory();
+    List<InventoryResult> inventory = await reader.inventory();
     stdout.writeln("Done!");
     print(inventory);
 
