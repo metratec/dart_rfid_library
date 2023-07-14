@@ -26,12 +26,12 @@ class UhfInventoryResult extends InventoryResult {
     super.count = 1,
   });
 
-  static List<String> getTableHeaders({bool withTid = false, bool withRssi = false}) => [
+  static List<String> getTableHeaders({bool withTid = false, bool withRssi = false, bool withAntenna = false,}) => [
         "EPC",
         if (withTid) "TID",
         if (withRssi) "RSSI",
         "Timestamp",
-        "Last Antenna",
+        if (withAntenna) "Last Antenna",
         "Count",
       ];
 
