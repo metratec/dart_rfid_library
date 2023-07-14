@@ -98,7 +98,7 @@ class UhfReaderGen2 extends UhfReader {
     UhfInvSettings invSettings = await getInventorySettings();
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+ANT", 5000, [
+      CmdExitCode exitCode = await sendCommand("AT+INV", 5000, [
         ParserResponse("+INV", (line) {
           if (line.contains("<")) {
             return;
