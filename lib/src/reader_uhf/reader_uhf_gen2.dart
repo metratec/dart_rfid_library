@@ -234,12 +234,7 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+PWR?", 1000, [
         ParserResponse("+PWR", (line) {
-          final split = line.split(":");
-          if (split.length < 2) {
-            return;
-          }
-
-          final powerString = split[1].split(",")[0];
+          final powerString = line.split(",")[0];
           power = int.tryParse(powerString) ?? settings.minPower;
         })
       ]);
@@ -279,12 +274,8 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+Q?", 1000, [
         ParserResponse("+Q", (line) {
-          final split = line.split(":");
-          if (split.length < 2) {
-            return;
-          }
-          final splitValues = split[1].split(",");
-          if (split.length != 3) {
+          final splitValues = line.split(",");
+          if (splitValues.length != 3) {
             return;
           }
 
