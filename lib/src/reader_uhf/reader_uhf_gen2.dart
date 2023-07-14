@@ -70,8 +70,7 @@ class UhfReaderGen2 extends UhfReader {
       return 0;
     }
 
-    return int.parse(line.split(',').last.split('=').last.replaceAll(">", ""),
-        radix: 10);
+    return int.parse(line.split(',').last.split('=').last.replaceAll(">", ""), radix: 10);
   }
 
   /// Parse a tag from an inventory response.
@@ -99,7 +98,7 @@ class UhfReaderGen2 extends UhfReader {
     UhfInvSettings invSettings = await getInventorySettings();
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+ANT?", 5000, [
+      CmdExitCode exitCode = await sendCommand("AT+ANT", 5000, [
         ParserResponse("+INV", (line) {
           if (line.contains("<")) {
             return;
@@ -180,8 +179,7 @@ class UhfReaderGen2 extends UhfReader {
 
     String error = "";
     try {
-      CmdExitCode exitCode =
-          await sendCommand("AT+MSK=$memBank,$start,$mask", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+MSK=$memBank,$start,$mask", 1000, [
         ParserResponse("+MSK", (line) {
           error = line;
         })
@@ -217,8 +215,7 @@ class UhfReaderGen2 extends UhfReader {
 
     try {
       CmdExitCode exitCode = await sendCommand(
-          "AT+INVS=${_boolTo01(settings.ont)},${_boolTo01(settings.rssi)},${_boolTo01(settings.tid)}",
-          1000, [
+          "AT+INVS=${_boolTo01(settings.ont)},${_boolTo01(settings.rssi)},${_boolTo01(settings.tid)}", 1000, [
         ParserResponse("+INVS", (line) {
           error = line;
         })
@@ -232,8 +229,7 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<void> setOutputPower(int val) async {
     if (val < settings.minPower || val > settings.maxPower) {
-      throw ReaderException(
-          "Power value not in range [${settings.minPower}, ${settings.maxPower}]");
+      throw ReaderException("Power value not in range [${settings.minPower}, ${settings.maxPower}]");
     }
 
     String error = "";
@@ -253,14 +249,11 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<void> setQ(int val, int min, int max) async {
     if (val < UhfReaderSettings.minQ || val > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     } else if (min < UhfReaderSettings.minQ || min > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q min not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q min not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     } else if (max < UhfReaderSettings.minQ || max > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q max not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q max not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     } else if (min > max) {
       throw ReaderException("Q min greater than Q max");
     }
@@ -282,8 +275,7 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<void> setQStart(int val) async {
     if (val < UhfReaderSettings.minQ || val > UhfReaderSettings.maxQ) {
-      throw ReaderException(
-          "Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
+      throw ReaderException("Q value not in range [${UhfReaderSettings.minQ}, ${UhfReaderSettings.maxQ}]");
     }
     final minValue = max(val - 2, UhfReaderSettings.minQ);
     final maxValue = min(val + 2, UhfReaderSettings.maxQ);
@@ -291,8 +283,7 @@ class UhfReaderGen2 extends UhfReader {
     String error = "";
 
     try {
-      CmdExitCode exitCode =
-          await sendCommand("AT+Q=$val,$minValue,$maxValue", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+Q=$val,$minValue,$maxValue", 1000, [
         ParserResponse("+Q", (line) {
           error = line;
         })
@@ -333,8 +324,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<void> startHeartBeat(
-      int seconds, Function onHbt, Function onTimeout) async {
+  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout) async {
     heartbeat.stop();
 
     try {
@@ -359,8 +349,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<List<UhfRwResult>> write(String memBank, int start, String data,
-      {String? mask}) async {
+  Future<List<UhfRwResult>> write(String memBank, int start, String data, {String? mask}) async {
     if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
     } else if (!_hexRegEx.hasMatch(data)) {
@@ -374,8 +363,7 @@ class UhfReaderGen2 extends UhfReader {
     List<UhfRwResult> res = [];
 
     try {
-      CmdExitCode exitCode =
-          await sendCommand("AT+WRT=$memBank,$start,$data$maskString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$memBank,$start,$data$maskString", 2000, [
         ParserResponse("+WRT", (line) {
           if (line.contains("<")) {
             error = line;
@@ -395,8 +383,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<List<UhfRwResult>> read(String memBank, int start, int length,
-      {String? mask}) async {
+  Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask}) async {
     if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
     } else if (mask != null && !_hexRegEx.hasMatch(mask)) {
@@ -408,8 +395,7 @@ class UhfReaderGen2 extends UhfReader {
     String maskString = mask == null ? "" : ",$mask";
 
     try {
-      CmdExitCode exitCode = await sendCommand(
-          "AT+READ=$memBank,$start,$length$maskString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+READ=$memBank,$start,$length$maskString", 2000, [
         ParserResponse("+READ", (line) {
           if (line.contains("<")) {
             error = line;
