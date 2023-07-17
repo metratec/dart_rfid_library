@@ -1,25 +1,51 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
+import 'package:reader_library/src/utils/reader_settings.dart';
 
 /// Class for uhf reader settings.
 /// These settings are set by specific reader implementations.
-class UhfReaderSettings {
-  /// Minimal output power value.
-  int minPower;
+class UhfReaderSettings extends ReaderSettings {
+  Iterable<int> possiblePowerValues = Iterable.generate(31);
+  Iterable<int> possibleQValues = Iterable.generate(16);
 
   /// Maximal output power value.
-  int maxPower;
+  int get maxPower => possiblePowerValues.fold(0, max);
 
-  /// Minimal Q value.
-  static const int minQ = 0;
+  /// Minimal output power value.
+  int get minPower => possiblePowerValues.fold(0, min);
 
   /// Maximal Q value.
-  static const int maxQ = 15;
+  int get maxQ => possiblePowerValues.fold(0, max);
 
-  UhfReaderSettings(this.minPower, this.maxPower);
+  /// Minimal Q value.
+  int get minQ => possiblePowerValues.fold(0, min);
+
+  UhfReaderSettings({required this.possiblePowerValues});
+
+  @override
+  List<ConfigElement> getConfigElements() {
+    return [
+      NumConfigElement<int>(
+        name: "Power",
+        value: null,
+        possibleValues: possiblePowerValues,
+      ),
+      NumConfigElement<int>(
+        name: "Q Value",
+        value: null,
+        possibleValues: possibleQValues,
+      ),
+      StringConfigElement(
+        name: "Region",
+        value: null,
+        possibleValues: ["ETSI", "ETSI_HIGH", "FCC"],
+      ),
+    ];
+  }
 }
 
 /// Region parameter
