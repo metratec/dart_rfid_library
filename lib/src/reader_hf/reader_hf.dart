@@ -2,8 +2,21 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
+import 'package:reader_library/src/utils/reader_settings.dart';
+
+class HfReaderSettings extends ReaderSettings {
+  @override
+  List<ConfigElement> getConfigElements() {
+    return [
+      StringConfigElement(
+        name: "Tag Type",
+        value: null,
+        possibleValues: ["Auto", "ISO15693", "Mifare", "NTAG"],
+      ),
+    ];
+  }
+}
 
 enum HfReaderMode { iso14a, iso15, auto }
 
@@ -21,7 +34,14 @@ abstract class HfReader extends Reader {
   /// Stream for continuous inventory.
   StreamController<List<HfTag>> cinvStreamCtrl = StreamController.broadcast();
 
-  HfReader(super.parser);
+  HfReader(super.parser, super.settings);
+
+  @override
+  HfReaderSettings get settings => super.settings as HfReaderSettings;
+
+  /// !: May throw an [Exception] if value is not an [HfReaderSettings] object
+  @override
+  set settings(ReaderSettings value) => super.settings = value as HfReaderSettings;
 
   // TODO: add all hf functions here
 

@@ -1,5 +1,6 @@
 import 'package:logger/logger.dart';
 import 'package:reader_library/src/parser/parser.dart';
+import 'package:reader_library/src/utils/reader_settings.dart';
 
 abstract class Reader {
   final Parser _parser;
@@ -8,7 +9,9 @@ abstract class Reader {
   final Logger _readerLogger = Logger();
   Logger get readerLogger => _readerLogger;
 
-  Reader(this._parser);
+  Reader(this._parser, this.settings);
+
+  ReaderSettings settings;
 
   /// Connect to the reader.
   ///

@@ -115,10 +115,14 @@ abstract class UhfReader extends Reader {
   /// Stream for continuous inventory.
   StreamController<List<InventoryResult>> cinvStreamCtrl = StreamController.broadcast();
 
-  /// Settings for the reader.
-  final UhfReaderSettings settings;
+  @override
+  UhfReaderSettings get settings => super.settings as UhfReaderSettings;
 
-  UhfReader(super.parser, this.settings);
+  /// !: May throw an [Exception] if value is not an [UhfReaderSettings] object
+  @override
+  set settings(ReaderSettings value) => super.settings = value as UhfReaderSettings;
+
+  UhfReader(super.parser, super.settings);
 
   int invAntenna = 1;
 

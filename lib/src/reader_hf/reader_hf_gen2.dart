@@ -4,12 +4,13 @@ import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/utils/extensions.dart';
+import 'package:reader_library/src/reader_hf/reader_hf.dart';
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
 
-  HfReaderGen2(CommInterface commInterface) : super(ParserAt(commInterface, "\r")) {
+  HfReaderGen2(CommInterface commInterface, HfReaderSettings settings)
+      : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
     registerEvent(ParserResponse("+HBT", _handleHbtUrc));
   }

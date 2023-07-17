@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:logger/logger.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
+import 'package:reader_library/src/reader_hf/reader_hf.dart';
 
 Future<void> _readTest(HfReader reader) async {
   stdout.write("Setting mode to iso14a... ");
@@ -92,7 +93,7 @@ void main() async {
 
   Logger.level = Level.error;
 
-  HfReader reader = HfReaderGen2(commInterface);
+  HfReader reader = HfReaderGen2(commInterface, HfReaderSettings());
 
   print("Connecting reader");
 
