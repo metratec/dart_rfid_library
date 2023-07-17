@@ -42,7 +42,7 @@ class UhfReaderSettings extends ReaderSettings {
       ),
       NumConfigElement<int>(
         name: "Q Value",
-        value: null,
+        value: currentQ,
         possibleValues: possibleQValues,
       ),
       StringConfigElement(
@@ -166,7 +166,7 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setQ(int val, int min, int max);
 
-  /// Returns the current Q valie
+  /// Returns the current Q value
   ///
   /// The value is also written into [settings]
   ///
