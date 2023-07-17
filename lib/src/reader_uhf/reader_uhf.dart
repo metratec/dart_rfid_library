@@ -11,6 +11,7 @@ import 'package:reader_library/src/utils/reader_settings.dart';
 class UhfReaderSettings extends ReaderSettings {
   Iterable<int> possiblePowerValues = Iterable.generate(31);
   Iterable<int> possibleQValues = Iterable.generate(16);
+  Iterable<String> possibleRegionValues = UhfReaderRegion.values.map((e) => e.protocolString);
 
   /// Maximal output power value.
   int get maxPower => possiblePowerValues.fold(0, max);
@@ -30,6 +31,9 @@ class UhfReaderSettings extends ReaderSettings {
   /// The current q value. Should always be set if the reader checks the q value
   int? currentQ;
 
+  /// The current region value. Should always be set if the reader checks the region value
+  String? currentRegion;
+
   UhfReaderSettings({required this.possiblePowerValues});
 
   @override
@@ -47,15 +51,25 @@ class UhfReaderSettings extends ReaderSettings {
       ),
       StringConfigElement(
         name: "Region",
-        value: null,
-        possibleValues: ["ETSI", "ETSI_HIGH", "FCC"],
+        value: currentRegion,
+        possibleValues: possibleRegionValues,
       ),
     ];
   }
 }
 
 /// Region parameter
-enum UhfReaderRegion { ETSI, ETSI_HIGH, FCC }
+enum UhfReaderRegion {
+  etsi,
+  etsiHigh,
+  fcc;
+
+  String get protocolString => switch (this) {
+        UhfReaderRegion.etsi => "ETSI",
+        UhfReaderRegion.etsiHigh => "ETSI_HIGH",
+        UhfReaderRegion.fcc => "FCC",
+      };
+}
 
 /// Available memory banks on UHF tags
 enum UhfMemoryBank {
@@ -173,6 +187,22 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<int> getQ();
+
+  /// Set the Region value to [val].
+  ///
+  /// The value is also written into [settings]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setRegion(String region);
+
+  /// Returns the current Region value
+  ///
+  /// The value is also written into [settings]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<UhfReaderRegion> getRegion();
 
   /// Set the inventory output format.
   ///

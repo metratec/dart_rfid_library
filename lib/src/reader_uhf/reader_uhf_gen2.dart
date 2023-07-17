@@ -345,6 +345,53 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
+  Future<UhfReaderRegion> getRegion() async {
+    String error = "";
+    String? region;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+REG?", 1000, [
+        ParserResponse("+REG", (line) {
+          region = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    UhfReaderRegion? regionValue = UhfReaderRegion.values.firstWhereOrNull((e) => e.protocolString == region);
+    if (regionValue == null) {
+      throw ReaderException("Received unsupported region: $region");
+    }
+
+    settings.currentRegion = region;
+    return regionValue;
+  }
+
+  @override
+  Future<void> setRegion(String region) async {
+    if (UhfReaderRegion.values.none((e) => e.protocolString == region)) {
+      throw ReaderException("Unsupported region: $region");
+    }
+
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+REG=$region", 1000, [
+        ParserResponse("+REG", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.currentRegion = region;
+  }
+
+  @override
   Future<UhfInvSettings> getInventorySettings() async {
     UhfInvSettings? invSettings;
     String error = "";
