@@ -125,8 +125,10 @@ class UhfReaderGen2 extends UhfReader {
         .toList();
   }
 
+  /// Sets the [invAntenna] field to its real value and return it afterwards
+  ///
+  /// Must only be called once. The [invAntenna] field can be used synchronously in most cases
   Future<int> getInvAntenna() async {
-    int antenna = 1;
     String error = "";
 
     try {
@@ -136,7 +138,7 @@ class UhfReaderGen2 extends UhfReader {
           if (split.length < 2) {
             return;
           }
-          antenna = int.tryParse(split[1]) ?? 1;
+          invAntenna = int.tryParse(split[1]) ?? invAntenna;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -144,7 +146,7 @@ class UhfReaderGen2 extends UhfReader {
       throw ReaderException(e.toString());
     }
 
-    return antenna;
+    return invAntenna;
   }
 
   @override
