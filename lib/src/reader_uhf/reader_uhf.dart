@@ -18,11 +18,17 @@ class UhfReaderSettings extends ReaderSettings {
   /// Minimal output power value.
   int get minPower => possiblePowerValues.fold(0, min);
 
+  /// The current power value. Should always be set if the reader checks the power value
+  int? currentPower;
+
   /// Maximal Q value.
   int get maxQ => possiblePowerValues.fold(0, max);
 
   /// Minimal Q value.
   int get minQ => possiblePowerValues.fold(0, min);
+
+  /// The current q value. Should always be set if the reader checks the q value
+  int? currentQ;
 
   UhfReaderSettings({required this.possiblePowerValues});
 
@@ -31,7 +37,7 @@ class UhfReaderSettings extends ReaderSettings {
     return [
       NumConfigElement<int>(
         name: "Power",
-        value: null,
+        value: currentPower,
         possibleValues: possiblePowerValues,
       ),
       NumConfigElement<int>(
@@ -130,11 +136,15 @@ abstract class UhfReader extends Reader {
 
   /// Returns the output power of the reader
   ///
+  /// The value is also written into [settings]
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<int> getOutputPower();
 
   /// Set the output power of the reader to [val].
+  ///
+  /// The value is also written into [settings]
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
@@ -142,21 +152,27 @@ abstract class UhfReader extends Reader {
 
   /// Set the starting Q value to [val].
   ///
+  /// The value is also written into [settings]
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setQStart(int val);
 
   /// Set the starting Q value to [val] and the range from [min] to [max].
   ///
+  /// The value is also written into [settings]
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setQ(int val, int min, int max);
 
-  /// Returns the initial Q, min Q and max Q in a tuple.
+  /// Returns the current Q valie
+  ///
+  /// The value is also written into [settings]
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<(int, int, int)> getQ();
+  Future<int> getQ();
 
   /// Set the inventory output format.
   ///

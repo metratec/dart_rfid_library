@@ -231,13 +231,12 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<int> getOutputPower() async {
     String error = "";
-    var power = settings.minPower;
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+PWR?", 1000, [
         ParserResponse("+PWR", (line) {
           final powerString = line.split(",")[0];
-          power = int.tryParse(powerString) ?? settings.minPower;
+          settings.currentPower = int.tryParse(powerString) ?? settings.minPower;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -245,7 +244,7 @@ class UhfReaderGen2 extends UhfReader {
       throw ReaderException(e.toString());
     }
 
-    return power;
+    return settings.currentPower!;
   }
 
   @override
@@ -266,12 +265,13 @@ class UhfReaderGen2 extends UhfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+
+    settings.currentPower = val;
   }
 
   @override
-  Future<(int, int, int)> getQ() async {
+  Future<int> getQ() async {
     String error = "";
-    var qValues = (0, 0, 0);
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+Q?", 1000, [
@@ -281,11 +281,7 @@ class UhfReaderGen2 extends UhfReader {
             return;
           }
 
-          qValues = (
-            int.tryParse(splitValues[0]) ?? settings.minQ,
-            int.tryParse(splitValues[1]) ?? settings.minQ,
-            int.tryParse(splitValues[2]) ?? settings.maxQ,
-          );
+          settings.currentQ = int.tryParse(splitValues[0]) ?? settings.minQ;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -293,7 +289,7 @@ class UhfReaderGen2 extends UhfReader {
       throw ReaderException(e.toString());
     }
 
-    return qValues;
+    return settings.currentQ!;
   }
 
   @override
@@ -320,6 +316,8 @@ class UhfReaderGen2 extends UhfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+
+    settings.currentQ = val;
   }
 
   @override
@@ -342,6 +340,8 @@ class UhfReaderGen2 extends UhfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+
+    settings.currentQ = val;
   }
 
   @override
