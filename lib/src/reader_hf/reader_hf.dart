@@ -5,9 +5,9 @@ import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
 import 'package:reader_library/src/utils/reader_settings.dart';
 
-class HfReaderSettings extends ReaderSettings {
+class HfReaderSettings extends ReaderSettings<HfReader> {
   @override
-  List<ConfigElement> getConfigElements() {
+  List<ConfigElement> getConfigElements(HfReader reader) {
     return [
       StringConfigElement(
         name: "Tag Type",

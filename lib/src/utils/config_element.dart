@@ -3,12 +3,14 @@ abstract class ConfigElement<T> {
   final Iterable<T>? possibleValues;
   final bool isEnum;
   T? value;
+  void Function(T)? setter;
 
   ConfigElement({
     required this.name,
     this.possibleValues,
     this.isEnum = false,
     this.value,
+    this.setter,
   });
 
   Map<String, dynamic> toJson() => {
@@ -30,6 +32,7 @@ class StringConfigElement extends ConfigElement<String> {
     super.possibleValues,
     super.isEnum = true,
     super.value,
+    super.setter,
   });
 
   @override
@@ -49,6 +52,7 @@ class NumConfigElement<T extends num> extends ConfigElement<T> {
     super.possibleValues,
     super.isEnum = false,
     super.value,
+    super.setter,
   });
 
   @override
@@ -66,6 +70,7 @@ class BoolConfigElement extends ConfigElement<bool> {
   BoolConfigElement({
     required super.name,
     super.value,
+    super.setter,
   });
 
   @override
