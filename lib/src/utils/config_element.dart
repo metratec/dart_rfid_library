@@ -42,6 +42,7 @@ class StringConfigElement extends ConfigElement<String> {
       value: value,
       possibleValues: possibleValues != null ? List.of(possibleValues!) : null,
       isEnum: isEnum,
+      setter: setter,
     );
   }
 }
@@ -62,6 +63,7 @@ class NumConfigElement<T extends num> extends ConfigElement<T> {
       value: value,
       possibleValues: possibleValues != null ? List.of(possibleValues!) : null,
       isEnum: isEnum,
+      setter: setter as void Function(num)?,
     );
   }
 }
@@ -78,6 +80,7 @@ class BoolConfigElement extends ConfigElement<bool> {
     return BoolConfigElement(
       name: name,
       value: value,
+      setter: setter,
     );
   }
 }
