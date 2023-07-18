@@ -398,7 +398,7 @@ class UhfReaderGen2 extends UhfReader {
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+MUX?", 1000, [
-        ParserResponse("AT+MUX?", (line) {
+        ParserResponse("MUX", (line) {
           // TODO AT+MUX support lists of ints so getMuxAntenna should support it too
           final splitValues = line.split(",");
           settings.currentMuxAntenna = int.tryParse(splitValues[0]) ?? settings.currentMuxAntenna;
@@ -409,7 +409,7 @@ class UhfReaderGen2 extends UhfReader {
       throw ReaderException(e.toString());
     }
 
-    return settings.currentMuxAntenna!;
+    return settings.currentMuxAntenna;
   }
 
   @override

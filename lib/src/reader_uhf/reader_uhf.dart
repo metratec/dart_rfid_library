@@ -35,7 +35,7 @@ class UhfReaderSettings extends ReaderSettings {
   String? currentRegion;
 
   /// The current mux antenna value. Should always be set if the reader checks the mux antenna value
-  int? currentMuxAntenna;
+  int currentMuxAntenna = 1;
 
   int antennaCount = 1;
 
