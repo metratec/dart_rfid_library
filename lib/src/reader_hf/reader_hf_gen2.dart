@@ -4,7 +4,6 @@ import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/reader_hf/reader_hf.dart';
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
@@ -17,8 +16,8 @@ class HfReaderGen2 extends HfReader {
 
   void _handleCinvUrc(String line) {
     if (line.contains("ROUND FINISHED")) {
-      List<HfTag> inv = [];
-      inv.addAll(_inventory);
+      List<HfInventoryResult> inv = [];
+      inv.addAll(_inventory.map((e) => HfInventoryResult(tag: e, timestamp: DateTime.now())));
       cinvStreamCtrl.add(inv);
       _inventory.clear();
       return;
@@ -43,8 +42,8 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<List<HfTag>> inventory() async {
-    List<HfTag> inv = [];
+  Future<List<HfInventoryResult>> inventory() async {
+    List<HfInventoryResult> inv = [];
     String error = "";
 
     try {
@@ -55,7 +54,7 @@ class HfReaderGen2 extends HfReader {
             return;
           }
 
-          inv.add(HfTag(line, "Unknown"));
+          inv.add(HfInventoryResult(tag: HfTag(line, "Unknown"), timestamp: DateTime.now()));
         })
       ]);
       _handleExitCode(exitCode, error);

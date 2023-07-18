@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:logger/logger.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/reader_hf/reader_hf.dart';
 
 Future<void> _readTest(HfReader reader) async {
   stdout.write("Setting mode to iso14a... ");
@@ -14,7 +13,7 @@ Future<void> _readTest(HfReader reader) async {
   stdout.writeln("Done!");
 
   stdout.write("Scanning for tags... ");
-  List<HfTag> inv = await reader.inventory();
+  List<HfInventoryResult> inv = await reader.inventory();
   if (inv.isEmpty) {
     stdout.writeln("No tags found!");
     return;
@@ -22,7 +21,7 @@ Future<void> _readTest(HfReader reader) async {
   stdout.writeln("Done!");
 
   stdout.write("Selecting tag... ");
-  await reader.selectTag(inv.first);
+  await reader.selectTag(inv.first.tag);
   stdout.writeln("Done!");
 
   stdout.write("Authenticating with default key...");

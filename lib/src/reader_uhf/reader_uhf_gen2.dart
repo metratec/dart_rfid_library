@@ -59,7 +59,6 @@ class UhfReaderGen2 extends UhfReader {
     _cinv.add(UhfInventoryResult(
       tag: tag,
       lastAntenna: 0,
-      count: 1,
       timestamp: DateTime.now(),
     ));
   }
