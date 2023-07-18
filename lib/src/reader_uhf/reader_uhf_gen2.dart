@@ -234,7 +234,9 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+PWR?", 1000, [
         ParserResponse("+PWR", (line) {
-          final powerString = line.split(",")[0];
+          final split = line.split(",");
+          settings.antennaCount = split.length;
+          final powerString = split[0];
           settings.currentPower = int.tryParse(powerString) ?? settings.minPower;
         })
       ]);
@@ -388,6 +390,49 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     settings.currentRegion = region;
+  }
+
+  @override
+  Future<int> getMuxAntenna() async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+MUX?", 1000, [
+        ParserResponse("AT+MUX?", (line) {
+          // TODO AT+MUX support lists of ints so getMuxAntenna should support it too
+          final splitValues = line.split(",");
+          settings.currentMuxAntenna = int.tryParse(splitValues[0]) ?? settings.currentMuxAntenna;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return settings.currentMuxAntenna!;
+  }
+
+  @override
+  Future<void> setMuxAntenna(int val) async {
+    // TODO AT+MUX support lists of ints so getMuxAntenna should support it too
+    if (val > settings.antennaCount) {
+      throw ReaderException("Mux value not in antenna range");
+    }
+
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+MUX=$val", 1000, [
+        ParserResponse("+MUX", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.currentMuxAntenna = val;
   }
 
   @override

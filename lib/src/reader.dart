@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:logger/logger.dart';
 import 'package:reader_library/src/parser/parser.dart';
+import 'package:reader_library/src/utils/inventory_result.dart';
 import 'package:reader_library/src/utils/reader_settings.dart';
 
 abstract class Reader {
@@ -12,6 +15,9 @@ abstract class Reader {
   Reader(this._parser, this.settings);
 
   ReaderSettings settings;
+
+  /// Stream for continuous inventory.
+  StreamController<List<InventoryResult>> cinvStreamCtrl = StreamController.broadcast();
 
   /// Connect to the reader.
   ///
@@ -41,5 +47,30 @@ abstract class Reader {
   /// Register an [event].
   void registerEvent(ParserResponse event) {
     _parser.registerEvent(event);
+  }
+
+  /// Perform a single inventory.
+  ///
+  /// Returns a list if discovered tags.
+  /// The output format depends on the settings given to setInventoryFormat()
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<List<InventoryResult>> inventory();
+
+  /// Starts a continuous inventory.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> startContinuousInventory();
+
+  /// Stops a running continuous inventory.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> stopContinuousInventory();
+
+  /// Get the inventory stream for continuous inventories.
+  Stream<List<InventoryResult>> getInvStream() {
+    return cinvStreamCtrl.stream;
   }
 }

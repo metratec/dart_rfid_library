@@ -31,9 +31,6 @@ abstract class HfReader extends Reader {
   /// heartbeat for aliveness check
   Heartbeat heartbeat = Heartbeat();
 
-  /// Stream for continuous inventory.
-  StreamController<List<HfInventoryResult>> cinvStreamCtrl = StreamController.broadcast();
-
   HfReader(super.parser, super.settings);
 
   @override
@@ -56,6 +53,7 @@ abstract class HfReader extends Reader {
   /// Returns a list of discovered tags.
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
+  @override
   Future<List<HfInventoryResult>> inventory();
 
   /// Select a given [tag].
@@ -99,22 +97,4 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> stopHeartBeat();
-
-  /// Starts a continuous inventory.
-  ///
-  /// Results can be obtained by subscribing to getInvStream().
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> startContinuousInventory();
-
-  /// Stops a running continuous inventory.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> stopContinuousInventory();
-
-  /// Get the tag stream for continuous inventories.
-  Stream<List<HfInventoryResult>> getInvStream() {
-    return cinvStreamCtrl.stream;
-  }
 }

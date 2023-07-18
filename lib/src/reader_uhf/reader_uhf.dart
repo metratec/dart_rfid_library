@@ -34,6 +34,11 @@ class UhfReaderSettings extends ReaderSettings {
   /// The current region value. Should always be set if the reader checks the region value
   String? currentRegion;
 
+  /// The current mux antenna value. Should always be set if the reader checks the mux antenna value
+  int? currentMuxAntenna;
+
+  int antennaCount = 1;
+
   UhfReaderSettings({required this.possiblePowerValues});
 
   @override
@@ -54,6 +59,12 @@ class UhfReaderSettings extends ReaderSettings {
         value: currentRegion,
         possibleValues: possibleRegionValues,
       ),
+      if (antennaCount > 1)
+        NumConfigElement<int>(
+          name: "Mux",
+          value: currentMuxAntenna,
+          possibleValues: Iterable.generate(antennaCount, (i) => antennaCount + 1),
+        ),
     ];
   }
 }
@@ -132,9 +143,6 @@ abstract class UhfReader extends Reader {
   /// heartbeat for aliveness check
   Heartbeat heartbeat = Heartbeat();
 
-  /// Stream for continuous inventory.
-  StreamController<List<InventoryResult>> cinvStreamCtrl = StreamController.broadcast();
-
   @override
   UhfReaderSettings get settings => super.settings as UhfReaderSettings;
 
@@ -204,6 +212,22 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<UhfReaderRegion> getRegion();
 
+  /// Returns the current mux antenna value
+  ///
+  /// The value is also written into [settings]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<int> getMuxAntenna();
+
+  /// Set the mux antenna value to [val].
+  ///
+  /// The value is also written into [settings]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setMuxAntenna(int val);
+
   /// Set the inventory output format.
   ///
   /// Output format is specified by [settings].
@@ -229,25 +253,8 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> clearByteMask();
 
-  /// Perform a single inventory.
-  ///
-  /// Returns a list if discovered tags.
-  /// The output format depends on the settings given to setInventoryFormat()
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<InventoryResult>> inventory();
-
-  /// Starts a continuous inventory.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> startContinuousInventory();
-
-  /// Stops a running continuous inventory.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> stopContinuousInventory();
+  @override
+  Future<List<UhfInventoryResult>> inventory();
 
   /// Enable heartbeats events of the reader.
   /// The reader will send a heartbeat every x [seconds].
@@ -277,9 +284,4 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask});
-
-  /// Get the tag stream for continuous inventories.
-  Stream<List<InventoryResult>> getInvStream() {
-    return cinvStreamCtrl.stream;
-  }
 }
