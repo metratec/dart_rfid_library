@@ -3,7 +3,7 @@ abstract class ConfigElement<T> {
   final Iterable<T>? possibleValues;
   final bool isEnum;
   T? value;
-  void Function(T)? setter;
+  Future<void> Function(T)? setter;
 
   ConfigElement({
     required this.name,
