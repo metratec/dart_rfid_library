@@ -63,7 +63,7 @@ class UhfReaderSettings extends ReaderSettings {
         NumConfigElement<int>(
           name: "Mux",
           value: currentMuxAntenna,
-          possibleValues: Iterable.generate(antennaCount, (i) => antennaCount + 1),
+          possibleValues: Iterable.generate(antennaCount, (i) => i + 1),
         ),
     ];
   }
