@@ -58,12 +58,12 @@ class NumConfigElement<T extends num> extends ConfigElement<T> {
 
   @override
   NumConfigElement copy() {
-    return NumConfigElement(
+    return NumConfigElement<T>(
       name: name,
       value: value,
       possibleValues: possibleValues != null ? List.of(possibleValues!) : null,
       isEnum: isEnum,
-      setter: setter as void Function(num)?,
+      setter: setter,
     );
   }
 }
