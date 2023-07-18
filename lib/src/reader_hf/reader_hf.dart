@@ -10,10 +10,10 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
   List<ConfigElement> getConfigElements(HfReader reader) {
     return [
       StringConfigElement(
-        name: "Tag Type",
-        value: null,
-        possibleValues: ["Auto", "ISO15693", "Mifare", "NTAG"],
-      ),
+          name: "Tag Type",
+          value: null,
+          possibleValues: ["Auto", "ISO15693", "Mifare", "NTAG"],
+          setter: (val) async {/*TODO implement*/}),
     ];
   }
 }
