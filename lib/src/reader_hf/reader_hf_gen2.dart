@@ -88,12 +88,15 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<void> write(Uint8List data, int block) async {
+  Future<void> write(int block, String data) async {
+    if (!hexRegEx.hasMatch(data)) {
+      throw ReaderException("Unsupported data! Must be a hex string");
+    }
+
     String error = "";
-    String dataString = data.toHexString();
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$dataString", 2000, [
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$data", 2000, [
         ParserResponse("+WRT", (line) {
           error = line;
         })
@@ -105,7 +108,7 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<Uint8List> read(int block) async {
+  Future<String> read(int block) async {
     String data = "";
     String error = "";
 
@@ -125,7 +128,7 @@ class HfReaderGen2 extends HfReader {
       throw ReaderException(e.toString());
     }
 
-    return data.hexStringToBytes();
+    return data;
   }
 
   @override

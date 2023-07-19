@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 import 'package:logger/logger.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
@@ -33,14 +32,14 @@ Future<void> _readTest(HfReader reader) async {
       [0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF]);
 
   stdout.write("Writing data: $data... ");
-  await reader.write(data, 6);
+  await reader.write(6, data.toHexString());
   stdout.writeln("Done!");
 
   stdout.write("Reading back data... ");
-  Uint8List readBack = await reader.read(6);
-  stdout.writeln("$readBack");
+  String readBack = await reader.read(6);
+  stdout.writeln(readBack);
 
-  if (ListEquality().equals(data, readBack) == false) {
+  if (data.toHexString() != readBack) {
     stderr.writeln("Data and read back data differs!");
   }
 }

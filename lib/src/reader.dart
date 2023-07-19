@@ -7,6 +7,7 @@ import 'package:reader_library/src/utils/reader_settings.dart';
 
 abstract class Reader {
   final Parser _parser;
+  final RegExp hexRegEx = RegExp(r"^[a-fA-F0-9]+$");
 
   /// Logger
   final Logger _readerLogger = Logger();

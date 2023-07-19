@@ -69,19 +69,19 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType);
 
-  /// Write [data] to a tag at [block]. Depending on the mode the tag has to be selected
+  /// Write a hex string [data] to a tag at [block]. Depending on the mode the tag has to be selected
   /// and authenticated.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> write(Uint8List data, int block);
+  Future<void> write(int block, String data);
 
-  /// Read [data] of a [block] from a tag. Depending on the mode the tag has to be selected
+  /// Read a hex string [data] of a [block] from a tag. Depending on the mode the tag has to be selected
   /// and authenticated.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<Uint8List> read(int block);
+  Future<String> read(int block);
 
   /// Enable heartbeats events of the reader.
   /// The reader will send a heartbeat every x [seconds].

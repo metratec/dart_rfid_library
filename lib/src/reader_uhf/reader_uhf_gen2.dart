@@ -14,7 +14,6 @@ import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 class UhfReaderGen2 extends UhfReader {
   UhfInvSettings? _cinvSettings;
   final List<UhfInventoryResult> _cinv = [];
-  final RegExp _hexRegEx = RegExp(r"^[a-fA-F0-9]+$");
 
   UhfReaderGen2(CommInterface commInterface, UhfReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -174,7 +173,7 @@ class UhfReaderGen2 extends UhfReader {
   Future<void> setByteMask(String memBank, int start, String mask) async {
     if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
-    } else if (!_hexRegEx.hasMatch(mask)) {
+    } else if (!hexRegEx.hasMatch(mask)) {
       throw ReaderException("Unsupported mask! Must be a hex string");
     }
 
@@ -493,9 +492,9 @@ class UhfReaderGen2 extends UhfReader {
   Future<List<UhfRwResult>> write(String memBank, int start, String data, {String? mask}) async {
     if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
-    } else if (!_hexRegEx.hasMatch(data)) {
+    } else if (!hexRegEx.hasMatch(data)) {
       throw ReaderException("Unsupported data! Must be a hex string");
-    } else if (mask != null && !_hexRegEx.hasMatch(mask)) {
+    } else if (mask != null && !hexRegEx.hasMatch(mask)) {
       throw ReaderException("Unsupported mask! Must be a hex string");
     }
 
@@ -527,7 +526,7 @@ class UhfReaderGen2 extends UhfReader {
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask}) async {
     if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
-    } else if (mask != null && !_hexRegEx.hasMatch(mask)) {
+    } else if (mask != null && !hexRegEx.hasMatch(mask)) {
       throw ReaderException("Unsupported mask! Must be a hex string");
     }
 
