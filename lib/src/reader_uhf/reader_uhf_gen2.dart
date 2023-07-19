@@ -130,7 +130,7 @@ class UhfReaderGen2 extends UhfReader {
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+INV", 5000, [
+      CmdExitCode exitCode = await sendCommand("AT+ANT?", 5000, [
         ParserResponse("+ANT", (line) {
           final split = line.split(":");
           if (split.length < 2) {
