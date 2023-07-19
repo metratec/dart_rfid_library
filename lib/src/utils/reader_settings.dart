@@ -4,6 +4,9 @@ import 'package:reader_library/src/utils/config_element.dart';
 abstract class ReaderSettings<T extends Reader> {
   int antennaCount = 1;
 
+  List<bool> outputStates = [];
+  List<bool> inputStates = [];
+
   /// Returns a list of [ConfigElement] that define their possible values
   /// but have no value set.
   /// They must be filled with the current config settings afterwards.

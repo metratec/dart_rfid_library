@@ -434,6 +434,50 @@ class UhfReaderGen2 extends UhfReader {
     settings.currentMuxAntenna = val;
   }
 
+  Future<List<bool>> getOutputStates() async {
+    String error = "";
+    List<bool> states = [];
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+OUT?", 1000, [
+        ParserResponse("+OUT", (line) {
+          final split = line.split(",");
+          if (split.length < 2) {
+            return;
+          }
+          states.add(split[1] == "HIGH");
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.outputStates = states;
+    return states;
+  }
+
+  Future<List<bool>> getInputStates() async {
+    String error = "";
+    List<bool> states = [];
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+IN?", 1000, [
+        ParserResponse("+IN", (line) {
+          final split = line.split(",");
+          if (split.length < 2) {
+            return;
+          }
+          states.add(split[1] == "HIGH");
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.inputStates = states;
+    return states;
+  }
+
   @override
   Future<UhfInvSettings> getInventorySettings() async {
     UhfInvSettings? invSettings;
