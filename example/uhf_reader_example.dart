@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/utils/extensions.dart';
+import 'package:reader_library/src/reader_uhf/pulsar_lr.dart';
 
 Future<void> _heartbeatTest(UhfReader reader) async {
   stdout.write("Starting heartbeat... ");
@@ -51,7 +51,7 @@ void main() async {
   SerialSettings serialSettings = SerialSettings("/dev/ttyACM0");
   CommInterface commInterface = SerialInterface(serialSettings);
 
-  UhfReader reader = ReaderQrg2(commInterface);
+  UhfReader reader = ReaderPulsarLR(commInterface);
 
   print("Connecting reader");
 

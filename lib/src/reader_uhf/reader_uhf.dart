@@ -9,7 +9,7 @@ import 'package:reader_library/src/utils/reader_settings.dart';
 /// Class for uhf reader settings.
 /// These settings are set by specific reader implementations.
 class UhfReaderSettings extends ReaderSettings<UhfReader> {
-  Iterable<int> possiblePowerValues = Iterable.generate(31);
+  Iterable<int> possiblePowerValues;
   Iterable<int> possibleQValues = Iterable.generate(16);
   Iterable<String> possibleRegionValues = UhfReaderRegion.values.map((e) => e.protocolString);
 
@@ -37,7 +37,7 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   /// The current mux antenna value. Should always be set if the reader checks the mux antenna value
   int currentMuxAntenna = 1;
 
-  UhfReaderSettings({required this.possiblePowerValues});
+  UhfReaderSettings({this.possiblePowerValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
 
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
