@@ -37,8 +37,6 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   /// The current mux antenna value. Should always be set if the reader checks the mux antenna value
   int currentMuxAntenna = 1;
 
-  int antennaCount = 1;
-
   UhfReaderSettings({required this.possiblePowerValues});
 
   @override
