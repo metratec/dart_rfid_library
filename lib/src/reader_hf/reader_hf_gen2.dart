@@ -225,4 +225,7 @@ class HfReaderGen2 extends HfReader {
       throw ReaderException(e.toString());
     }
   }
+
+  @override
+  Future<void> loadDeviceSettings() async {}
 }

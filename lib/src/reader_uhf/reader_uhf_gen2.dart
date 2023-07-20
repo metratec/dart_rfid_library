@@ -619,4 +619,15 @@ class UhfReaderGen2 extends UhfReader {
 
     return res;
   }
+
+  @override
+  Future<void> loadDeviceSettings() async {
+    await getOutputStates();
+    await getInputStates();
+    await getOutputPower();
+    await getQ();
+    await getRegion();
+    await getInvAntenna();
+    await getMuxAntenna();
+  }
 }

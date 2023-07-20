@@ -18,11 +18,8 @@ abstract class ReaderSettings<T extends Reader> {
   List<Membank> get writeMembanks => [];
   List<Membank> get lockMembanks => [];
 
-  /// Returns a list of [ConfigElement] that define their possible values
-  /// but have no value set.
-  /// They must be filled with the current config settings afterwards.
-  ///
-  /// The returned config elements should be copied before being filled
+  /// Returns a list of [ConfigElement] that define the possible values
+  /// and current value for each of the ReaderSettings elements.
   List<ConfigElement> getConfigElements(T reader);
 }
 

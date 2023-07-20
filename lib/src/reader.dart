@@ -76,6 +76,8 @@ abstract class Reader {
     return cinvStreamCtrl.stream;
   }
 
+  Future<void> loadDeviceSettings();
+
   /// A list of all supported devices.
   static const List<String> supportedDevices = [
     "PULSAR_LR",
