@@ -9,13 +9,31 @@ import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
 import 'package:reader_library/src/utils/extensions.dart';
+import 'package:reader_library/src/utils/reader_settings.dart';
 import 'package:reader_library/src/utils/uhf_inventory_result.dart';
+
+class UhfGen2ReaderSettings extends UhfReaderSettings {
+  UhfGen2ReaderSettings({super.possiblePowerValues});
+
+  @override
+  bool get isUhfGen2Device => true;
+
+  @override
+  bool get supportsInventoryReport => true;
+
+  @override
+  List<Membank> get readMembanks => [Membank.epc, Membank.tid, Membank.user];
+  @override
+  List<Membank> get writeMembanks => [Membank.epc, Membank.user];
+  @override
+  List<Membank> get lockMembanks => [Membank.epc, Membank.user, Membank.lock, Membank.kill];
+}
 
 class UhfReaderGen2 extends UhfReader {
   UhfInvSettings? _cinvSettings;
   final List<UhfInventoryResult> _cinv = [];
 
-  UhfReaderGen2(CommInterface commInterface, UhfReaderSettings settings)
+  UhfReaderGen2(CommInterface commInterface, UhfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("+HBT", (_) => heartbeat.feed()));
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));

@@ -3,19 +3,11 @@ import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
-import 'package:reader_library/src/utils/reader_settings.dart';
 
 class HfReaderSettings extends ReaderSettings<HfReader> {
   @override
   List<ConfigElement> getConfigElements(HfReader reader) {
-    return [
-      StringConfigElement(
-        name: "Tag Type",
-        value: null,
-        possibleValues: ["Auto", "ISO15693", "Mifare", "NTAG"],
-        setter: (val) async => throw UnimplementedError("There is no protocol to set tag types"),
-      )
-    ];
+    return [];
   }
 }
 

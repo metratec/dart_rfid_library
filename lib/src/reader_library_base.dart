@@ -11,4 +11,5 @@ export 'utils/config_element.dart';
 export 'utils/extensions.dart';
 export 'utils/hf_inventory_result.dart';
 export 'utils/inventory_result.dart';
+export 'utils/reader_settings.dart';
 export 'utils/uhf_inventory_result.dart';

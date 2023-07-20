@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:logger/logger.dart';
+import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
-import 'package:reader_library/src/utils/inventory_result.dart';
-import 'package:reader_library/src/utils/reader_settings.dart';
+import 'package:reader_library/src/reader_library_base.dart';
+import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
 abstract class Reader {
   final Parser _parser;
@@ -73,5 +74,73 @@ abstract class Reader {
   /// Get the inventory stream for continuous inventories.
   Stream<List<InventoryResult>> getInvStream() {
     return cinvStreamCtrl.stream;
+  }
+
+  /// A list of all supported devices.
+  static const List<String> supportedDevices = [
+    "PULSAR_LR",
+    "QRG2",
+    "DESKID_UHF_V2_E",
+    "PULSARMX",
+    "DESKID_UHF",
+    "DWARFG2",
+    "DESKID_NFC",
+    "QR_NFC",
+    "DWARF_NFC",
+    "DESKID_ISO",
+    "QUASAR_MX",
+    "DWARF15",
+  ];
+
+  /// A list of all devices that are old UHF devices
+  static const List<String> _uhfDevices = [
+    "PULSARMX",
+    "DESKID_UHF",
+    "DWARFG2",
+  ];
+
+  /// A list of all devices that are UHF devices with AT protocol
+  static const List<String> _uhfGen2Devices = [
+    "PULSAR_LR",
+    "QRG2",
+    "DESKID_UHF_V2_E",
+  ];
+
+  /// A list of all devices that are old HF devices
+  static const List<String> _hfDevices = [
+    "DESKID_ISO",
+    "QUASAR_MX",
+    "DWARF15",
+  ];
+
+  /// A list of all devices that are HF devices with AT protocol
+  static const List<String> _hfGen2Devices = [
+    "DESKID_NFC",
+    "QR_NFC",
+    "DWARF_NFC",
+  ];
+
+  static Reader? getReaderImplementationByName({required String hardwareName, required CommInterface commInterface}) {
+    hardwareName = hardwareName.toUpperCase();
+    final specificReader = switch (hardwareName) {
+      "PULSAR_LR" => ReaderPulsarLR(commInterface),
+      _ => null,
+    };
+
+    if (specificReader != null) {
+      return specificReader;
+    }
+
+    if (_uhfGen2Devices.contains(hardwareName)) {
+      return UhfReaderGen2(commInterface, UhfGen2ReaderSettings());
+    } else if (_uhfDevices.contains(hardwareName)) {
+      throw UnimplementedError("There is no implementation for uhf devices");
+    } else if (_hfGen2Devices.contains(hardwareName)) {
+      return HfReaderGen2(commInterface, HfReaderSettings());
+    } else if (_hfDevices.contains(hardwareName)) {
+      throw UnimplementedError("There is no implementation for hf devices");
+    } else {
+      return null;
+    }
   }
 }

@@ -5,6 +5,23 @@ import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
 
+class HfGen2ReaderSettings extends HfReaderSettings {
+  @override
+  bool get supportsTagType => true;
+
+  @override
+  List<ConfigElement> getConfigElements(HfReader reader) {
+    return [
+      StringConfigElement(
+        name: "Tag Type",
+        value: null,
+        possibleValues: ["Auto", "ISO15693", "Mifare", "NTAG"],
+        setter: (val) async => throw UnimplementedError("There is no protocol to set tag types"),
+      )
+    ];
+  }
+}
+
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
 

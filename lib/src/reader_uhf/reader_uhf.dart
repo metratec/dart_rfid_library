@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:reader_library/reader_library.dart';
+import 'package:reader_library/src/reader.dart';
+import 'package:reader_library/src/utils/config_element.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
 import 'package:reader_library/src/utils/reader_settings.dart';
+import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 
 /// Class for uhf reader settings.
 /// These settings are set by specific reader implementations.
@@ -38,6 +40,9 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   int currentMuxAntenna = 1;
 
   UhfReaderSettings({this.possiblePowerValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+
+  @override
+  bool get isUhfDevice => true;
 
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
