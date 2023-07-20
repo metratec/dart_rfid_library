@@ -62,9 +62,9 @@ Future<void> _cinvTest(HfReader reader) async {
     stdout.write("Stopping continuous inventory... ");
     await reader.stopContinuousInventory();
     stdout.writeln("Done!");
-    sub.cancel();
+    unawaited(sub.cancel());
   } catch (e) {
-    sub.cancel();
+    unawaited(sub.cancel());
     rethrow;
   }
 }

@@ -219,6 +219,15 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<UhfReaderRegion> getRegion();
 
+  /// Returns the current inv antenna value
+  ///
+  /// The value is also written into [settings]
+  ///
+  /// Must only be called once. The [invAntenna] field can be used synchronously in most cases
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<int> getInvAntenna();
+
   /// Returns the current mux antenna value
   ///
   /// The value is also written into [settings]
@@ -291,4 +300,13 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask});
+
+  @override
+  Future<void> loadDeviceSettings() async {
+    await getOutputPower();
+    await getQ();
+    await getRegion();
+    await getInvAntenna();
+    await getMuxAntenna();
+  }
 }

@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/reader_uhf/pulsar_lr.dart';
 
 Future<void> _heartbeatTest(UhfReader reader) async {
   stdout.write("Starting heartbeat... ");
@@ -40,9 +39,9 @@ Future<void> _cinvTest(UhfReader reader) async {
     stdout.write("Stopping continuous inventory... ");
     await reader.stopContinuousInventory();
     stdout.writeln("Done!");
-    sub.cancel();
+    unawaited(sub.cancel());
   } catch (e) {
-    sub.cancel();
+    unawaited(sub.cancel());
     rethrow;
   }
 }

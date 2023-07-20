@@ -141,9 +141,7 @@ class UhfReaderGen2 extends UhfReader {
         .toList();
   }
 
-  /// Sets the [invAntenna] field to its real value and return it afterwards
-  ///
-  /// Must only be called once. The [invAntenna] field can be used synchronously in most cases
+  @override
   Future<int> getInvAntenna() async {
     String error = "";
 
@@ -624,10 +622,6 @@ class UhfReaderGen2 extends UhfReader {
   Future<void> loadDeviceSettings() async {
     await getOutputStates();
     await getInputStates();
-    await getOutputPower();
-    await getQ();
-    await getRegion();
-    await getInvAntenna();
-    await getMuxAntenna();
+    await super.loadDeviceSettings();
   }
 }
