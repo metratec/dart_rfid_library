@@ -96,11 +96,11 @@ class UhfReaderGen2 extends UhfReader {
     if (settings.tid == false && settings.rssi == false) {
       return UhfTag(tokens.first, '', 0);
     } else if (settings.tid == false && settings.rssi == true) {
-      return UhfTag(tokens.first, '', int.parse(tokens.last));
+      return UhfTag(tokens.first, '', int.tryParse(tokens.last) ?? 0);
     } else if (settings.tid == true && settings.rssi == false) {
       return UhfTag(tokens.first, tokens.last, 0);
     } else if (settings.tid == true && settings.rssi == true) {
-      return UhfTag(tokens[0], tokens[1], int.parse(tokens[2]));
+      return UhfTag(tokens[0], tokens[1], int.tryParse(tokens[2]) ?? 0);
     }
 
     return null;
