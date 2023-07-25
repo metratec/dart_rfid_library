@@ -93,13 +93,13 @@ class UhfReaderGen2 extends UhfReader {
   UhfTag? _parseUhfTag(String inv, UhfInvSettings settings) {
     List<String> tokens = inv.split(',');
 
-    if (settings.tid == false && settings.rssi == false) {
+    if (settings.tid == false && settings.rssi == false && tokens.length == 1) {
       return UhfTag(tokens.first, '', 0);
-    } else if (settings.tid == false && settings.rssi == true) {
+    } else if (settings.tid == false && settings.rssi == true && tokens.length == 2) {
       return UhfTag(tokens.first, '', int.tryParse(tokens.last) ?? 0);
-    } else if (settings.tid == true && settings.rssi == false) {
+    } else if (settings.tid == true && settings.rssi == false && tokens.length == 2) {
       return UhfTag(tokens.first, tokens.last, 0);
-    } else if (settings.tid == true && settings.rssi == true) {
+    } else if (settings.tid == true && settings.rssi == true && tokens.length == 3) {
       return UhfTag(tokens[0], tokens[1], int.tryParse(tokens[2]) ?? 0);
     }
 
@@ -237,6 +237,7 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+      _cinvSettings = settings;
     } catch (e) {
       throw ReaderException(e.toString());
     }
