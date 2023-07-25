@@ -134,7 +134,7 @@ class UhfReaderGen2 extends UhfReader {
     return inv
         .map((e) => UhfInventoryResult(
               tag: e,
-              lastAntenna: invAntenna,
+              lastAntenna: settings.invAntenna,
               count: 1,
               timestamp: DateTime.now(),
             ))
@@ -148,11 +148,7 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+ANT?", 5000, [
         ParserResponse("+ANT", (line) {
-          final split = line.split(":");
-          if (split.length < 2) {
-            return;
-          }
-          invAntenna = int.tryParse(split[1]) ?? invAntenna;
+          settings.invAntenna = int.tryParse(line) ?? settings.invAntenna;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -160,7 +156,23 @@ class UhfReaderGen2 extends UhfReader {
       throw ReaderException(e.toString());
     }
 
-    return invAntenna;
+    return settings.invAntenna;
+  }
+
+  @override
+  Future<void> setInvAntenna(int val) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+ANT=$val", 1000, [
+        ParserResponse("+ANT", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+      settings.invAntenna = val;
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
@@ -415,7 +427,7 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+MUX?", 1000, [
         ParserResponse("+MUX", (line) {
-          // TODO AT+MUX support lists of ints so getMuxAntenna should support it too
+          // TODO AT+MUX supports lists of ints so getMuxAntenna should support it too
           final splitValues = line.split(",");
           settings.currentMuxAntenna = int.tryParse(splitValues[0]) ?? settings.currentMuxAntenna;
         })
@@ -430,7 +442,7 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<void> setMuxAntenna(int val) async {
-    // TODO AT+MUX support lists of ints so getMuxAntenna should support it too
+    // TODO AT+MUX supports lists of ints so getMuxAntenna should support it too
     if (val > settings.antennaCount) {
       throw ReaderException("Mux value not in antenna range");
     }
@@ -471,6 +483,26 @@ class UhfReaderGen2 extends UhfReader {
 
     settings.outputStates = states;
     return states;
+  }
+
+  Future<void> setOutputStates(List<bool> values) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+OUT=${values.map((e) => e ? 1 : 0).join(",")}",
+        1000,
+        [
+          ParserResponse("+OUT", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.outputStates = values;
   }
 
   Future<List<bool>> getInputStates() async {

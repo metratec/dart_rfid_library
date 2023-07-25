@@ -159,8 +159,6 @@ abstract class UhfReader extends Reader {
 
   UhfReader(super.parser, super.settings);
 
-  int invAntenna = 1;
-
   // TODO: add all uhf functions here
 
   /// Returns the output power of the reader
@@ -227,6 +225,14 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<int> getInvAntenna();
+
+  /// Set the inv antenna value to [val].
+  ///
+  /// The value is also written into [settings]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setInvAntenna(int val);
 
   /// Returns the current mux antenna value
   ///

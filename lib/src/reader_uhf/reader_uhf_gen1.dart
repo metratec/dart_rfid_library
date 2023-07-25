@@ -27,6 +27,12 @@ class UhfReaderGen1 extends UhfReader {
   }
 
   @override
+  Future<void> setInvAntenna(int val) {
+    // TODO: implement setInvAntenna
+    throw UnimplementedError();
+  }
+
+  @override
   Future<UhfInvSettings> getInventorySettings() {
     // TODO: implement getInventorySettings
     throw UnimplementedError();

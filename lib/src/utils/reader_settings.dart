@@ -7,6 +7,9 @@ abstract class ReaderSettings<T extends Reader> {
   List<bool> outputStates = [];
   List<bool> inputStates = [];
 
+  /// The current inv antenna value. Should always be set if the reader checks the inv antenna value
+  int invAntenna = 1;
+
   // Overwrite these getters in Settings implementations
   bool get isUhfDevice => false;
   bool get isUhfGen2Device => false;
