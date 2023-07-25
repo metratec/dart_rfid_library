@@ -25,7 +25,7 @@ class HfGen2ReaderSettings extends HfReaderSettings {
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
 
-  HfReaderGen2(CommInterface commInterface, HfReaderSettings settings)
+  HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
     registerEvent(ParserResponse("+HBT", _handleHbtUrc));

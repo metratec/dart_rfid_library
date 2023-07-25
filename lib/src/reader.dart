@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:logger/logger.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
+import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
+import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 import 'package:reader_library/src/reader_library_base.dart';
+import 'package:reader_library/src/reader_uhf/reader_uhf_gen1.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
 abstract class Reader {
@@ -136,11 +139,11 @@ abstract class Reader {
     if (_uhfGen2Devices.contains(hardwareName)) {
       return UhfReaderGen2(commInterface, UhfGen2ReaderSettings());
     } else if (_uhfDevices.contains(hardwareName)) {
-      throw UnimplementedError("There is no implementation for uhf devices");
+      return UhfReaderGen1(commInterface, UhfGen1ReaderSettings());
     } else if (_hfGen2Devices.contains(hardwareName)) {
-      return HfReaderGen2(commInterface, HfReaderSettings());
+      return HfReaderGen2(commInterface, HfGen2ReaderSettings());
     } else if (_hfDevices.contains(hardwareName)) {
-      throw UnimplementedError("There is no implementation for hf devices");
+      throw HfReaderGen1(commInterface, HfGen1ReaderSettings());
     } else {
       return null;
     }
