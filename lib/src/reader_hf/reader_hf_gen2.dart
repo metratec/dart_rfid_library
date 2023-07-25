@@ -7,6 +7,9 @@ import 'package:reader_library/src/reader_exception.dart';
 
 class HfGen2ReaderSettings extends HfReaderSettings {
   @override
+  bool get isHfGen2Device => true;
+
+  @override
   bool get supportsTagType => true;
 
   @override

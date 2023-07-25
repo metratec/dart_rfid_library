@@ -6,6 +6,9 @@ import 'package:reader_library/src/utils/heartbeat.dart';
 
 class HfReaderSettings extends ReaderSettings<HfReader> {
   @override
+  bool get isHfDevice => true;
+
+  @override
   List<ConfigElement> getConfigElements(HfReader reader) {
     return [];
   }

@@ -98,7 +98,7 @@ abstract class Reader {
   ];
 
   /// A list of all devices that are old UHF devices
-  static const List<String> _uhfDevices = [
+  static const List<String> _uhfGen1Devices = [
     "PULSARMX",
     "DESKID_UHF",
     "DWARFG2",
@@ -112,7 +112,7 @@ abstract class Reader {
   ];
 
   /// A list of all devices that are old HF devices
-  static const List<String> _hfDevices = [
+  static const List<String> _hfGen1Devices = [
     "DESKID_ISO",
     "QUASAR_MX",
     "DWARF15",
@@ -138,11 +138,11 @@ abstract class Reader {
 
     if (_uhfGen2Devices.contains(hardwareName)) {
       return UhfReaderGen2(commInterface, UhfGen2ReaderSettings());
-    } else if (_uhfDevices.contains(hardwareName)) {
+    } else if (_uhfGen1Devices.contains(hardwareName)) {
       return UhfReaderGen1(commInterface, UhfGen1ReaderSettings());
     } else if (_hfGen2Devices.contains(hardwareName)) {
       return HfReaderGen2(commInterface, HfGen2ReaderSettings());
-    } else if (_hfDevices.contains(hardwareName)) {
+    } else if (_hfGen1Devices.contains(hardwareName)) {
       throw HfReaderGen1(commInterface, HfGen1ReaderSettings());
     } else {
       return null;
