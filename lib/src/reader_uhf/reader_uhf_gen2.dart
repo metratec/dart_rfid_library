@@ -3,14 +3,10 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:metratec_device/metratec_device.dart';
+import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
-import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
-import 'package:reader_library/src/utils/extensions.dart';
-import 'package:reader_library/src/utils/reader_settings.dart';
-import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 
 class UhfGen2ReaderSettings extends UhfReaderSettings {
   UhfGen2ReaderSettings({super.possiblePowerValues});
@@ -30,13 +26,14 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
 }
 
 class UhfReaderGen2 extends UhfReader {
-  UhfInvSettings? _cinvSettings;
+  UhfInvSettings? _invSettings;
   final List<UhfInventoryResult> _cinv = [];
 
   UhfReaderGen2(CommInterface commInterface, UhfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("+HBT", (_) => heartbeat.feed()));
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
+    registerEvent(ParserResponse("+CMINV", _handleCinvUrc));
   }
 
   void _handleExitCode(CmdExitCode code, String error) {
@@ -48,7 +45,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   void _handleCinvUrc(String line) {
-    if (_cinvSettings == null) {
+    if (_invSettings == null) {
       return;
     }
 
@@ -68,7 +65,7 @@ class UhfReaderGen2 extends UhfReader {
       return;
     }
 
-    UhfTag? tag = _parseUhfTag(line.split(": ").last, _cinvSettings!);
+    UhfTag? tag = _parseUhfTag(line.split(": ").last, _invSettings!);
     if (tag == null) {
       return;
     }
@@ -111,7 +108,7 @@ class UhfReaderGen2 extends UhfReader {
     List<UhfTag> inv = [];
     String error = "";
 
-    UhfInvSettings invSettings = await getInventorySettings();
+    _invSettings = await getInventorySettings();
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+INV", 5000, [
@@ -120,7 +117,7 @@ class UhfReaderGen2 extends UhfReader {
             return;
           }
 
-          UhfTag? tag = _parseUhfTag(line, invSettings);
+          UhfTag? tag = _parseUhfTag(line, _invSettings!);
           if (tag != null) {
             inv.add(tag);
           }
@@ -139,6 +136,40 @@ class UhfReaderGen2 extends UhfReader {
               timestamp: DateTime.now(),
             ))
         .toList();
+  }
+
+  Future<List<UhfInventoryResult>> muxInventory() async {
+    List<UhfTag> inv = [];
+    List<UhfInventoryResult> invResults = [];
+    String error = "";
+
+    _invSettings = await getInventorySettings();
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+MINV", 5000, [
+        ParserResponse("+MINV", (line) {
+          if (line.contains("ROUND FINISHED")) {
+            int antenna = _parseAntenna(line);
+            for (UhfTag e in inv) {
+              invResults.add(
+                UhfInventoryResult(tag: e, lastAntenna: antenna, timestamp: DateTime.now()),
+              );
+            }
+            inv.clear();
+          } else if (!line.contains("<")) {
+            UhfTag? tag = _parseUhfTag(line, _invSettings!);
+            if (tag != null) {
+              inv.add(tag);
+            }
+          }
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return invResults;
   }
 
   @override
@@ -177,7 +208,7 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<void> startContinuousInventory() async {
-    _cinvSettings = await getInventorySettings();
+    _invSettings = await getInventorySettings();
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
@@ -189,6 +220,26 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<void> stopContinuousInventory() async {
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+BINV", 1000, []);
+      _handleExitCode(exitCode, "");
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  Future<void> startContinuousMuxInventory() async {
+    _invSettings = await getInventorySettings();
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+CMINV", 1000, []);
+      _handleExitCode(exitCode, "");
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  Future<void> stopContinuousMuxInventory() async {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 1000, []);
       _handleExitCode(exitCode, "");
@@ -249,7 +300,7 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-      _cinvSettings = settings;
+      _invSettings = settings;
     } catch (e) {
       throw ReaderException(e.toString());
     }
