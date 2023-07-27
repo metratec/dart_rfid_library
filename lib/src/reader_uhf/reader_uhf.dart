@@ -12,8 +12,8 @@ import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 /// These settings are set by specific reader implementations.
 class UhfReaderSettings extends ReaderSettings<UhfReader> {
   Iterable<int> possiblePowerValues;
-  Iterable<int> possibleQValues = Iterable.generate(16);
-  Iterable<String> possibleRegionValues = UhfReaderRegion.values.map((e) => e.protocolString);
+  Iterable<int> possibleQValues;
+  Iterable<String> possibleRegionValues;
 
   /// Maximal output power value.
   int get maxPower => possiblePowerValues.fold(0, max);
@@ -39,7 +39,11 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   /// The current mux antenna value. Should always be set if the reader checks the mux antenna value
   int currentMuxAntenna = 1;
 
-  UhfReaderSettings({this.possiblePowerValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  UhfReaderSettings({
+    this.possiblePowerValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    this.possibleQValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    this.possibleRegionValues = const ["ETSI", "ETSI_HIGH", "FCC"],
+  });
 
   @override
   bool get isUhfDevice => true;
