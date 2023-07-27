@@ -1,21 +1,13 @@
-class ReaderCommException implements Exception {
-  String cause;
-  ReaderCommException(this.cause);
-
-  @override
-  String toString() {
-    return cause;
-  }
+class ReaderCommException extends ReaderException {
+  ReaderCommException(super.cause);
 }
 
-class ReaderTimeoutException implements Exception {
-  String cause;
-  ReaderTimeoutException(this.cause);
+class ReaderTimeoutException extends ReaderException {
+  ReaderTimeoutException(super.cause);
+}
 
-  @override
-  String toString() {
-    return cause;
-  }
+class ReaderNoTagsException extends ReaderException {
+  ReaderNoTagsException(super.cause);
 }
 
 class ReaderException implements Exception {

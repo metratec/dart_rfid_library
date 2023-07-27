@@ -297,6 +297,7 @@ abstract class UhfReader extends Reader {
   /// Stop the heartbeat events.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderNoTagsException] if tag to write could not be found.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> stopHeartBeat();
 
@@ -311,6 +312,7 @@ abstract class UhfReader extends Reader {
   /// Optionally an epc [mask] hex string can be given.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderNoTagsException] if tag to read could not be found.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask});
 

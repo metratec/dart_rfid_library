@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
-import 'package:reader_library/src/reader_exception.dart';
 
 class UhfGen2ReaderSettings extends UhfReaderSettings {
   UhfGen2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
@@ -39,6 +38,8 @@ class UhfReaderGen2 extends UhfReader {
   void _handleExitCode(CmdExitCode code, String error) {
     if (code == CmdExitCode.timeout) {
       throw ReaderTimeoutException("Command timed out!");
+    } else if (error == "<NO TAGS FOUND>") {
+      throw ReaderNoTagsException("Command did not find any tags");
     } else if (code != CmdExitCode.ok) {
       throw ReaderException("Command failed with: $error");
     }
@@ -124,8 +125,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return inv
@@ -165,8 +168,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return invResults;
@@ -183,8 +188,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return settings.invAntenna;
@@ -201,8 +208,10 @@ class UhfReaderGen2 extends UhfReader {
       ]);
       _handleExitCode(exitCode, error);
       settings.invAntenna = val;
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -213,8 +222,10 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -223,8 +234,10 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 1000, []);
       _handleExitCode(exitCode, "");
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -243,8 +256,10 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 1000, []);
       _handleExitCode(exitCode, "");
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -264,8 +279,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -279,8 +296,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -301,8 +320,10 @@ class UhfReaderGen2 extends UhfReader {
       ]);
       _handleExitCode(exitCode, error);
       _invSettings = settings;
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -320,8 +341,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return settings.currentPower!;
@@ -342,8 +365,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.currentPower = val;
@@ -365,8 +390,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return settings.currentQ!;
@@ -393,8 +420,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.currentQ = val;
@@ -417,8 +446,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.currentQ = val;
@@ -436,8 +467,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     UhfReaderRegion? regionValue = UhfReaderRegion.values.firstWhereOrNull((e) => e.protocolString == region);
@@ -464,8 +497,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.currentRegion = region;
@@ -484,8 +519,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return settings.currentMuxAntenna;
@@ -507,8 +544,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.currentMuxAntenna = val;
@@ -528,8 +567,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.outputStates = states;
@@ -549,8 +590,10 @@ class UhfReaderGen2 extends UhfReader {
         ],
       );
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.outputStates = values;
@@ -570,8 +613,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     settings.inputStates = states;
@@ -596,8 +641,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     if (invSettings == null) {
@@ -616,8 +663,10 @@ class UhfReaderGen2 extends UhfReader {
       _handleExitCode(exitCode, "");
 
       heartbeat.start(seconds * 1000 + 2000, onHbt, onTimeout);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -627,8 +676,10 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+HBT=0", 1000, []);
       _handleExitCode(exitCode, "");
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
   }
 
@@ -649,7 +700,7 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+WRT=$memBank,$start,$data$maskString", 2000, [
         ParserResponse("+WRT", (line) {
-          if (line.contains("<")) {
+          if (line.contains("<NO TAGS FOUND>")) {
             error = line;
             return;
           }
@@ -659,8 +710,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return res;
@@ -681,7 +734,7 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+READ=$memBank,$start,$length$maskString", 2000, [
         ParserResponse("+READ", (line) {
-          if (line.contains("<")) {
+          if (line.contains("<NO TAGS FOUND>")) {
             error = line;
             return;
           }
@@ -695,8 +748,10 @@ class UhfReaderGen2 extends UhfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
     }
 
     return res;
