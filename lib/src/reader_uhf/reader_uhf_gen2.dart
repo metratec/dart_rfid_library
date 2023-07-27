@@ -9,7 +9,7 @@ import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_exception.dart';
 
 class UhfGen2ReaderSettings extends UhfReaderSettings {
-  UhfGen2ReaderSettings({super.possiblePowerValues});
+  UhfGen2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 
   @override
   bool get isUhfGen2Device => true;

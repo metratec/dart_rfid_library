@@ -6,6 +6,7 @@ import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 import 'package:reader_library/src/reader_library_base.dart';
+import 'package:reader_library/src/reader_uhf/qrg2.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen1.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
@@ -129,6 +130,7 @@ abstract class Reader {
     hardwareName = hardwareName.toUpperCase();
     final specificReader = switch (hardwareName) {
       "PULSAR_LR" => ReaderPulsarLR(commInterface),
+      "QRG2" => ReaderQRG2(commInterface),
       _ => null,
     };
 
