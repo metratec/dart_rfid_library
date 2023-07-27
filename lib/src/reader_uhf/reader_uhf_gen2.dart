@@ -634,7 +634,7 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<List<UhfRwResult>> write(String memBank, int start, String data, {String? mask}) async {
-    if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
+    if (settings.writeMembanks.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
     } else if (!hexRegEx.hasMatch(data)) {
       throw ReaderException("Unsupported data! Must be a hex string");
@@ -668,7 +668,7 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask}) async {
-    if (UhfMemoryBank.values.none((e) => e.protocolString == memBank)) {
+    if (settings.readMembanks.none((e) => e.protocolString == memBank)) {
       throw ReaderException("Unsupported memory bank: $memBank");
     } else if (mask != null && !hexRegEx.hasMatch(mask)) {
       throw ReaderException("Unsupported mask! Must be a hex string");
