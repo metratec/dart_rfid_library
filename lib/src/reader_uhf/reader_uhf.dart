@@ -51,24 +51,27 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
     return [
-      NumConfigElement<int>(
-        name: "Power",
-        value: currentPower,
-        possibleValues: possiblePowerValues,
-        setter: reader.setOutputPower,
-      ),
-      NumConfigElement<int>(
-        name: "Q Value",
-        value: currentQ,
-        possibleValues: possibleQValues,
-        setter: reader.setQStart,
-      ),
-      StringConfigElement(
-        name: "Region",
-        value: currentRegion,
-        possibleValues: possibleRegionValues,
-        setter: reader.setRegion,
-      ),
+      if (possiblePowerValues.length > 1)
+        NumConfigElement<int>(
+          name: "Power",
+          value: currentPower,
+          possibleValues: possiblePowerValues,
+          setter: reader.setOutputPower,
+        ),
+      if (possibleQValues.length > 1)
+        NumConfigElement<int>(
+          name: "Q Value",
+          value: currentQ,
+          possibleValues: possibleQValues,
+          setter: reader.setQStart,
+        ),
+      if (possibleRegionValues.length > 1)
+        StringConfigElement(
+          name: "Region",
+          value: currentRegion,
+          possibleValues: possibleRegionValues,
+          setter: reader.setRegion,
+        ),
       if (antennaCount > 1)
         NumConfigElement<int>(
           name: "Mux",
@@ -316,7 +319,9 @@ abstract class UhfReader extends Reader {
     await getOutputPower();
     await getQ();
     await getRegion();
-    await getInvAntenna();
-    await getMuxAntenna();
+    if (settings.antennaCount > 1) {
+      await getInvAntenna();
+      await getMuxAntenna();
+    }
   }
 }

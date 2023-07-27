@@ -704,16 +704,22 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<void> loadDeviceSettings() async {
-    try {
-      await getOutputStates();
-    } catch (ex, stack) {
-      readerLogger.e("Failed to load device setting: output states", ex, stack);
+    if (settings.supportsOutputs) {
+      try {
+        await getOutputStates();
+      } catch (ex, stack) {
+        readerLogger.e("Failed to load device setting: output states", ex, stack);
+      }
     }
-    try {
-      await getInputStates();
-    } catch (ex, stack) {
-      readerLogger.e("Failed to load device setting: input states", ex, stack);
+
+    if (settings.supportsInputs) {
+      try {
+        await getInputStates();
+      } catch (ex, stack) {
+        readerLogger.e("Failed to load device setting: input states", ex, stack);
+      }
     }
+
     await super.loadDeviceSettings();
   }
 }

@@ -1,11 +1,21 @@
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
+class QRG2ReaderSettings extends UhfGen2ReaderSettings {
+  QRG2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
+
+  @override
+  bool get supportsOutputs => false;
+
+  @override
+  bool get supportsInputs => false;
+}
+
 class ReaderQRG2 extends UhfReaderGen2 {
   ReaderQRG2(CommInterface commInterface)
       : super(
             commInterface,
-            UhfGen2ReaderSettings(
+            QRG2ReaderSettings(
               possibleRegionValues: [UhfReaderRegion.etsi.protocolString],
             ));
 }
