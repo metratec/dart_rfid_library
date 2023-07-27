@@ -3,9 +3,19 @@ import 'dart:async';
 import 'package:logger/logger.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
+import 'package:reader_library/src/reader_hf/deskid_iso.dart';
+import 'package:reader_library/src/reader_hf/deskid_nfc.dart';
+import 'package:reader_library/src/reader_hf/dwarf15.dart';
+import 'package:reader_library/src/reader_hf/dwarf_nfc.dart';
+import 'package:reader_library/src/reader_hf/qr_nfc.dart';
+import 'package:reader_library/src/reader_hf/quasar_mx.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 import 'package:reader_library/src/reader_library_base.dart';
+import 'package:reader_library/src/reader_uhf/deskid_uhf.dart';
+import 'package:reader_library/src/reader_uhf/deskid_uhf_v2_e.dart';
+import 'package:reader_library/src/reader_uhf/dwarf_g2.dart';
+import 'package:reader_library/src/reader_uhf/pulsar_mx.dart';
 import 'package:reader_library/src/reader_uhf/qrg2.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen1.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
@@ -129,8 +139,18 @@ abstract class Reader {
   static Reader? getReaderImplementationByName({required String hardwareName, required CommInterface commInterface}) {
     hardwareName = hardwareName.toUpperCase();
     final specificReader = switch (hardwareName) {
+      "PULSARMX" => ReaderPulsarMx(commInterface),
+      "DESKID_UHF" => ReaderDeskIdUhf(commInterface),
+      "DWARFG2" => ReaderDwarfG2(commInterface),
       "PULSAR_LR" => ReaderPulsarLR(commInterface),
       "QRG2" => ReaderQRG2(commInterface),
+      "DESKID_UHF_V2_E" => ReaderDeskIdUhfV2E(commInterface),
+      "DESKID_ISO" => ReaderDeskIdIso(commInterface),
+      "QUASAR_MX" => ReaderQuasarMx(commInterface),
+      "DWARF15" => ReaderDwarf15(commInterface),
+      "DESKID_NFC" => ReaderDeskIdNfc(commInterface),
+      "QR_NFC" => ReaderQrNfc(commInterface),
+      "DWARF_NFC" => ReaderDwarfNfc(commInterface),
       _ => null,
     };
 

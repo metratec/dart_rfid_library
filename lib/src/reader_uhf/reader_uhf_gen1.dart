@@ -5,7 +5,7 @@ import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
 import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 
 class UhfGen1ReaderSettings extends UhfReaderSettings {
-  UhfGen1ReaderSettings({super.possiblePowerValues});
+  UhfGen1ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 }
 
 class UhfReaderGen1 extends UhfReader {
