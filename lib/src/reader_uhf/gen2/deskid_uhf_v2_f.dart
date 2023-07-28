@@ -3,6 +3,9 @@ import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
 class DeskIdUhfV2FReaderSettings extends UhfGen2ReaderSettings {
   DeskIdUhfV2FReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
+
+  @override
+  bool get hasBeeper => true;
 }
 
 class ReaderDeskIdUhfV2F extends UhfReaderGen2 {

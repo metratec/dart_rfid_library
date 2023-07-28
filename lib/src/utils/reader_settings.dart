@@ -19,6 +19,7 @@ abstract class ReaderSettings<T extends Reader> {
   bool get supportsInventoryReport => false;
   bool get supportsOutputs => false;
   bool get supportsInputs => false;
+  bool get hasBeeper => false;
 
   List<Membank> get readMembanks => [];
   List<Membank> get writeMembanks => [];
