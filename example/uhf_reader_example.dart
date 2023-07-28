@@ -98,11 +98,11 @@ void main() async {
 
     await _cinvTest(reader);
     await _heartbeatTest(reader);
-  } on ReaderException catch (e) {
-    print(e);
   } on ReaderTimeoutException catch (e) {
     print(e);
   } on ReaderCommException catch (e) {
+    print(e);
+  } on ReaderException catch (e) {
     print(e);
   }
 

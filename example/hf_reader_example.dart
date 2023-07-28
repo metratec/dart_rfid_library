@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:logger/logger.dart';
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_exception.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 
 Future<void> _readTest(HfReader reader) async {
@@ -107,11 +106,11 @@ void main() async {
     await _readTest(reader);
     await _cinvTest(reader);
     await _heartbeatTest(reader);
-  } on ReaderException catch (e) {
-    print(e);
   } on ReaderTimeoutException catch (e) {
     print(e);
   } on ReaderCommException catch (e) {
+    print(e);
+  } on ReaderException catch (e) {
     print(e);
   }
 
