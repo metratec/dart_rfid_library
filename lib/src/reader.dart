@@ -16,8 +16,11 @@ import 'package:reader_library/src/reader_uhf/gen1/deskid_uhf.dart';
 import 'package:reader_library/src/reader_uhf/gen1/dwarf_g2.dart';
 import 'package:reader_library/src/reader_uhf/gen1/pulsar_mx.dart';
 import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_e.dart';
+import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_f.dart';
 import 'package:reader_library/src/reader_uhf/gen2/pulsar_lr.dart';
 import 'package:reader_library/src/reader_uhf/gen2/qrg2.dart';
+import 'package:reader_library/src/reader_uhf/gen2/qrg2_e.dart';
+import 'package:reader_library/src/reader_uhf/gen2/qrg2_f.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen1.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
@@ -26,7 +29,10 @@ abstract class Reader {
   static const List<String> supportedDevices = [
     "PULSAR_LR",
     "QRG2",
+    "QRG2_E",
+    "QRG2_F",
     "DESKID_UHF_V2_E",
+    "DESKID_UHF_V2_F",
     "PULSARMX",
     "DESKID_UHF",
     "DWARFG2",
@@ -49,7 +55,10 @@ abstract class Reader {
   static const List<String> _uhfGen2Devices = [
     "PULSAR_LR",
     "QRG2",
+    "QRG2_E",
+    "QRG2_F",
     "DESKID_UHF_V2_E",
+    "DESKID_UHF_V2_F",
   ];
 
   /// A list of all devices that are old HF devices
@@ -147,7 +156,10 @@ abstract class Reader {
       "DWARFG2" => ReaderDwarfG2(commInterface),
       "PULSAR_LR" => ReaderPulsarLR(commInterface),
       "QRG2" => ReaderQRG2(commInterface),
+      "QRG2_E" => ReaderQRG2E(commInterface),
+      "QRG2_F" => ReaderQRG2F(commInterface),
       "DESKID_UHF_V2_E" => ReaderDeskIdUhfV2E(commInterface),
+      "DESKID_UHF_V2_F" => ReaderDeskIdUhfV2F(commInterface),
       "DESKID_ISO" => ReaderDeskIdIso(commInterface),
       "QUASAR_MX" => ReaderQuasarMx(commInterface),
       "DWARF15" => ReaderDwarf15(commInterface),
