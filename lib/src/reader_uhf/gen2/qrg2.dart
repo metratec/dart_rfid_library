@@ -17,5 +17,6 @@ class ReaderQRG2 extends UhfReaderGen2 {
             commInterface,
             QRG2ReaderSettings(
               possibleRegionValues: [UhfReaderRegion.etsi.protocolString],
+              possiblePowerValues: const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             ));
 }

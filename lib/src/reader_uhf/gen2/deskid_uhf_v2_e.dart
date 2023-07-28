@@ -6,5 +6,11 @@ class DeskIdUhfV2EReaderSettings extends UhfGen2ReaderSettings {
 }
 
 class ReaderDeskIdUhfV2E extends UhfReaderGen2 {
-  ReaderDeskIdUhfV2E(CommInterface commInterface) : super(commInterface, DeskIdUhfV2EReaderSettings());
+  ReaderDeskIdUhfV2E(CommInterface commInterface)
+      : super(
+            commInterface,
+            DeskIdUhfV2EReaderSettings(
+              possibleRegionValues: [UhfReaderRegion.etsi.protocolString],
+              possiblePowerValues: const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            ));
 }

@@ -4,20 +4,6 @@ import 'dart:typed_data';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
 
-class HfReaderSettings extends ReaderSettings<HfReader> {
-  @override
-  bool get isHfDevice => true;
-
-  @override
-  List<ConfigElement> getConfigElements(HfReader reader) {
-    return [];
-  }
-}
-
-enum HfReaderMode { iso14a, iso15, auto }
-
-enum MfcKeyType { A, B }
-
 /// Base class for all hf readers.
 /// Needs to be abstract to have a protocol distinction.
 ///
@@ -38,12 +24,6 @@ abstract class HfReader extends Reader {
 
   // TODO: add all hf functions here
 
-  /// Set the reader [mode].
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> setMode(HfReaderMode mode);
-
   /// Perform a single inventory.
   ///
   /// Returns a list of discovered tags.
@@ -52,12 +32,6 @@ abstract class HfReader extends Reader {
   @override
   Future<List<HfInventoryResult>> inventory();
 
-  /// Select a given [tag].
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> selectTag(HfTag tag);
-
   /// Authenticate a [block] on a mifare classic tag with [key] of
   /// [keyType].
   ///
@@ -65,19 +39,24 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType);
 
-  /// Write a hex string [data] to a tag at [block]. Depending on the mode the tag has to be selected
-  /// and authenticated.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> write(int block, String data);
-
   /// Read a hex string [data] of a [block] from a tag. Depending on the mode the tag has to be selected
   /// and authenticated.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<String> read(int block);
+
+  /// Select a given [tag].
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> selectTag(HfTag tag);
+
+  /// Set the reader [mode].
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setMode(HfReaderMode mode);
 
   /// Enable heartbeats events of the reader.
   /// The reader will send a heartbeat every x [seconds].
@@ -93,4 +72,25 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> stopHeartBeat();
+
+  /// Write a hex string [data] to a tag at [block]. Depending on the mode the tag has to be selected
+  /// and authenticated.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> write(int block, String data);
 }
+
+enum HfReaderMode { iso14a, iso15, auto }
+
+class HfReaderSettings extends ReaderSettings<HfReader> {
+  @override
+  bool get isHfDevice => true;
+
+  @override
+  List<ConfigElement> getConfigElements(HfReader reader) {
+    return [];
+  }
+}
+
+enum MfcKeyType { A, B }

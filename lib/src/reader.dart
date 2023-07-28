@@ -3,95 +3,25 @@ import 'dart:async';
 import 'package:logger/logger.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
-import 'package:reader_library/src/reader_hf/deskid_iso.dart';
-import 'package:reader_library/src/reader_hf/deskid_nfc.dart';
-import 'package:reader_library/src/reader_hf/dwarf15.dart';
-import 'package:reader_library/src/reader_hf/dwarf_nfc.dart';
-import 'package:reader_library/src/reader_hf/qr_nfc.dart';
-import 'package:reader_library/src/reader_hf/quasar_mx.dart';
+import 'package:reader_library/src/reader_hf/gen1/deskid_iso.dart';
+import 'package:reader_library/src/reader_hf/gen2/deskid_nfc.dart';
+import 'package:reader_library/src/reader_hf/gen1/dwarf15.dart';
+import 'package:reader_library/src/reader_hf/gen2/dwarf_nfc.dart';
+import 'package:reader_library/src/reader_hf/gen2/qr_nfc.dart';
+import 'package:reader_library/src/reader_hf/gen1/quasar_mx.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 import 'package:reader_library/src/reader_library_base.dart';
-import 'package:reader_library/src/reader_uhf/deskid_uhf.dart';
-import 'package:reader_library/src/reader_uhf/deskid_uhf_v2_e.dart';
-import 'package:reader_library/src/reader_uhf/dwarf_g2.dart';
-import 'package:reader_library/src/reader_uhf/pulsar_mx.dart';
-import 'package:reader_library/src/reader_uhf/qrg2.dart';
+import 'package:reader_library/src/reader_uhf/gen1/deskid_uhf.dart';
+import 'package:reader_library/src/reader_uhf/gen1/dwarf_g2.dart';
+import 'package:reader_library/src/reader_uhf/gen1/pulsar_mx.dart';
+import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_e.dart';
+import 'package:reader_library/src/reader_uhf/gen2/pulsar_lr.dart';
+import 'package:reader_library/src/reader_uhf/gen2/qrg2.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen1.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
 
 abstract class Reader {
-  final Parser _parser;
-  final RegExp hexRegEx = RegExp(r"^[a-fA-F0-9]+$");
-
-  /// Logger
-  final Logger _readerLogger = Logger();
-  Logger get readerLogger => _readerLogger;
-
-  Reader(this._parser, this.settings);
-
-  ReaderSettings settings;
-
-  /// Stream for continuous inventory.
-  StreamController<List<InventoryResult>> cinvStreamCtrl = StreamController.broadcast();
-
-  /// Connect to the reader.
-  ///
-  /// This function will initialize the underlying
-  /// communication interface and connect to the reader.
-  /// This function will throw a ReaderCommException if
-  /// the reader is already connected.
-  Future<bool> connect({required void Function(Object?, StackTrace) onError}) async {
-    return _parser.connect(onError: onError);
-  }
-
-  /// Disconnect the reader.
-  ///
-  /// This function will throw a ReaderCommException if
-  /// the reader is not connected.
-  Future<void> disconnect() async {
-    return _parser.disconnect();
-  }
-
-  /// Send a command.
-  ///
-  /// See Parser.sendCommand()
-  Future<CmdExitCode> sendCommand(String cmd, int timeout, List<ParserResponse> responses) {
-    return _parser.sendCommand(cmd, timeout, responses);
-  }
-
-  /// Register an [event].
-  void registerEvent(ParserResponse event) {
-    _parser.registerEvent(event);
-  }
-
-  /// Perform a single inventory.
-  ///
-  /// Returns a list if discovered tags.
-  /// The output format depends on the settings given to setInventoryFormat()
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<List<InventoryResult>> inventory();
-
-  /// Starts a continuous inventory.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> startContinuousInventory();
-
-  /// Stops a running continuous inventory.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> stopContinuousInventory();
-
-  /// Get the inventory stream for continuous inventories.
-  Stream<List<InventoryResult>> getInvStream() {
-    return cinvStreamCtrl.stream;
-  }
-
-  Future<void> loadDeviceSettings();
-
   /// A list of all supported devices.
   static const List<String> supportedDevices = [
     "PULSAR_LR",
@@ -135,6 +65,79 @@ abstract class Reader {
     "QR_NFC",
     "DWARF_NFC",
   ];
+
+  final Parser _parser;
+
+  final RegExp hexRegEx = RegExp(r"^[a-fA-F0-9]+$");
+
+  /// Logger
+  final Logger _readerLogger = Logger();
+
+  ReaderSettings settings;
+
+  /// Stream for continuous inventory.
+  StreamController<List<InventoryResult>> cinvStreamCtrl = StreamController.broadcast();
+
+  Reader(this._parser, this.settings);
+
+  Logger get readerLogger => _readerLogger;
+
+  /// Connect to the reader.
+  ///
+  /// This function will initialize the underlying
+  /// communication interface and connect to the reader.
+  /// This function will throw a ReaderCommException if
+  /// the reader is already connected.
+  Future<bool> connect({required void Function(Object?, StackTrace) onError}) async {
+    return _parser.connect(onError: onError);
+  }
+
+  /// Disconnect the reader.
+  ///
+  /// This function will throw a ReaderCommException if
+  /// the reader is not connected.
+  Future<void> disconnect() async {
+    return _parser.disconnect();
+  }
+
+  /// Get the inventory stream for continuous inventories.
+  Stream<List<InventoryResult>> getInvStream() {
+    return cinvStreamCtrl.stream;
+  }
+
+  /// Perform a single inventory.
+  ///
+  /// Returns a list if discovered tags.
+  /// The output format depends on the settings given to setInventoryFormat()
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<List<InventoryResult>> inventory();
+
+  Future<void> loadDeviceSettings();
+
+  /// Register an [event].
+  void registerEvent(ParserResponse event) {
+    _parser.registerEvent(event);
+  }
+
+  /// Send a command.
+  ///
+  /// See Parser.sendCommand()
+  Future<CmdExitCode> sendCommand(String cmd, int timeout, List<ParserResponse> responses) {
+    return _parser.sendCommand(cmd, timeout, responses);
+  }
+
+  /// Starts a continuous inventory.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> startContinuousInventory();
+
+  /// Stops a running continuous inventory.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> stopContinuousInventory();
 
   static Reader? getReaderImplementationByName({required String hardwareName, required CommInterface commInterface}) {
     hardwareName = hardwareName.toUpperCase();

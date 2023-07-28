@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_exception.dart';
+import 'package:reader_library/src/reader_uhf/gen2/pulsar_lr.dart';
 
 Future<void> _heartbeatTest(UhfReader reader) async {
   stdout.write("Starting heartbeat... ");

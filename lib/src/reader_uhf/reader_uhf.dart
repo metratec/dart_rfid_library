@@ -42,7 +42,7 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   UhfReaderSettings({
     this.possiblePowerValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     this.possibleQValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    this.possibleRegionValues = const ["ETSI", "ETSI_HIGH", "FCC"],
+    this.possibleRegionValues = const ["ETSI", "FCC"],
   });
 
   @override

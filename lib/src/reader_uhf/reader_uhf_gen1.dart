@@ -11,7 +11,7 @@ class UhfGen1ReaderSettings extends UhfReaderSettings {
 class UhfReaderGen1 extends UhfReader {
   UhfReaderGen1(CommInterface commInterface, UhfGen1ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
-    registerEvent(ParserResponse("+HBT", (_) => heartbeat.feed()));
+    registerEvent(ParserResponse("HBT", (_) => heartbeat.feed()));
   }
 
   @override
@@ -23,12 +23,6 @@ class UhfReaderGen1 extends UhfReader {
   @override
   Future<int> getInvAntenna() {
     // TODO: implement getInvAntenna
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> setInvAntenna(int val) {
-    // TODO: implement setInvAntenna
     throw UnimplementedError();
   }
 
@@ -77,6 +71,12 @@ class UhfReaderGen1 extends UhfReader {
   @override
   Future<void> setByteMask(String memBank, int start, String mask) {
     // TODO: implement setByteMask
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setInvAntenna(int val) {
+    // TODO: implement setInvAntenna
     throw UnimplementedError();
   }
 
