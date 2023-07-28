@@ -33,6 +33,7 @@ class UhfReaderGen2 extends UhfReader {
     registerEvent(ParserResponse("+HBT", (_) => heartbeat.feed()));
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
     registerEvent(ParserResponse("+CMINV", _handleCinvUrc));
+    registerEvent(ParserResponse("+CINVR", _handleCinvReportUrc));
   }
 
   void _handleExitCode(CmdExitCode code, String error) {
@@ -78,6 +79,24 @@ class UhfReaderGen2 extends UhfReader {
     ));
   }
 
+  void _handleCinvReportUrc(String line) {
+    if (_invSettings == null) {
+      return;
+    }
+
+    if (line.contains("<")) {
+      // TODO implement real info/error handling
+      return;
+    }
+
+    UhfInventoryResult? result = _parseInventoryReport(line.split(": ").last, _invSettings!);
+    if (result == null) {
+      return;
+    }
+
+    _cinv.add(result);
+  }
+
   /// Parse the antenna number from a inventory report.
   int _parseAntenna(String line) {
     if (line.contains("ANT") == false) {
@@ -99,6 +118,34 @@ class UhfReaderGen2 extends UhfReader {
       return UhfTag(tokens.first, tokens.last, 0);
     } else if (settings.tid == true && settings.rssi == true && tokens.length == 3) {
       return UhfTag(tokens[0], tokens[1], int.tryParse(tokens[2]) ?? 0);
+    }
+
+    return null;
+  }
+
+  /// Parse an InventoryResult from an inventory report response.
+  UhfInventoryResult? _parseInventoryReport(String report, UhfInvSettings settings) {
+    List<String> tokens = report.split(',');
+
+    UhfTag? tag;
+
+    if (settings.tid == false && settings.rssi == false && tokens.length == 2) {
+      tag = UhfTag(tokens[0], '', 0);
+    } else if (settings.tid == false && settings.rssi == true && tokens.length == 3) {
+      tag = UhfTag(tokens[0], '', int.tryParse(tokens[1]) ?? 0);
+    } else if (settings.tid == true && settings.rssi == false && tokens.length == 3) {
+      tag = UhfTag(tokens[0], tokens.last, 0);
+    } else if (settings.tid == true && settings.rssi == true && tokens.length == 4) {
+      tag = UhfTag(tokens[0], tokens[1], int.tryParse(tokens[2]) ?? 0);
+    }
+
+    if (tag != null) {
+      return UhfInventoryResult(
+        tag: tag,
+        lastAntenna: int.tryParse(tokens.last) ?? 1,
+        count: 1,
+        timestamp: DateTime.now(),
+      );
     }
 
     return null;
@@ -175,6 +222,31 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     return invResults;
+  }
+
+  Future<List<UhfInventoryResult>> inventoryReport({int inventoryReportDuration = 100}) async {
+    List<UhfInventoryResult> report = [];
+    String error = "";
+
+    _invSettings = await getInventorySettings();
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+INVR=$inventoryReportDuration", 5000, [
+        ParserResponse("+INVR", (line) {
+          UhfInventoryResult? tag = _parseInventoryReport(line, _invSettings!);
+          if (tag != null) {
+            report.add(tag);
+          }
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    return report;
   }
 
   @override
@@ -255,6 +327,34 @@ class UhfReaderGen2 extends UhfReader {
   Future<void> stopContinuousMuxInventory() async {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 1000, []);
+      _handleExitCode(exitCode, "");
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+  }
+
+  Future<void> startContinuousInventoryReport({int inventoryReportDuration = 200}) async {
+    // TODO current implementation does nothing
+    throw UnimplementedError();
+
+    _invSettings = await getInventorySettings();
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+CINVR=$inventoryReportDuration", 1000, []);
+      _handleExitCode(exitCode, "");
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  Future<void> stopContinuousInventoryReport() async {
+    // TODO current implementation does nothing
+    throw UnimplementedError();
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+BINVR", 1000, []);
       _handleExitCode(exitCode, "");
     } on ReaderException {
       rethrow;
