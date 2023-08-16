@@ -1,8 +1,8 @@
+import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
-import 'package:reader_library/src/utils/uhf_inventory_result.dart';
 
 class UhfGen1ReaderSettings extends UhfReaderSettings {
   UhfGen1ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});

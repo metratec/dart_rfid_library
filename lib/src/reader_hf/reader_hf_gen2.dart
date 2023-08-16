@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
-import 'package:reader_library/src/reader_exception.dart';
 
 class HfGen2ReaderSettings extends HfReaderSettings {
   @override

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
@@ -71,13 +72,13 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
       BoolConfigElement(
         name: "Fast Id",
         group: "Advanced Settings",
-        value: fastStart,
+        value: fastId,
         setter: (val) => throw UnimplementedError("Fast id value has not been implemented yet"),
       ),
       BoolConfigElement(
         name: "Tag Focus",
         group: "Advanced Settings",
-        value: fastStart,
+        value: tagFocus,
         setter: (val) => throw UnimplementedError("Fast id value has not been implemented yet"),
       ),
     ];

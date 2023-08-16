@@ -23,3 +23,7 @@ dependencies:
       url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
       ref: identifiable-device
   string_validator: ^0.3.0
+  dart_rfid_utils:
+    git:
+      url: https://gitlab.metratec.com/dart-libraries/dart_rfid_utils.git
+      ref: HEAD

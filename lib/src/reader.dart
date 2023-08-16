@@ -1,14 +1,15 @@
 import 'dart:async';
 
+import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:logger/logger.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/reader_hf/gen1/deskid_iso.dart';
-import 'package:reader_library/src/reader_hf/gen2/deskid_nfc.dart';
 import 'package:reader_library/src/reader_hf/gen1/dwarf15.dart';
+import 'package:reader_library/src/reader_hf/gen1/quasar_mx.dart';
+import 'package:reader_library/src/reader_hf/gen2/deskid_nfc.dart';
 import 'package:reader_library/src/reader_hf/gen2/dwarf_nfc.dart';
 import 'package:reader_library/src/reader_hf/gen2/qr_nfc.dart';
-import 'package:reader_library/src/reader_hf/gen1/quasar_mx.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
 import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 import 'package:reader_library/src/reader_library_base.dart';
