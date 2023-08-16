@@ -22,6 +22,66 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
   List<Membank> get writeMembanks => [Membank.epc, Membank.user];
   @override
   List<Membank> get lockMembanks => [Membank.epc, Membank.user, Membank.lock, Membank.kill];
+
+  bool? fastStart;
+  bool? fastId;
+  bool? tagFocus;
+
+  @override
+  List<ConfigElement> getConfigElements(UhfReader reader) {
+    return [
+      if (possiblePowerValues.length > 1)
+        NumConfigElement<int>(
+          name: "Power",
+          group: "Inventory Options",
+          value: currentPower,
+          possibleValues: possiblePowerValues,
+          setter: reader.setOutputPower,
+        ),
+      if (possibleQValues.length > 1)
+        NumConfigElement<int>(
+          name: "Q Value",
+          group: "Inventory Options",
+          value: currentQ,
+          possibleValues: possibleQValues,
+          setter: reader.setQStart,
+        ),
+      if (possibleRegionValues.length > 1)
+        StringConfigElement(
+          name: "Region",
+          group: "Inventory Options",
+          value: currentRegion,
+          possibleValues: possibleRegionValues,
+          setter: reader.setRegion,
+        ),
+      BoolConfigElement(
+        name: "Fast Start",
+        group: "Inventory Options",
+        value: fastStart,
+        setter: (val) => throw UnimplementedError("Fast start value has not been implemented yet"),
+      ),
+      if (antennaCount > 1)
+        NumConfigElement<int>(
+          name: "Mux",
+          group: "Antenna/Mux",
+          value: currentMuxAntenna,
+          possibleValues: Iterable.generate(antennaCount, (i) => i + 1),
+          setter: reader.setMuxAntenna,
+        ),
+      BoolConfigElement(
+        name: "Fast Id",
+        group: "Advanced Settings",
+        value: fastStart,
+        setter: (val) => throw UnimplementedError("Fast id value has not been implemented yet"),
+      ),
+      BoolConfigElement(
+        name: "Tag Focus",
+        group: "Advanced Settings",
+        value: fastStart,
+        setter: (val) => throw UnimplementedError("Fast id value has not been implemented yet"),
+      ),
+    ];
+  }
 }
 
 class UhfReaderGen2 extends UhfReader {

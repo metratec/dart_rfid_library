@@ -3,6 +3,7 @@ abstract class ConfigElement<T> {
   Future<void> Function(T) setter;
   final Iterable<T>? possibleValues;
   final bool isEnum;
+  final String? group;
   T? value;
 
   ConfigElement({
@@ -11,6 +12,7 @@ abstract class ConfigElement<T> {
     this.possibleValues,
     this.isEnum = false,
     this.value,
+    this.group,
   });
 
   Map<String, dynamic> toJson() => {
@@ -18,6 +20,7 @@ abstract class ConfigElement<T> {
         "value": value,
         "possibleValues": possibleValues,
         "isEnum": isEnum,
+        "group": group,
       };
 
   ConfigElement copy();
@@ -33,6 +36,7 @@ class StringConfigElement extends ConfigElement<String> {
     super.possibleValues,
     super.isEnum = true,
     super.value,
+    super.group,
   });
 
   @override
@@ -42,6 +46,7 @@ class StringConfigElement extends ConfigElement<String> {
       value: value,
       possibleValues: possibleValues != null ? List.of(possibleValues!) : null,
       isEnum: isEnum,
+      group: group,
       setter: setter,
     );
   }
@@ -54,6 +59,7 @@ class NumConfigElement<T extends num> extends ConfigElement<T> {
     super.possibleValues,
     super.isEnum = false,
     super.value,
+    super.group,
   });
 
   @override
@@ -63,6 +69,7 @@ class NumConfigElement<T extends num> extends ConfigElement<T> {
       value: value,
       possibleValues: possibleValues != null ? List.of(possibleValues!) : null,
       isEnum: isEnum,
+      group: group,
       setter: setter,
     );
   }
@@ -72,6 +79,7 @@ class BoolConfigElement extends ConfigElement<bool> {
   BoolConfigElement({
     required super.name,
     required super.setter,
+    super.group,
     super.value,
   });
 
@@ -80,6 +88,7 @@ class BoolConfigElement extends ConfigElement<bool> {
     return BoolConfigElement(
       name: name,
       value: value,
+      group: group,
       setter: setter,
     );
   }
