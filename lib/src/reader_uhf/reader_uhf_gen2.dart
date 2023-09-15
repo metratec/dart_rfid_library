@@ -1353,6 +1353,36 @@ class UhfReaderGen2 extends UhfReader {
       }
     }
 
+    try {
+      await getMultiplexer();
+    } catch (ex, stack) {
+      readerLogger.e("Failed to load device setting: multiplexer", ex, stack);
+    }
+
+    try {
+      await getRfMode();
+    } catch (ex, stack) {
+      readerLogger.e("Failed to load device setting: rf mode", ex, stack);
+    }
+
+    try {
+      await getSession();
+    } catch (ex, stack) {
+      readerLogger.e("Failed to load device setting: session", ex, stack);
+    }
+
+    try {
+      await getImpinjSettings();
+    } catch (ex, stack) {
+      readerLogger.e("Failed to load device setting: impinj settings", ex, stack);
+    }
+
+    try {
+      await getHighOnTag();
+    } catch (ex, stack) {
+      readerLogger.e("Failed to load device setting: high on tag", ex, stack);
+    }
+
     await super.loadDeviceSettings();
   }
 }
