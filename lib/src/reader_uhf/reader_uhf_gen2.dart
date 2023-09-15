@@ -24,62 +24,268 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
   @override
   List<Membank> get lockMembanks => [Membank.epc, Membank.user, Membank.lock, Membank.kill];
 
-  bool? fastStart;
+  UhfInvSettings? invSettings;
+
   bool? fastId;
   bool? tagFocus;
 
+  /// The current rf mode value. Should always be set if the reader checks the rf mode value
+  int? currentRfMode;
+
+  /// The current rf mode value. Should always be set if the reader checks the rf mode value
+  List<int>? currentMultiplexer;
+
+  Iterable<int> possibleRfModeValues(String region) {
+    if (region == "FCC") {
+      return [103, 120, 222, 223, 241, 244, 265, 302, 323, 344, 345];
+    }
+
+    return [222, 223, 241, 244, 265];
+  }
+
+  String? currentSession;
+
+  List<String> possibleSessionValues = ["AUTO", "0", "1", "2", "3"];
+
+  bool? highOnTag;
+  int? highOnTagPin;
+  int? highOnTagDuration;
+
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
+    if (reader is! UhfReaderGen2) {
+      return super.getConfigElements(reader);
+    }
+
     return [
-      if (possiblePowerValues.length > 1)
-        NumConfigElement<int>(
-          name: "Power",
-          group: "Inventory Options",
-          value: currentPower,
-          possibleValues: possiblePowerValues,
-          setter: reader.setOutputPower,
-        ),
-      if (possibleQValues.length > 1)
-        NumConfigElement<int>(
-          name: "Q Value",
-          group: "Inventory Options",
-          value: currentQ,
-          possibleValues: possibleQValues,
-          setter: reader.setQStart,
-        ),
       if (possibleRegionValues.length > 1)
         StringConfigElement(
           name: "Region",
-          group: "Inventory Options",
+          category: "Inventory Options",
           value: currentRegion,
-          possibleValues: possibleRegionValues,
+          possibleValues: (configs) => possibleRegionValues,
+          isEnabled: (configs) => true,
           setter: reader.setRegion,
         ),
-      BoolConfigElement(
-        name: "Fast Start",
-        group: "Inventory Options",
-        value: fastStart,
-        setter: (val) => throw UnimplementedError("Fast start value has not been implemented yet"),
-      ),
+      if (possibleQValues.length > 1)
+        ConfigElementGroup(
+          name: "Q Value",
+          category: "Inventory Options",
+          addDivider: true,
+          setter: (val) async {
+            final int qStartVal = val.firstWhereOrNull((e) => e.name == "Q Start")?.value ?? 5;
+            final int qMinVal = val.firstWhereOrNull((e) => e.name == "Q Min")?.value ?? possibleQValues.first;
+            final int qMaxVal = val.firstWhereOrNull((e) => e.name == "Q Max")?.value ?? possibleQValues.last;
+
+            await reader.setQ(qStartVal, qMinVal, qMaxVal);
+          },
+          isEnabled: (configs) => true,
+          value: [
+            NumConfigElement<int>(
+              name: "Q Start",
+              category: "Inventory Options",
+              value: currentQ,
+              possibleValues: (configs) => possibleQValues,
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+            NumConfigElement<int>(
+              name: "Q Min",
+              category: "Inventory Options",
+              value: minQ,
+              possibleValues: (configs) => possibleQValues,
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+            NumConfigElement<int>(
+              name: "Q Max",
+              category: "Inventory Options",
+              value: maxQ,
+              possibleValues: (configs) => possibleQValues,
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+          ],
+        ),
+      if (possiblePowerValues.length > 1)
+        ConfigElementGroup(
+          name: "Power Values",
+          setter: (val) async {
+            final powerValues = val.map((e) => e.value).whereType<int>().toList();
+            await reader.setOutputPower(powerValues);
+          },
+          category: "Inventory Options",
+          isEnabled: (configs) => true,
+          addDivider: true,
+          value: [
+            for (var (index, powerVal) in (currentPower ?? []).indexed)
+              NumConfigElement<int>(
+                name: "Power Ant ${index + 1}",
+                category: "Inventory Options",
+                value: powerVal,
+                possibleValues: (configs) => possiblePowerValues,
+                isEnabled: (configs) => true,
+                setter: (val) async {},
+              ),
+          ],
+        ),
       if (antennaCount > 1)
-        NumConfigElement<int>(
-          name: "Mux",
-          group: "Antenna/Mux",
+        ListConfigElement<int>(
+          name: "Mux Sequence",
+          category: "Antenna/Mux",
           value: currentMuxAntenna,
-          possibleValues: Iterable.generate(antennaCount, (i) => i + 1),
+          possibleValues: (config) => Iterable.generate(antennaCount, (i) => i + 1),
+          isEnabled: (configs) => true,
+          stringToElementConverter: int.parse,
           setter: reader.setMuxAntenna,
         ),
-      BoolConfigElement(
-        name: "Fast Id",
-        group: "Advanced Settings",
-        value: fastId,
-        setter: (val) => throw UnimplementedError("Fast id value has not been implemented yet"),
+      ConfigElementGroup(
+        name: "Ext. Multiplexer",
+        setter: (val) async {
+          final muxValues = val
+              .map<int>((e) => switch (e.value) {
+                    "4x" => 4,
+                    "8x" => 8,
+                    "16x" => 16,
+                    _ => 0,
+                  })
+              .toList();
+          await reader.setMultiplexer(muxValues);
+        },
+        category: "Antenna/Mux",
+        isEnabled: (configs) => true,
+        addDivider: true,
+        value: [
+          for (var (index, muxVal) in (currentMultiplexer ?? []).indexed)
+            StringConfigElement(
+              name: "Ext. Multiplexer Port ${index + 1}",
+              category: "Inventory Options",
+              value: switch (muxVal) {
+                4 => "4x",
+                8 => "8x",
+                16 => "16x",
+                _ => "no",
+              },
+              possibleValues: (configs) => ["no", "4x", "8x", "16x"],
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+        ],
       ),
-      BoolConfigElement(
-        name: "Tag Focus",
-        group: "Advanced Settings",
-        value: tagFocus,
-        setter: (val) => throw UnimplementedError("Fast id value has not been implemented yet"),
+      NumConfigElement<int>(
+        name: "Rf Mode",
+        category: "Advanced Settings",
+        value: currentRfMode,
+        isEnum: true,
+        possibleValues: (configs) {
+          final String region = configs.firstWhereOrNull((e) => e.name == "Region")?.value ?? "ETSI";
+          return possibleRfModeValues(region);
+        },
+        isEnabled: (configs) => true,
+        setter: reader.setRfMode,
+      ),
+      ConfigElementGroup(
+        name: "Inventory Settings",
+        category: "Advanced Settings",
+        isEnabled: (configs) => true,
+        setter: (val) async {
+          final bool onlyNewTagVal = val.firstWhereOrNull((e) => e.name == "Only new Tags")?.value ?? false;
+          final bool fastStartVal = val.firstWhereOrNull((e) => e.name == "Fast Start")?.value ?? false;
+          invSettings ??= UhfInvSettings(onlyNewTagVal, false, false, fastStartVal);
+          invSettings?.ont = onlyNewTagVal;
+          invSettings?.fastStart = fastStartVal;
+
+          await reader.setInventorySettings(invSettings!);
+        },
+        value: [
+          BoolConfigElement(
+            name: "Fast Start",
+            value: invSettings?.fastStart,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+          BoolConfigElement(
+            name: "Only new Tags",
+            value: invSettings?.ont,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+        ],
+      ),
+      ConfigElementGroup(
+        name: "Advanced Settings Group",
+        setter: (val) async {
+          final bool fastIdVal = val.firstWhereOrNull((e) => e.name == "Fast Id")?.value ?? false;
+          final bool tagFocusVal = val.firstWhereOrNull((e) => e.name == "Tag Focus")?.value ?? false;
+
+          await reader.setImpinjSettings(fastIdVal, tagFocusVal);
+        },
+        category: "Advanced Settings",
+        isEnabled: (configs) => true,
+        value: [
+          BoolConfigElement(
+            name: "Fast Id",
+            category: "Advanced Settings",
+            value: fastId,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+          BoolConfigElement(
+            name: "Tag Focus",
+            category: "Advanced Settings",
+            value: tagFocus,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+        ],
+      ),
+      StringConfigElement(
+        name: "Session",
+        category: "Advanced Settings",
+        value: currentSession,
+        possibleValues: (configs) => possibleSessionValues,
+        isEnabled: (configs) => true,
+        setter: (val) async {
+          await reader.setSession(val);
+        },
+      ),
+      ConfigElementGroup(
+        name: "High on Tag Group",
+        setter: (val) async {
+          final bool highOnTagVal = val.firstWhereOrNull((e) => e.name == "High on Tag")?.value ?? false;
+          final int highOnTagPinVal = val.firstWhereOrNull((e) => e.name == "High on Tag Pin")?.value ?? 1;
+          final int highOnTagDurationVal = val.firstWhereOrNull((e) => e.name == "High on Tag Duration")?.value ?? 100;
+
+          await reader.setHighOnTag(highOnTagVal, highOnTagPinVal, highOnTagDurationVal);
+        },
+        category: "Advanced Settings",
+        isEnabled: (configs) => true,
+        addDivider: true,
+        value: [
+          BoolConfigElement(
+            name: "High on Tag",
+            category: "Advanced Settings",
+            value: highOnTag,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+          NumConfigElement<int>(
+            name: "High on Tag Pin",
+            category: "Advanced Settings",
+            value: highOnTagPin,
+            isEnabled: (configs) =>
+                (configs.firstWhereOrNull((e) => e.name == "High on Tag") as BoolConfigElement?)?.value ?? false,
+            setter: (val) async {},
+          ),
+          NumConfigElement<int>(
+            name: "High on Tag Duration",
+            category: "Advanced Settings",
+            value: highOnTagDuration,
+            isEnabled: (configs) =>
+                (configs.firstWhereOrNull((e) => e.name == "High on Tag") as BoolConfigElement?)?.value ?? false,
+            setter: (val) async {},
+          ),
+        ],
       ),
     ];
   }
@@ -464,23 +670,18 @@ class UhfReaderGen2 extends UhfReader {
     }
   }
 
-  String _boolTo01(bool b) {
-    return b ? '1' : '0';
-  }
-
   @override
-  Future<void> setInventorySettings(UhfInvSettings settings) async {
+  Future<void> setInventorySettings(UhfInvSettings invSettings) async {
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand(
-          "AT+INVS=${_boolTo01(settings.ont)},${_boolTo01(settings.rssi)},${_boolTo01(settings.tid)}", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+INVS=${invSettings.toProtocolString()}", 1000, [
         ParserResponse("+INVS", (line) {
           error = line;
         })
       ]);
       _handleExitCode(exitCode, error);
-      _invSettings = settings;
+      _invSettings = invSettings;
     } on ReaderException {
       rethrow;
     } catch (ex) {
@@ -489,7 +690,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<int> getOutputPower() async {
+  Future<List<int>> getOutputPower() async {
     String error = "";
 
     try {
@@ -497,8 +698,7 @@ class UhfReaderGen2 extends UhfReader {
         ParserResponse("+PWR", (line) {
           final split = line.split(",");
           settings.antennaCount = split.length;
-          final powerString = split[0];
-          settings.currentPower = int.tryParse(powerString) ?? settings.minPower;
+          settings.currentPower = split.map((e) => int.tryParse(e) ?? settings.minPower).toList();
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -512,15 +712,18 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<void> setOutputPower(int val) async {
-    if (val < settings.minPower || val > settings.maxPower) {
-      throw ReaderException("Power value not in range [${settings.minPower}, ${settings.maxPower}]");
+  Future<void> setOutputPower(List<int> val) async {
+    final onlyValidPowerValues = val.none((e) => e < settings.minPower || e > settings.maxPower);
+    if (onlyValidPowerValues) {}
+
+    if (val.length > settings.antennaCount) {
+      throw ReaderException("Too many power values received. Must be at most ${settings.antennaCount} values");
     }
 
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+PWR=$val", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+PWR=${val.join(",")}", 1000, [
         ParserResponse("+PWR", (line) {
           error = line;
         })
@@ -668,15 +871,14 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<int> getMuxAntenna() async {
+  Future<List<int>> getMuxAntenna() async {
     String error = "";
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+MUX?", 1000, [
         ParserResponse("+MUX", (line) {
-          // TODO AT+MUX supports lists of ints so getMuxAntenna should support it too
-          final splitValues = line.split(",");
-          settings.currentMuxAntenna = int.tryParse(splitValues[0]) ?? settings.currentMuxAntenna;
+          final split = line.split(",");
+          settings.currentMuxAntenna = split.map((e) => int.tryParse(e)).whereType<int>().toList();
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -690,16 +892,16 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
-  Future<void> setMuxAntenna(int val) async {
-    // TODO AT+MUX supports lists of ints so getMuxAntenna should support it too
-    if (val > settings.antennaCount) {
+  Future<void> setMuxAntenna(List<int> val) async {
+    final onlyValidValues = val.every((e) => e < settings.antennaCount);
+    if (onlyValidValues) {
       throw ReaderException("Mux value not in antenna range");
     }
 
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+MUX=$val", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+MUX=${val.join(",")}", 1000, [
         ParserResponse("+MUX", (line) {
           error = line;
         })
@@ -797,8 +999,8 @@ class UhfReaderGen2 extends UhfReader {
             return;
           }
 
-          List<bool> settings = line.split(",").map((e) => (e == '1')).toList();
-          invSettings = UhfInvSettings(settings[0], settings[1], settings[2]);
+          List<bool> values = line.split(",").map((e) => (e == '1')).toList();
+          invSettings = UhfInvSettings(values[0], values[1], values[2], values[3]);
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -813,6 +1015,221 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     return invSettings!;
+  }
+
+  Future<List<int>> getMultiplexer() async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+EMX?", 1000, [
+        ParserResponse("+EMX", (line) {
+          final split = line.split(",");
+          (settings as UhfGen2ReaderSettings).currentMultiplexer =
+              split.map((e) => int.tryParse(e)).whereType<int>().toList();
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    return (settings as UhfGen2ReaderSettings).currentMultiplexer!;
+  }
+
+  Future<void> setMultiplexer(List<int> muxValues) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+EMX=${muxValues.join(",")}", 1000, [
+        ParserResponse("+EMX", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    (settings as UhfGen2ReaderSettings).currentMultiplexer = muxValues;
+  }
+
+  Future<int> getRfMode() async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+RFM?", 1000, [
+        ParserResponse("+RFM", (line) {
+          (settings as UhfGen2ReaderSettings).currentRfMode =
+              int.tryParse(line) ?? (settings as UhfGen2ReaderSettings).currentRfMode;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    return (settings as UhfGen2ReaderSettings).currentRfMode!;
+  }
+
+  Future<void> setRfMode(int value) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+RFM=$value", 1000, [
+        ParserResponse("+RFM", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    (settings as UhfGen2ReaderSettings).currentRfMode = value;
+  }
+
+  Future<String> getSession() async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+SES?", 1000, [
+        ParserResponse("+SES", (line) {
+          (settings as UhfGen2ReaderSettings).currentSession = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    return (settings as UhfGen2ReaderSettings).currentSession!;
+  }
+
+  Future<void> setSession(String value) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+SES=$value", 1000, [
+        ParserResponse("+SES", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    (settings as UhfGen2ReaderSettings).currentSession = value;
+  }
+
+  Future<(bool, bool)> getImpinjSettings() async {
+    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+ICS?", 1000, [
+        ParserResponse("+ICS", (line) {
+          final split = line.split(",");
+          if (split.length < 2) {
+            return;
+          }
+
+          gen2Settings.fastId = line[0] == '1';
+          gen2Settings.tagFocus = line[1] == '1';
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    return (gen2Settings.fastId!, gen2Settings.tagFocus!);
+  }
+
+  Future<void> setImpinjSettings(bool fastIdVal, bool tagFocusVal) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+ICS=${fastIdVal.toProtocolString()},${tagFocusVal.toProtocolString()}",
+        1000,
+        [
+          ParserResponse("+ICS", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    (settings as UhfGen2ReaderSettings).fastId = fastIdVal;
+    (settings as UhfGen2ReaderSettings).tagFocus = tagFocusVal;
+  }
+
+  Future<(bool, int, int)> getHighOnTag() async {
+    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+HOT?", 1000, [
+        ParserResponse("+HOT", (line) {
+          if (line == "OFF") {
+            gen2Settings.highOnTag = false;
+            return;
+          }
+
+          final split = line.split(",");
+          if (split.length < 2) {
+            return;
+          }
+
+          gen2Settings.highOnTag = true;
+          gen2Settings.highOnTagPin = int.parse(line[0]);
+          gen2Settings.highOnTagDuration = int.parse(line[1]);
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    return (gen2Settings.highOnTag!, gen2Settings.highOnTagPin!, gen2Settings.highOnTagDuration!);
+  }
+
+  Future<void> setHighOnTag(bool highOnTagVal, int highOnTagPinVal, int highOnTagDurationVal) async {
+    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        highOnTagVal ? "AT+HOT=0" : "AT+HOT=${highOnTagPinVal},${highOnTagDurationVal}",
+        1000,
+        [
+          ParserResponse("+HOT", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    gen2Settings.highOnTag = highOnTagVal;
+    gen2Settings.highOnTagPin = highOnTagPinVal;
+    gen2Settings.highOnTagDuration = highOnTagDurationVal;
   }
 
   @override

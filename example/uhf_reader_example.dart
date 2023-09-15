@@ -64,11 +64,11 @@ void main() async {
 
   try {
     stdout.write("Setting power... ");
-    await reader.setOutputPower(9);
+    await reader.setOutputPower([9]);
     stdout.writeln("Done!");
 
     stdout.write("Running inventory... ");
-    await reader.setInventorySettings(UhfInvSettings(false, true, true));
+    await reader.setInventorySettings(UhfInvSettings(false, true, true, false));
     List<InventoryResult> inventory = await reader.inventory();
     stdout.writeln("Done!");
     print(inventory);

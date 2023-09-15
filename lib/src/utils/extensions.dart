@@ -22,3 +22,7 @@ extension StringExtension on String {
     return Uint8List.fromList(data);
   }
 }
+
+extension BoolExtension on bool {
+  String toProtocolString() => this ? "1" : "0";
+}

@@ -33,13 +33,13 @@ class UhfReaderGen1 extends UhfReader {
   }
 
   @override
-  Future<int> getMuxAntenna() {
+  Future<List<int>> getMuxAntenna() {
     // TODO: implement getMuxAntenna
     throw UnimplementedError();
   }
 
   @override
-  Future<int> getOutputPower() {
+  Future<List<int>> getOutputPower() {
     // TODO: implement getOutputPower
     throw UnimplementedError();
   }
@@ -87,13 +87,13 @@ class UhfReaderGen1 extends UhfReader {
   }
 
   @override
-  Future<void> setMuxAntenna(int val) {
+  Future<void> setMuxAntenna(List<int> val) {
     // TODO: implement setMuxAntenna
     throw UnimplementedError();
   }
 
   @override
-  Future<void> setOutputPower(int val) {
+  Future<void> setOutputPower(List<int> val) {
     // TODO: implement setOutputPower
     throw UnimplementedError();
   }

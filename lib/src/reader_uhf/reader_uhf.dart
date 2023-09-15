@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/src/reader.dart';
+import 'package:reader_library/src/utils/extensions.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
 import 'package:reader_library/src/utils/reader_settings.dart';
 
@@ -21,7 +23,7 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   int get minPower => possiblePowerValues.fold(0, min);
 
   /// The current power value. Should always be set if the reader checks the power value
-  int? currentPower;
+  List<int>? currentPower;
 
   /// Maximal Q value.
   int get maxQ => possiblePowerValues.fold(0, max);
@@ -36,7 +38,7 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   String? currentRegion;
 
   /// The current mux antenna value. Should always be set if the reader checks the mux antenna value
-  int currentMuxAntenna = 1;
+  List<int> currentMuxAntenna = [1];
 
   UhfReaderSettings({
     this.possiblePowerValues = const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -50,32 +52,85 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
     return [
-      if (possiblePowerValues.length > 1)
-        NumConfigElement<int>(
-          name: "Power",
-          value: currentPower,
-          possibleValues: possiblePowerValues,
-          setter: reader.setOutputPower,
-        ),
-      if (possibleQValues.length > 1)
-        NumConfigElement<int>(
-          name: "Q Value",
-          value: currentQ,
-          possibleValues: possibleQValues,
-          setter: reader.setQStart,
-        ),
       if (possibleRegionValues.length > 1)
         StringConfigElement(
           name: "Region",
+          category: "Inventory Options",
           value: currentRegion,
-          possibleValues: possibleRegionValues,
+          possibleValues: (configs) => possibleRegionValues,
+          isEnabled: (configs) => true,
           setter: reader.setRegion,
         ),
+      if (possibleQValues.length > 1)
+        ConfigElementGroup(
+          name: "Q Value",
+          category: "Inventory Options",
+          addDivider: true,
+          setter: (val) async {
+            final int qStartVal = val.firstWhereOrNull((e) => e.name == "Q Start")?.value ?? 5;
+            final int qMinVal = val.firstWhereOrNull((e) => e.name == "Q Min")?.value ?? possibleQValues.first;
+            final int qMaxVal = val.firstWhereOrNull((e) => e.name == "Q Max")?.value ?? possibleQValues.last;
+
+            await reader.setQ(qStartVal, qMinVal, qMaxVal);
+          },
+          isEnabled: (configs) => true,
+          value: [
+            NumConfigElement<int>(
+              name: "Q Start",
+              category: "Inventory Options",
+              value: currentQ,
+              possibleValues: (configs) => possibleQValues,
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+            NumConfigElement<int>(
+              name: "Q Min",
+              category: "Inventory Options",
+              value: minQ,
+              possibleValues: (configs) => possibleQValues,
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+            NumConfigElement<int>(
+              name: "Q Max",
+              category: "Inventory Options",
+              value: maxQ,
+              possibleValues: (configs) => possibleQValues,
+              isEnabled: (configs) => true,
+              setter: (val) async {},
+            ),
+          ],
+        ),
+      if (possiblePowerValues.length > 1)
+        ConfigElementGroup(
+          name: "Power Values",
+          setter: (val) async {
+            final powerValues = val.map((e) => e.value).whereType<int>().toList();
+            await reader.setOutputPower(powerValues);
+          },
+          category: "Inventory Options",
+          isEnabled: (configs) => true,
+          addDivider: true,
+          value: [
+            for (var (index, powerVal) in (currentPower ?? []).indexed)
+              NumConfigElement<int>(
+                name: "Power Ant ${index + 1}",
+                category: "Inventory Options",
+                value: powerVal,
+                possibleValues: (configs) => possiblePowerValues,
+                isEnabled: (configs) => true,
+                setter: (val) async {},
+              ),
+          ],
+        ),
       if (antennaCount > 1)
-        NumConfigElement<int>(
-          name: "Mux",
+        ListConfigElement<int>(
+          name: "Mux Sequence",
+          category: "Antenna/Mux",
           value: currentMuxAntenna,
-          possibleValues: Iterable.generate(antennaCount, (i) => i + 1),
+          possibleValues: (config) => Iterable.generate(antennaCount, (i) => i + 1),
+          isEnabled: (configs) => true,
+          stringToElementConverter: int.parse,
           setter: reader.setMuxAntenna,
         ),
     ];
@@ -121,11 +176,15 @@ class UhfInvSettings {
   /// Tag ID info.
   bool tid;
 
-  UhfInvSettings(this.ont, this.rssi, this.tid);
+  bool fastStart;
+
+  UhfInvSettings(this.ont, this.rssi, this.tid, this.fastStart);
+
+  String toProtocolString() => [ont, rssi, tid, fastStart].map((e) => e.toProtocolString()).join(",");
 
   @override
   String toString() {
-    return "ONT=$ont;RSSI=$rssi;TID=$tid";
+    return "ONT=$ont;RSSI=$rssi;TID=$tid;FS=$fastStart";
   }
 }
 
@@ -173,15 +232,18 @@ abstract class UhfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<int> getOutputPower();
+  Future<List<int>> getOutputPower();
 
   /// Set the output power of the reader to [val].
   ///
   /// The value is also written into [settings]
   ///
+  /// If val only contains one value, the value is applied to all outputs.
+  /// Otherwise the length of val must be the [antennaCount]
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> setOutputPower(int val);
+  Future<void> setOutputPower(List<int> val);
 
   /// Set the starting Q value to [val].
   ///
@@ -246,7 +308,7 @@ abstract class UhfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<int> getMuxAntenna();
+  Future<List<int>> getMuxAntenna();
 
   /// Set the mux antenna value to [val].
   ///
@@ -254,7 +316,7 @@ abstract class UhfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> setMuxAntenna(int val);
+  Future<void> setMuxAntenna(List<int> val);
 
   /// Set the inventory output format.
   ///

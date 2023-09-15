@@ -18,7 +18,8 @@ class HfGen2ReaderSettings extends HfReaderSettings {
       StringConfigElement(
         name: "Tag Type",
         value: null,
-        possibleValues: ["Auto", "ISO15693", "Mifare", "NTAG"],
+        possibleValues: (config) => ["Auto", "ISO15693", "Mifare", "NTAG"],
+        isEnabled: (config) => true,
         setter: (val) async => throw UnimplementedError("There is no protocol to set tag types"),
       )
     ];
