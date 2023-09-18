@@ -750,7 +750,9 @@ class UhfReaderGen2 extends UhfReader {
             return;
           }
 
-          settings.currentQ = int.tryParse(splitValues[0]) ?? settings.minQ;
+          settings.currentQ = int.tryParse(splitValues[0]);
+          settings.minQ = int.tryParse(splitValues[1]);
+          settings.maxQ = int.tryParse(splitValues[2]);
         })
       ]);
       _handleExitCode(exitCode, error);
