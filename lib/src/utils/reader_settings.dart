@@ -28,4 +28,6 @@ abstract class ReaderSettings<T extends Reader> {
   /// Returns a list of [ConfigElement] that define the possible values
   /// and current value for each of the ReaderSettings elements.
   List<ConfigElement> getConfigElements(T reader);
+
+  bool get isActive => true;
 }

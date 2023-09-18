@@ -52,6 +52,19 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
   int? highOnTagDuration;
 
   @override
+  bool get isActive =>
+      super.isActive &&
+      invSettings != null &&
+      fastId != null &&
+      tagFocus != null &&
+      currentRfMode != null &&
+      currentMultiplexer != null &&
+      currentSession != null &&
+      highOnTag != null &&
+      highOnTagPin != null &&
+      highOnTagDuration != null;
+
+  @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
     if (reader is! UhfReaderGen2) {
       return super.getConfigElements(reader);
@@ -97,7 +110,7 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
             NumConfigElement<int>(
               name: "Q Min",
               category: "Inventory Options",
-              value: minQ,
+              value: currentMinQ,
               possibleValues: (configs) => possibleQValues,
               isEnabled: (configs) => true,
               setter: (val) async {},
@@ -105,7 +118,7 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
             NumConfigElement<int>(
               name: "Q Max",
               category: "Inventory Options",
-              value: maxQ,
+              value: currentMaxQ,
               possibleValues: (configs) => possibleQValues,
               isEnabled: (configs) => true,
               setter: (val) async {},
@@ -756,8 +769,8 @@ class UhfReaderGen2 extends UhfReader {
           }
 
           settings.currentQ = int.tryParse(splitValues[0]);
-          settings.minQ = int.tryParse(splitValues[1]);
-          settings.maxQ = int.tryParse(splitValues[2]);
+          settings.currentMinQ = int.tryParse(splitValues[1]);
+          settings.currentMaxQ = int.tryParse(splitValues[2]);
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -798,8 +811,8 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     settings.currentQ = val;
-    settings.minQ = min;
-    settings.maxQ = max;
+    settings.currentMinQ = min;
+    settings.currentMaxQ = max;
   }
 
   @override
@@ -807,8 +820,8 @@ class UhfReaderGen2 extends UhfReader {
     if (!settings.possibleQValues.contains(val)) {
       throw ReaderException("Q value must be one of ${settings.possibleQValues}");
     }
-    final minValue = max(val - 2, settings.minQ ?? settings.possibleQValues.first);
-    final maxValue = min(val + 2, settings.maxQ ?? settings.possibleQValues.last);
+    final minValue = max(val - 2, settings.currentMinQ ?? settings.possibleQValues.first);
+    final maxValue = min(val + 2, settings.currentMaxQ ?? settings.possibleQValues.last);
 
     String error = "";
 
@@ -1193,6 +1206,8 @@ class UhfReaderGen2 extends UhfReader {
         ParserResponse("+HOT", (line) {
           if (line == "OFF") {
             gen2Settings.highOnTag = false;
+            gen2Settings.highOnTagPin = 1;
+            gen2Settings.highOnTagDuration = 200;
             return;
           }
 
@@ -1202,8 +1217,8 @@ class UhfReaderGen2 extends UhfReader {
           }
 
           gen2Settings.highOnTag = true;
-          gen2Settings.highOnTagPin = int.parse(split[0]);
-          gen2Settings.highOnTagDuration = int.parse(split[1]);
+          gen2Settings.highOnTagPin = int.tryParse(split[0]) ?? 1;
+          gen2Settings.highOnTagDuration = int.tryParse(split[1]) ?? 200;
         })
       ]);
       _handleExitCode(exitCode, error);

@@ -26,10 +26,10 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   List<int>? currentPower;
 
   /// Maximal Q value.
-  int? maxQ;
+  int? currentMaxQ;
 
   /// Minimal Q value.
-  int? minQ;
+  int? currentMinQ;
 
   /// The current q value. Should always be set if the reader checks the q value
   int? currentQ;
@@ -48,6 +48,10 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
 
   @override
   bool get isUhfDevice => true;
+
+  @override
+  bool get isActive =>
+      currentRegion != null && currentPower != null && currentQ != null && currentMaxQ != null && currentMinQ != null;
 
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
@@ -86,7 +90,7 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
             NumConfigElement<int>(
               name: "Q Min",
               category: "Inventory Options",
-              value: minQ,
+              value: currentMinQ,
               possibleValues: (configs) => possibleQValues,
               isEnabled: (configs) => true,
               setter: (val) async {},
@@ -94,7 +98,7 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
             NumConfigElement<int>(
               name: "Q Max",
               category: "Inventory Options",
-              value: maxQ,
+              value: currentMaxQ,
               possibleValues: (configs) => possibleQValues,
               isEnabled: (configs) => true,
               setter: (val) async {},
