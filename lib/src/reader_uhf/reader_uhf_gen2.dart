@@ -988,8 +988,8 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<UhfInvSettings> getInventorySettings() async {
-    UhfInvSettings? invSettings;
     String error = "";
+    final gen2Settings = (settings as UhfGen2ReaderSettings);
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+INVS?", 1000, [
@@ -1000,7 +1000,7 @@ class UhfReaderGen2 extends UhfReader {
           }
 
           List<bool> values = line.split(",").map((e) => (e == '1')).toList();
-          invSettings = UhfInvSettings(values[0], values[1], values[2], values[3]);
+          gen2Settings.invSettings = UhfInvSettings(values[0], values[1], values[2], values[3]);
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -1010,11 +1010,11 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    if (invSettings == null) {
+    if (gen2Settings.invSettings == null) {
       throw ReaderException("Failed to retrieve settings");
     }
 
-    return invSettings!;
+    return gen2Settings.invSettings!;
   }
 
   Future<List<int>> getMultiplexer() async {
