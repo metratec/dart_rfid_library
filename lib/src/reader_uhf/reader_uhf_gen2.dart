@@ -85,7 +85,12 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
               name: "Q Start",
               category: "Inventory Options",
               value: currentQ,
-              possibleValues: (configs) => possibleQValues,
+              possibleValues: (configs) {
+                final int qMinVal = configs.firstWhereOrNull((e) => e.name == "Q Min")?.value ?? possibleQValues.first;
+                final int qMaxVal = configs.firstWhereOrNull((e) => e.name == "Q Max")?.value ?? possibleQValues.last;
+
+                return List.generate(qMaxVal - qMinVal + 1, (index) => qMinVal + index);
+              },
               isEnabled: (configs) => true,
               setter: (val) async {},
             ),
