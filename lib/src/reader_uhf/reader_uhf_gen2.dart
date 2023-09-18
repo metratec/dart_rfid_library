@@ -765,12 +765,12 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<void> setQ(int val, int min, int max) async {
-    if (val < settings.minQ || val > settings.maxQ) {
-      throw ReaderException("Q value not in range [${settings.minQ}, ${settings.maxQ}]");
-    } else if (min < settings.minQ || min > settings.maxQ) {
-      throw ReaderException("Q min not in range [${settings.minQ}, ${settings.maxQ}]");
-    } else if (max < settings.minQ || max > settings.maxQ) {
-      throw ReaderException("Q max not in range [${settings.minQ}, ${settings.maxQ}]");
+    if (!settings.possibleQValues.contains(val)) {
+      throw ReaderException("Q value must be one of ${settings.possibleQValues}");
+    } else if (!settings.possibleQValues.contains(min)) {
+      throw ReaderException("Q min must be one of ${settings.possibleQValues}");
+    } else if (!settings.possibleQValues.contains(max)) {
+      throw ReaderException("Q max must be one of ${settings.possibleQValues}");
     } else if (min > max) {
       throw ReaderException("Q min greater than Q max");
     }
@@ -791,15 +791,17 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     settings.currentQ = val;
+    settings.minQ = min;
+    settings.maxQ = max;
   }
 
   @override
   Future<void> setQStart(int val) async {
-    if (val < settings.minQ || val > settings.maxQ) {
-      throw ReaderException("Q value not in range [${settings.minQ}, ${settings.maxQ}]");
+    if (!settings.possibleQValues.contains(val)) {
+      throw ReaderException("Q value must be one of ${settings.possibleQValues}");
     }
-    final minValue = max(val - 2, settings.minQ);
-    final maxValue = min(val + 2, settings.maxQ);
+    final minValue = max(val - 2, settings.minQ ?? settings.possibleQValues.first);
+    final maxValue = min(val + 2, settings.maxQ ?? settings.possibleQValues.last);
 
     String error = "";
 

@@ -26,10 +26,10 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   List<int>? currentPower;
 
   /// Maximal Q value.
-  int get maxQ => possiblePowerValues.fold(0, max);
+  int? maxQ;
 
   /// Minimal Q value.
-  int get minQ => possiblePowerValues.fold(0, min);
+  int? minQ;
 
   /// The current q value. Should always be set if the reader checks the q value
   int? currentQ;
