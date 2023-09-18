@@ -1139,8 +1139,8 @@ class UhfReaderGen2 extends UhfReader {
             return;
           }
 
-          gen2Settings.fastId = line[0] == '1';
-          gen2Settings.tagFocus = line[1] == '1';
+          gen2Settings.fastId = split[0] == '1';
+          gen2Settings.tagFocus = split[1] == '1';
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -1193,8 +1193,8 @@ class UhfReaderGen2 extends UhfReader {
           }
 
           gen2Settings.highOnTag = true;
-          gen2Settings.highOnTagPin = int.parse(line[0]);
-          gen2Settings.highOnTagDuration = int.parse(line[1]);
+          gen2Settings.highOnTagPin = int.parse(split[0]);
+          gen2Settings.highOnTagDuration = int.parse(split[1]);
         })
       ]);
       _handleExitCode(exitCode, error);
