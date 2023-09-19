@@ -84,4 +84,10 @@ class HfReaderGen1 extends HfReader {
     // TODO: implement detectTagType
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> playFeedback(int feedbackId) {
+    // TODO: implement playFeedback
+    throw UnimplementedError();
+  }
 }

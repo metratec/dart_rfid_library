@@ -254,5 +254,19 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
+  Future<void> playFeedback(int feedbackId) async {
+    if (!settings.hasBeeper) {
+      return;
+    }
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+FDB=$feedbackId", 1000, []);
+      _handleExitCode(exitCode, "");
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
   Future<void> loadDeviceSettings() async {}
 }

@@ -87,6 +87,8 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> write(int block, String data);
 
+  Future<void> playFeedback(int feedbackId);
+
   @override
   Future<void> loadDeviceSettings() async {
     await detectTagTypes();
