@@ -15,7 +15,6 @@ abstract class ReaderSettings<T extends Reader> {
   bool get isUhfGen2Device => false;
   bool get isHfDevice => false;
   bool get isHfGen2Device => false;
-  bool get supportsTagType => false;
   bool get supportsInventoryReport => false;
   bool get supportsOutputs => false;
   bool get supportsInputs => false;

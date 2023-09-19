@@ -57,7 +57,13 @@ abstract class HfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> setMode(HfReaderMode mode);
+  Future<void> setMode(String mode);
+
+  /// Set the reader [availableTagTypes]. and returns them
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<Iterable<String>> detectTagTypes();
 
   /// Enable heartbeats events of the reader.
   /// The reader will send a heartbeat every x [seconds].
@@ -80,18 +86,48 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> write(int block, String data);
+
+  @override
+  Future<void> loadDeviceSettings() async {
+    await detectTagTypes();
+  }
 }
 
-enum HfReaderMode { iso14a, iso15, auto }
+enum HfReaderMode {
+  iso14a,
+  iso15,
+  auto;
+
+  String get protocolString => switch (this) {
+        HfReaderMode.iso14a => "ISO14A",
+        HfReaderMode.iso15 => "ISO15",
+        HfReaderMode.auto => "AUTO",
+      };
+}
 
 class HfReaderSettings extends ReaderSettings<HfReader> {
   @override
   bool get isHfDevice => true;
 
+  String? mode;
+
+  Set<String> availableTagTypes = {};
+
   @override
   List<ConfigElement> getConfigElements(HfReader reader) {
-    return [];
+    return [
+      StringConfigElement(
+        name: "Mode",
+        value: mode,
+        possibleValues: (config) => ["Auto", "ISO15", "ISO14A"],
+        isEnabled: (config) => true,
+        setter: reader.setMode,
+      )
+    ];
   }
+
+  @override
+  bool get isActive => super.isActive && mode != null;
 }
 
 enum MfcKeyType { A, B }

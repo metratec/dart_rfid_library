@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
@@ -8,22 +9,6 @@ import 'package:reader_library/src/parser/parser_at.dart';
 class HfGen2ReaderSettings extends HfReaderSettings {
   @override
   bool get isHfGen2Device => true;
-
-  @override
-  bool get supportsTagType => true;
-
-  @override
-  List<ConfigElement> getConfigElements(HfReader reader) {
-    return [
-      StringConfigElement(
-        name: "Tag Type",
-        value: null,
-        possibleValues: (config) => ["Auto", "ISO15693", "Mifare", "NTAG"],
-        isEnabled: (config) => true,
-        setter: (val) async => throw UnimplementedError("There is no protocol to set tag types"),
-      )
-    ];
-  }
 }
 
 class HfReaderGen2 extends HfReader {
@@ -68,6 +53,8 @@ class HfReaderGen2 extends HfReader {
     String error = "";
 
     try {
+      final availableTagTypes = await detectTagTypes();
+
       CmdExitCode exitCode = await sendCommand("AT+INV", 2000, [
         ParserResponse("+INV", (line) {
           if (line.contains("<")) {
@@ -75,7 +62,15 @@ class HfReaderGen2 extends HfReader {
             return;
           }
 
-          inv.add(HfInventoryResult(tag: HfTag(line, "Unknown"), timestamp: DateTime.now()));
+          final bool canDetermineTagType = availableTagTypes.length == 1;
+
+          inv.add(HfInventoryResult(
+            tag: HfTag(
+              line,
+              canDetermineTagType ? availableTagTypes.first : "Unknown",
+            ),
+            timestamp: DateTime.now(),
+          ));
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -169,12 +164,15 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<void> setMode(HfReaderMode mode) async {
+  Future<void> setMode(String mode) async {
+    if (HfReaderMode.values.none((e) => e.protocolString == mode)) {
+      throw ReaderException("Unsupported mode: $mode");
+    }
+
     String error = "";
-    String modeStr = mode.toString().split('.').last.toUpperCase();
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+MOD=$modeStr", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+MOD=${mode.toUpperCase()}", 1000, [
         ParserResponse("+MOD", (line) {
           error = line;
         })
@@ -183,6 +181,31 @@ class HfReaderGen2 extends HfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+  }
+
+  @override
+  Future<Iterable<String>> detectTagTypes() async {
+    String error = "";
+    final availableTagTypes = <String>{};
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+DTT", 1000, [
+        ParserResponse("+DTT", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          availableTagTypes.add(line);
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.availableTagTypes = availableTagTypes;
+    return settings.availableTagTypes;
   }
 
   @override

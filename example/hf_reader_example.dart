@@ -9,7 +9,7 @@ import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
 
 Future<void> _readTest(HfReader reader) async {
   stdout.write("Setting mode to iso14a... ");
-  await reader.setMode(HfReaderMode.iso14a);
+  await reader.setMode(HfReaderMode.iso14a.protocolString);
   stdout.writeln("Done!");
 
   stdout.write("Scanning for tags... ");

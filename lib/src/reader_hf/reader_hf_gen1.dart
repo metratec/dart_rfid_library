@@ -44,7 +44,7 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
-  Future<void> setMode(HfReaderMode mode) {
+  Future<void> setMode(String mode) {
     // TODO: implement setMode
     throw UnimplementedError();
   }
@@ -76,6 +76,12 @@ class HfReaderGen1 extends HfReader {
   @override
   Future<void> write(int block, String data) {
     // TODO: implement write
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Iterable<String>> detectTagTypes() {
+    // TODO: implement detectTagType
     throw UnimplementedError();
   }
 }
