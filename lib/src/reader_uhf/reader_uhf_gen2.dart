@@ -52,19 +52,6 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
   int? highOnTagDuration;
 
   @override
-  bool get isActive =>
-      super.isActive &&
-      invSettings != null &&
-      fastId != null &&
-      tagFocus != null &&
-      currentRfMode != null &&
-      currentMultiplexer != null &&
-      currentSession != null &&
-      highOnTag != null &&
-      highOnTagPin != null &&
-      highOnTagDuration != null;
-
-  @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
     if (reader is! UhfReaderGen2) {
       return super.getConfigElements(reader);
