@@ -1008,13 +1008,8 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+INVS?", 1000, [
         ParserResponse("+INVS", (line) {
-          if (line.contains("<")) {
-            error = line;
-            return;
-          }
-
           List<bool> values = line.split(",").map((e) => (e == '1')).toList();
-          if (values.length < 4) {
+          if (values.length < 3) {
             error = line;
             return;
           }
@@ -1023,7 +1018,7 @@ class UhfReaderGen2 extends UhfReader {
             values[0],
             values[1],
             values[2],
-            values[3],
+            values.length > 3 ? values[3] : false,
           );
         })
       ]);
@@ -1035,7 +1030,7 @@ class UhfReaderGen2 extends UhfReader {
     }
 
     if (gen2Settings.invSettings == null) {
-      throw ReaderException("Failed to retrieve settings");
+      throw ReaderException("Failed to retrieve settings from line $error");
     }
 
     return gen2Settings.invSettings!;
@@ -1157,12 +1152,11 @@ class UhfReaderGen2 extends UhfReader {
     String error = "";
     try {
       CmdExitCode exitCode = await sendCommand("AT+ICS?", 1000, [
+        ParserResponse("ERROR", (line) {
+          error = line;
+          return;
+        }),
         ParserResponse("+ICS", (line) {
-          if (line.contains("<")) {
-            error = line;
-            return;
-          }
-
           final split = line.split(",");
           if (split.length < 2) {
             return;
