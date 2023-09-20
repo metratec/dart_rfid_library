@@ -37,10 +37,10 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
 
   Iterable<int> possibleRfModeValues(String region) {
     if (region == "FCC") {
-      return [103, 120, 222, 223, 241, 244, 265, 302, 323, 344, 345];
+      return [103, 120, 222, 223, 241, 244, 285, 302, 323, 344, 345];
     }
 
-    return [222, 223, 241, 244, 265];
+    return [222, 223, 241, 244, 285];
   }
 
   String? currentSession;
