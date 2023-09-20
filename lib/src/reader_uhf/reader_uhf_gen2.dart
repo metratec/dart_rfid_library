@@ -64,11 +64,6 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
       highOnTagPin != null &&
       highOnTagDuration != null;
 
-  bool get supportsMultiplexer => false;
-  bool get supportsImpinjSettings => false;
-  bool get supportsHighOnTag => false;
-  bool get supportsFastStart => false;
-
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
     if (reader is! UhfReaderGen2) {
@@ -162,7 +157,7 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
           stringToElementConverter: int.parse,
           setter: reader.setMuxAntenna,
         ),
-      if (supportsMultiplexer)
+      if (supportsOutputs)
         ConfigElementGroup(
           name: "Ext. Multiplexer",
           setter: (val) async {
@@ -222,13 +217,12 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
           await reader.setInventorySettings(invSettings!);
         },
         value: [
-          if (supportsFastStart)
-            BoolConfigElement(
-              name: "Fast Start",
-              value: invSettings?.fastStart,
-              isEnabled: (configs) => true,
-              setter: (val) async {},
-            ),
+          BoolConfigElement(
+            name: "Fast Start",
+            value: invSettings?.fastStart,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
           BoolConfigElement(
             name: "Only new Tags",
             value: invSettings?.ont,
@@ -237,34 +231,33 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
           ),
         ],
       ),
-      if (supportsImpinjSettings)
-        ConfigElementGroup(
-          name: "Advanced Settings Group",
-          setter: (val) async {
-            final bool fastIdVal = val.firstWhereOrNull((e) => e.name == "Fast Id")?.value ?? false;
-            final bool tagFocusVal = val.firstWhereOrNull((e) => e.name == "Tag Focus")?.value ?? false;
+      ConfigElementGroup(
+        name: "Advanced Settings Group",
+        setter: (val) async {
+          final bool fastIdVal = val.firstWhereOrNull((e) => e.name == "Fast Id")?.value ?? false;
+          final bool tagFocusVal = val.firstWhereOrNull((e) => e.name == "Tag Focus")?.value ?? false;
 
-            await reader.setImpinjSettings(fastIdVal, tagFocusVal);
-          },
-          category: "Advanced Settings",
-          isEnabled: (configs) => true,
-          value: [
-            BoolConfigElement(
-              name: "Fast Id",
-              category: "Advanced Settings",
-              value: fastId,
-              isEnabled: (configs) => true,
-              setter: (val) async {},
-            ),
-            BoolConfigElement(
-              name: "Tag Focus",
-              category: "Advanced Settings",
-              value: tagFocus,
-              isEnabled: (configs) => true,
-              setter: (val) async {},
-            ),
-          ],
-        ),
+          await reader.setImpinjSettings(fastIdVal, tagFocusVal);
+        },
+        category: "Advanced Settings",
+        isEnabled: (configs) => true,
+        value: [
+          BoolConfigElement(
+            name: "Fast Id",
+            category: "Advanced Settings",
+            value: fastId,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+          BoolConfigElement(
+            name: "Tag Focus",
+            category: "Advanced Settings",
+            value: tagFocus,
+            isEnabled: (configs) => true,
+            setter: (val) async {},
+          ),
+        ],
+      ),
       StringConfigElement(
         name: "Session",
         category: "Advanced Settings",
@@ -275,7 +268,7 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
           await reader.setSession(val);
         },
       ),
-      if (supportsHighOnTag)
+      if (supportsOutputs)
         ConfigElementGroup(
           name: "High on Tag Group",
           setter: (val) async {
@@ -703,9 +696,7 @@ class UhfReaderGen2 extends UhfReader {
     String error = "";
 
     try {
-      final protocolString = invSettings.toProtocolString(
-        supportsFastStart: (settings as UhfGen2ReaderSettings).supportsFastStart,
-      );
+      final protocolString = invSettings.toProtocolString();
 
       CmdExitCode exitCode = await sendCommand("AT+INVS=$protocolString", 1000, [
         ParserResponse("+INVS", (line) {
@@ -1036,11 +1027,16 @@ class UhfReaderGen2 extends UhfReader {
           }
 
           List<bool> values = line.split(",").map((e) => (e == '1')).toList();
+          if (values.length < 4) {
+            error = line;
+            return;
+          }
+
           gen2Settings.invSettings = UhfInvSettings(
             values[0],
             values[1],
             values[2],
-            gen2Settings.supportsFastStart && values[3],
+            values[3],
           );
         })
       ]);
@@ -1175,6 +1171,11 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+ICS?", 1000, [
         ParserResponse("+ICS", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
           final split = line.split(",");
           if (split.length < 2) {
             return;
@@ -1223,6 +1224,11 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+HOT?", 1000, [
         ParserResponse("+HOT", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
           if (line == "OFF") {
             gen2Settings.highOnTag = false;
             gen2Settings.highOnTagPin = 1;
@@ -1379,6 +1385,20 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   @override
+  Future<void> playFeedback(int feedbackId) async {
+    if (!settings.hasBeeper) {
+      return;
+    }
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+FDB=$feedbackId", 1000, []);
+      _handleExitCode(exitCode, "");
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
   Future<void> loadDeviceSettings() async {
     if (settings is! UhfGen2ReaderSettings) {
       await super.loadDeviceSettings();
@@ -1392,6 +1412,16 @@ class UhfReaderGen2 extends UhfReader {
         await getOutputStates();
       } catch (ex, stack) {
         readerLogger.e("Failed to load device setting: output states", ex, stack);
+      }
+      try {
+        await getMultiplexer();
+      } catch (ex, stack) {
+        readerLogger.e("Failed to load device setting: multiplexer", ex, stack);
+      }
+      try {
+        await getHighOnTag();
+      } catch (ex, stack) {
+        readerLogger.e("Failed to load device setting: high on tag", ex, stack);
       }
     }
 
@@ -1415,28 +1445,10 @@ class UhfReaderGen2 extends UhfReader {
       readerLogger.e("Failed to load device setting: session", ex, stack);
     }
 
-    if (gen2Settings.supportsMultiplexer) {
-      try {
-        await getMultiplexer();
-      } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: multiplexer", ex, stack);
-      }
-    }
-
-    if (gen2Settings.supportsImpinjSettings) {
-      try {
-        await getImpinjSettings();
-      } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: impinj settings", ex, stack);
-      }
-    }
-
-    if (gen2Settings.supportsHighOnTag) {
-      try {
-        await getHighOnTag();
-      } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: high on tag", ex, stack);
-      }
+    try {
+      await getImpinjSettings();
+    } catch (ex, stack) {
+      readerLogger.e("Failed to load device setting: impinj settings", ex, stack);
     }
 
     await super.loadDeviceSettings();

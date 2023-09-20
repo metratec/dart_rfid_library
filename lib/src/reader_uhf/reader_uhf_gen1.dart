@@ -145,4 +145,10 @@ class UhfReaderGen1 extends UhfReader {
     // TODO: implement write
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> playFeedback(int feedbackId) {
+    // TODO: implement playFeedback
+    throw UnimplementedError();
+  }
 }

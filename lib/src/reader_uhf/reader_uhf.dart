@@ -184,7 +184,7 @@ class UhfInvSettings {
 
   UhfInvSettings(this.ont, this.rssi, this.tid, this.fastStart);
 
-  String toProtocolString({bool supportsFastStart = false}) => [
+  String toProtocolString({bool supportsFastStart = true}) => [
         ont,
         rssi,
         tid,
@@ -385,6 +385,8 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderNoTagsException] if tag to read could not be found.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask});
+
+  Future<void> playFeedback(int feedbackId);
 
   @override
   Future<void> loadDeviceSettings() async {
