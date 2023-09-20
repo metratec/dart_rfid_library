@@ -185,7 +185,11 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
         isEnum: true,
         possibleValues: (configs) {
           final String region = configs.firstWhereOrNull((e) => e.name == "Region")?.value ?? "ETSI";
-          return possibleRfModeValues(region);
+          var possibleValues = possibleRfModeValues(region);
+          if (currentRfMode != null && !possibleValues.contains(currentRfMode)) {
+            possibleValues = possibleValues.toList()..add(currentRfMode!);
+          }
+          return possibleValues;
         },
         isEnabled: (configs) => true,
         setter: reader.setRfMode,
