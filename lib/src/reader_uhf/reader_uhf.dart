@@ -184,7 +184,12 @@ class UhfInvSettings {
 
   UhfInvSettings(this.ont, this.rssi, this.tid, this.fastStart);
 
-  String toProtocolString() => [ont, rssi, tid, fastStart].map((e) => e.toProtocolString()).join(",");
+  String toProtocolString({bool supportsFastStart = false}) => [
+        ont,
+        rssi,
+        tid,
+        if (supportsFastStart) fastStart,
+      ].map((e) => e.toProtocolString()).join(",");
 
   @override
   String toString() {
