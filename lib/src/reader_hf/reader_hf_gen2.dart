@@ -264,7 +264,7 @@ class HfReaderGen2 extends HfReader {
   @override
   Future<void> startContinuousInventory() async {
     try {
-      detectedTagTypes = await detectTagTypes();
+      detectedTagTypes = (await detectTagTypes()).toList();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
     } catch (e) {
