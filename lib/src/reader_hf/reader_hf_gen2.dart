@@ -13,6 +13,7 @@ class HfGen2ReaderSettings extends HfReaderSettings {
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
+  List<String> detectedTagTypes = [];
 
   HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -31,8 +32,12 @@ class HfReaderGen2 extends HfReader {
       return;
     }
 
+    final bool canDetermineTagType = detectedTagTypes.length == 1;
     String uid = line.split(': ').last;
-    _inventory.add(HfTag(uid, "Unknown"));
+    _inventory.add(HfTag(
+      uid,
+      canDetermineTagType ? detectedTagTypes.first : "Unknown",
+    ));
   }
 
   void _handleHbtUrc(String line) {
@@ -259,6 +264,7 @@ class HfReaderGen2 extends HfReader {
   @override
   Future<void> startContinuousInventory() async {
     try {
+      detectedTagTypes = await detectTagTypes();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
     } catch (e) {

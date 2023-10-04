@@ -127,7 +127,7 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
       StringConfigElement(
         name: "Mode",
         value: mode,
-        possibleValues: (config) => ["AUTO", "ISO15693", "ISO14443"],
+        possibleValues: (config) => ["AUTO", "ISO15", "ISO14A"],
         isEnabled: (config) => true,
         setter: reader.setMode,
       )
