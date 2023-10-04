@@ -184,6 +184,29 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
+  Future<String?> getMode() async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+MOD?", 1000, [
+        ParserResponse("+MOD", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          settings.mode = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return settings.mode;
+  }
+
+  @override
   Future<Iterable<String>> detectTagTypes() async {
     String error = "";
     final availableTagTypes = <String>{};
@@ -268,5 +291,8 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<void> loadDeviceSettings() async {}
+  Future<void> loadDeviceSettings() async {
+    await getMode();
+    await super.loadDeviceSettings();
+  }
 }

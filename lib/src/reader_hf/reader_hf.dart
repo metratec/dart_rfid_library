@@ -59,6 +59,12 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setMode(String mode);
 
+  /// Get the reader [mode].
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<String?> getMode();
+
   /// Set the reader [availableTagTypes]. and returns them
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
