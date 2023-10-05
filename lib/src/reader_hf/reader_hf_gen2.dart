@@ -214,6 +214,51 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
+  Future<void> setAfi(int afi) async {
+    if (afi < 0 || afi > 128) {
+      throw ReaderException("Unsupported afi value: $afi");
+    }
+
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+AFI=$afi", 1000, [
+        ParserResponse("+AFI", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.afi = afi;
+  }
+
+  @override
+  Future<int?> getAfi() async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+AFI?", 1000, [
+        ParserResponse("+AFI", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          settings.afi = int.tryParse(line);
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return settings.afi;
+  }
+
+  @override
   Future<Iterable<String>> detectTagTypes() async {
     String error = "";
     final availableTagTypes = <String>{};

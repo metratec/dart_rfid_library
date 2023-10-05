@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/utils/heartbeat.dart';
@@ -65,6 +66,18 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<String?> getMode();
 
+  /// Set the reader [afi] value.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setAfi(int afi);
+
+  /// Get the reader [afi] value.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<int?> getAfi();
+
   /// Set the reader [availableTagTypes]. and returns them
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
@@ -102,14 +115,14 @@ abstract class HfReader extends Reader {
 }
 
 enum HfReaderMode {
-  iso14a,
+  auto,
   iso15,
-  auto;
+  iso14a;
 
   String get protocolString => switch (this) {
-        HfReaderMode.iso14a => "ISO14A",
-        HfReaderMode.iso15 => "ISO15",
         HfReaderMode.auto => "AUTO",
+        HfReaderMode.iso15 => "ISO15",
+        HfReaderMode.iso14a => "ISO14A",
       };
 }
 
@@ -119,6 +132,8 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 
   String? mode;
 
+  int? afi;
+
   Set<String> availableTagTypes = {};
 
   @override
@@ -127,10 +142,20 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
       StringConfigElement(
         name: "Mode",
         value: mode,
-        possibleValues: (config) => ["AUTO", "ISO15", "ISO14A"],
+        possibleValues: (config) => HfReaderMode.values.map((e) => e.protocolString),
         isEnabled: (config) => true,
         setter: reader.setMode,
-      )
+      ),
+      NumConfigElement<int>(
+        name: "AFI",
+        value: afi,
+        possibleValues: (config) => Iterable.generate(129),
+        isEnabled: (config) {
+          final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
+          return modeValue == HfReaderMode.iso15.protocolString;
+        },
+        setter: reader.setAfi,
+      ),
     ];
   }
 

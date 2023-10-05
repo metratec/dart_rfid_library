@@ -56,6 +56,18 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
+  Future<void> setAfi(int afi) {
+    // TODO: implement setMode
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int?> getAfi() {
+    // TODO: implement getMode
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> startContinuousInventory() {
     // TODO: implement startContinuousInventory
     throw UnimplementedError();
