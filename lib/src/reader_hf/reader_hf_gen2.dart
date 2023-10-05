@@ -5,6 +5,7 @@ import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
+import 'package:reader_library/src/reader_hf/tag_type.dart';
 
 class HfGen2ReaderSettings extends HfReaderSettings {
   @override
@@ -13,7 +14,7 @@ class HfGen2ReaderSettings extends HfReaderSettings {
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
-  List<String> detectedTagTypes = [];
+  Map<String, TagType> detectedTagTypes = {};
 
   HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -32,11 +33,10 @@ class HfReaderGen2 extends HfReader {
       return;
     }
 
-    final bool canDetermineTagType = detectedTagTypes.length == 1;
     String uid = line.split(': ').last;
     _inventory.add(HfTag(
       uid,
-      canDetermineTagType ? detectedTagTypes.first : "Unknown",
+      (detectedTagTypes[uid] ?? TagType.unknown).displayName,
     ));
   }
 
@@ -67,12 +67,10 @@ class HfReaderGen2 extends HfReader {
             return;
           }
 
-          final bool canDetermineTagType = availableTagTypes.length == 1;
-
           inv.add(HfInventoryResult(
             tag: HfTag(
               line,
-              canDetermineTagType ? availableTagTypes.first : "Unknown",
+              (detectedTagTypes[line] ?? TagType.unknown).displayName,
             ),
             timestamp: DateTime.now(),
           ));
@@ -259,9 +257,9 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<Iterable<String>> detectTagTypes() async {
+  Future<Map<String, TagType>> detectTagTypes() async {
     String error = "";
-    final availableTagTypes = <String>{};
+    final availableTagTypes = <String, TagType>{};
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+DTT", 1000, [
@@ -271,7 +269,16 @@ class HfReaderGen2 extends HfReader {
             return;
           }
 
-          availableTagTypes.add(line);
+          final split = line.split(",");
+          if (split.length < 2) {
+            error = line;
+            return;
+          }
+          final tagUid = split[0];
+          final tagTypeString = split[1];
+          final tagType = TagType.values.firstWhereOrNull((e) => e.protocolString == tagTypeString) ?? TagType.unknown;
+
+          availableTagTypes[tagUid] = tagType;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -311,7 +318,7 @@ class HfReaderGen2 extends HfReader {
   @override
   Future<void> startContinuousInventory() async {
     try {
-      detectedTagTypes = (await detectTagTypes()).toList();
+      detectedTagTypes = await detectTagTypes();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
     } catch (e) {
