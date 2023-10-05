@@ -186,6 +186,8 @@ class HfReaderGen2 extends HfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+
+    settings.mode = mode;
   }
 
   @override
