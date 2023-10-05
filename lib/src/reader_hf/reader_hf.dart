@@ -79,6 +79,30 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<int?> getAfi();
 
+  /// Write the tag [afi] value.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> writeAfi(int afi, bool optionsFlag);
+
+  /// Lock the tag [afi] value.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> lockAfi(bool optionsFlag);
+
+  /// Write the tag [dsfid] value.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> writeDsfid(int dsfid, bool optionsFlag);
+
+  /// Lock the tag [afi] value.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> lockDsfid(bool optionsFlag);
+
   /// Set the reader [availableTagTypes]. and returns them
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.

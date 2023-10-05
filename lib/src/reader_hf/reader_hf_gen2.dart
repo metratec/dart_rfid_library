@@ -259,6 +259,78 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
+  Future<void> writeAfi(int afi, bool optionsFlag) async {
+    if (afi < 0 || afi > 128) {
+      throw ReaderException("Unsupported afi value: $afi");
+    }
+
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+WAFI=$afi,${optionsFlag.toProtocolString()}", 1000, [
+        ParserResponse("+WAFI", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> lockAfi(bool optionsFlag) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+LAFI=${optionsFlag.toProtocolString()}", 1000, [
+        ParserResponse("+LAFI", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> writeDsfid(int dsfid, bool optionsFlag) async {
+    if (dsfid < 0 || dsfid > 128) {
+      throw ReaderException("Unsupported DSFID value: $dsfid");
+    }
+
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+WDSFID=$dsfid,${optionsFlag.toProtocolString()}", 1000, [
+        ParserResponse("+WDSFID", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> lockDsfid(bool optionsFlag) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+LDSFID=${optionsFlag.toProtocolString()}", 1000, [
+        ParserResponse("+LDSFID", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
   Future<Map<String, TagType>> detectTagTypes() async {
     String error = "";
     final availableTagTypes = <String, TagType>{};
