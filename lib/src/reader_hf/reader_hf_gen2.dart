@@ -23,6 +23,8 @@ class HfReaderGen2 extends HfReader {
   }
 
   void _handleCinvUrc(String line) {
+    // TODO tag types should be detected while handling the cinv as the tags might change while the cinv is running
+
     if (line.contains("ROUND FINISHED")) {
       List<HfInventoryResult> inv = [];
       inv.addAll(_inventory.map((e) => HfInventoryResult(tag: e, timestamp: DateTime.now())));
@@ -70,7 +72,7 @@ class HfReaderGen2 extends HfReader {
           inv.add(HfInventoryResult(
             tag: HfTag(
               line,
-              (detectedTagTypes[line] ?? TagType.unknown).displayName,
+              (availableTagTypes[line] ?? TagType.unknown).displayName,
             ),
             timestamp: DateTime.now(),
           ));
