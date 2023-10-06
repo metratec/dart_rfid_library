@@ -6,7 +6,6 @@ import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
-import 'package:reader_library/src/reader_hf/tag_type.dart';
 
 class HfGen2ReaderSettings extends HfReaderSettings {
   @override
@@ -15,7 +14,6 @@ class HfGen2ReaderSettings extends HfReaderSettings {
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
-  Map<String, TagType> detectedTagTypes = {};
 
   HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -23,14 +21,15 @@ class HfReaderGen2 extends HfReader {
     registerEvent(ParserResponse("+HBT", _handleHbtUrc));
   }
 
-  void _handleCinvUrc(String line) {
-    // TODO tag types should be detected while handling the cinv as the tags might change while the cinv is running
-
+  void _handleCinvUrc(String line) async {
     if (line.contains("ROUND FINISHED")) {
       List<HfInventoryResult> inv = [];
       inv.addAll(_inventory.map((e) => HfInventoryResult(tag: e, timestamp: DateTime.now())));
       cinvStreamCtrl.add(inv);
       _inventory.clear();
+
+      // Detect tag types for the next round
+      await detectTagTypes();
       return;
     } else if (line.contains("<")) {
       return;
@@ -39,7 +38,7 @@ class HfReaderGen2 extends HfReader {
     String uid = line.split(': ').last;
     _inventory.add(HfTag(
       uid,
-      (detectedTagTypes[uid] ?? TagType.unknown).displayName,
+      settings.availableTagTypes[uid] ?? TagType.unknown,
     ));
   }
 
@@ -73,7 +72,7 @@ class HfReaderGen2 extends HfReader {
           inv.add(HfInventoryResult(
             tag: HfTag(
               line,
-              (availableTagTypes[line] ?? TagType.unknown).displayName,
+              availableTagTypes[line] ?? TagType.unknown,
             ),
             timestamp: DateTime.now(),
           ));
@@ -393,7 +392,7 @@ class HfReaderGen2 extends HfReader {
   @override
   Future<void> startContinuousInventory() async {
     try {
-      detectedTagTypes = await detectTagTypes();
+      await detectTagTypes();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
     } catch (e) {

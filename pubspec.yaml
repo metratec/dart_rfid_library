@@ -28,4 +28,4 @@ dependencies:
     git:
       url: https://gitlab.metratec.com/dart-libraries/dart_rfid_utils.git
       # Error can not resolve HEAD
-      ref: 27d548a11556790b34847d08354459b27fb6c21c
+      ref: 65c21af8742263a473e865ac02aedaadc8d0cf9a
