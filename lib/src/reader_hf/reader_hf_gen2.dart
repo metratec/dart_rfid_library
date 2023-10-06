@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -14,6 +15,7 @@ class HfGen2ReaderSettings extends HfReaderSettings {
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
+  bool _runDetectionLoop = false;
 
   HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -27,9 +29,6 @@ class HfReaderGen2 extends HfReader {
       inv.addAll(_inventory.map((e) => HfInventoryResult(tag: e, timestamp: DateTime.now())));
       cinvStreamCtrl.add(inv);
       _inventory.clear();
-
-      // Detect tag types for the next round
-      await detectTagTypes();
       return;
     } else if (line.contains("<")) {
       return;
@@ -395,8 +394,17 @@ class HfReaderGen2 extends HfReader {
       await detectTagTypes();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
+      unawaited(_startDetectTagTypeLoop());
     } catch (e) {
       throw ReaderException(e.toString());
+    }
+  }
+
+  Future<void> _startDetectTagTypeLoop() async {
+    _runDetectionLoop = true;
+    while (_runDetectionLoop) {
+      await detectTagTypes();
+      await Future.delayed(const Duration(milliseconds: 100));
     }
   }
 
@@ -405,9 +413,14 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 3000, []);
       _handleExitCode(exitCode, "");
+      _stopDetectTagTypeLoop();
     } catch (e) {
       throw ReaderException(e.toString());
     }
+  }
+
+  void _stopDetectTagTypeLoop() {
+    _runDetectionLoop = false;
   }
 
   @override
