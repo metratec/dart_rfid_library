@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
@@ -426,7 +427,17 @@ class HfReaderGen2 extends HfReader {
 
   @override
   Future<void> loadDeviceSettings() async {
-    await getMode();
+    try {
+      await getMode();
+    } catch (ex, stack) {
+      log("Failed to get mode", error: ex, stackTrace: stack);
+    }
+
+    try {
+      await getAfi();
+    } catch (ex, stack) {
+      log("Failed to get afi", error: ex, stackTrace: stack);
+    }
     await super.loadDeviceSettings();
   }
 }
