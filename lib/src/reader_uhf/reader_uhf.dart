@@ -56,6 +56,28 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
     return [
+      if (possiblePowerValues.length > 1)
+        ConfigElementGroup(
+          name: "Power Values",
+          setter: (val) async {
+            final powerValues = val.map((e) => e.value).whereType<int>().toList();
+            await reader.setOutputPower(powerValues);
+          },
+          category: "Inventory Options",
+          isEnabled: (configs) => true,
+          addDivider: true,
+          value: [
+            for (var (index, powerVal) in (currentPower ?? []).indexed)
+              NumConfigElement<int>(
+                name: (currentPower?.length ?? 0) > 1 ? "Power Ant ${index + 1}" : "Power",
+                category: "Inventory Options",
+                value: powerVal,
+                possibleValues: (configs) => possiblePowerValues,
+                isEnabled: (configs) => true,
+                setter: (val) async {},
+              ),
+          ],
+        ),
       if (possibleRegionValues.length > 1)
         StringConfigElement(
           name: "Region",
@@ -103,28 +125,6 @@ class UhfReaderSettings extends ReaderSettings<UhfReader> {
               isEnabled: (configs) => true,
               setter: (val) async {},
             ),
-          ],
-        ),
-      if (possiblePowerValues.length > 1)
-        ConfigElementGroup(
-          name: "Power Values",
-          setter: (val) async {
-            final powerValues = val.map((e) => e.value).whereType<int>().toList();
-            await reader.setOutputPower(powerValues);
-          },
-          category: "Inventory Options",
-          isEnabled: (configs) => true,
-          addDivider: true,
-          value: [
-            for (var (index, powerVal) in (currentPower ?? []).indexed)
-              NumConfigElement<int>(
-                name: "Power Ant ${index + 1}",
-                category: "Inventory Options",
-                value: powerVal,
-                possibleValues: (configs) => possiblePowerValues,
-                isEnabled: (configs) => true,
-                setter: (val) async {},
-              ),
           ],
         ),
       if (antennaCount > 1)
