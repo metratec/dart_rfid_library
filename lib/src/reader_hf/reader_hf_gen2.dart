@@ -209,6 +209,18 @@ class HfReaderGen2 extends HfReader {
       throw ReaderException(e.toString());
     }
 
+    if (settings.mode == HfReaderMode.iso15.protocolString) {
+      try {
+        await getAfi();
+      } catch (ex, stack) {
+        // Could not read AFI but we want to return the mode nevertheless
+        log("Failed to get afi", error: ex, stackTrace: stack);
+      }
+    } else {
+      // We set afi to 0 as default value so its not null
+      settings.afi = 0;
+    }
+
     return settings.mode;
   }
 
@@ -443,12 +455,6 @@ class HfReaderGen2 extends HfReader {
       await getMode();
     } catch (ex, stack) {
       log("Failed to get mode", error: ex, stackTrace: stack);
-    }
-
-    try {
-      await getAfi();
-    } catch (ex, stack) {
-      log("Failed to get afi", error: ex, stackTrace: stack);
     }
     await super.loadDeviceSettings();
   }
