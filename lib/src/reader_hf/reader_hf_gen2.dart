@@ -226,18 +226,22 @@ class HfReaderGen2 extends HfReader {
 
   @override
   Future<void> setAfi(int afi) async {
-    if (afi < 0 || afi > 128) {
+    if (afi < 0 || afi > 255) {
       throw ReaderException("Unsupported afi value: $afi");
     }
 
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+AFI=$afi", 1000, [
-        ParserResponse("+AFI", (line) {
-          error = line;
-        })
-      ]);
+      CmdExitCode exitCode = await sendCommand(
+        "AT+AFI=${afi.toRadixString(16).padLeft(2, "0")}",
+        1000,
+        [
+          ParserResponse("+AFI", (line) {
+            error = line;
+          })
+        ],
+      );
       _handleExitCode(exitCode, error);
     } catch (e) {
       throw ReaderException(e.toString());
@@ -271,18 +275,22 @@ class HfReaderGen2 extends HfReader {
 
   @override
   Future<void> writeAfi(int afi, bool optionsFlag) async {
-    if (afi < 0 || afi > 128) {
+    if (afi < 0 || afi > 255) {
       throw ReaderException("Unsupported afi value: $afi");
     }
 
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WAFI=$afi,${optionsFlag.toProtocolString()}", 1000, [
-        ParserResponse("+WAFI", (line) {
-          error = line;
-        })
-      ]);
+      CmdExitCode exitCode = await sendCommand(
+        "AT+WAFI=${afi.toRadixString(16).padLeft(2, "0")},${optionsFlag.toProtocolString()}",
+        1000,
+        [
+          ParserResponse("+WAFI", (line) {
+            error = line;
+          })
+        ],
+      );
       _handleExitCode(exitCode, error);
     } catch (e) {
       throw ReaderException(e.toString());
@@ -307,18 +315,22 @@ class HfReaderGen2 extends HfReader {
 
   @override
   Future<void> writeDsfid(int dsfid, bool optionsFlag) async {
-    if (dsfid < 0 || dsfid > 128) {
+    if (dsfid < 0 || dsfid > 255) {
       throw ReaderException("Unsupported DSFID value: $dsfid");
     }
 
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WDSFID=$dsfid,${optionsFlag.toProtocolString()}", 1000, [
-        ParserResponse("+WDSFID", (line) {
-          error = line;
-        })
-      ]);
+      CmdExitCode exitCode = await sendCommand(
+        "AT+WDSFID=${dsfid.toRadixString(16).padLeft(2, "0")},${optionsFlag.toProtocolString()}",
+        1000,
+        [
+          ParserResponse("+WDSFID", (line) {
+            error = line;
+          })
+        ],
+      );
       _handleExitCode(exitCode, error);
     } catch (e) {
       throw ReaderException(e.toString());
