@@ -151,4 +151,10 @@ class UhfReaderGen1 extends UhfReader {
     // TODO: implement playFeedback
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> setPassword(String type, String oldPassword, String newPassword, {String? mask}) {
+    // TODO: implement setPassword
+    throw UnimplementedError();
+  }
 }

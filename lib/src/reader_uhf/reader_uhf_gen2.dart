@@ -1369,6 +1369,28 @@ class UhfReaderGen2 extends UhfReader {
     return res;
   }
 
+  /// Type should either be LCK or KILL
+  @override
+  Future<void> setPassword(String type, String oldPassword, String newPassword, {String? mask}) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+PWD=$type,$oldPassword,$newPassword${mask != null ? ",$mask" : ''}",
+        1000,
+        [
+          ParserResponse("+PWD", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+  }
+
   @override
   Future<void> playFeedback(int feedbackId) async {
     if (!settings.hasBeeper) {
