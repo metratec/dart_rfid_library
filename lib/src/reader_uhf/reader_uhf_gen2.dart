@@ -1379,7 +1379,10 @@ class UhfReaderGen2 extends UhfReader {
         1000,
         [
           ParserResponse("+PWD", (line) {
-            error = line;
+            final split = line.split(",");
+            if (split.last != "OK") {
+              error = split.last;
+            }
           })
         ],
       );
@@ -1388,6 +1391,10 @@ class UhfReaderGen2 extends UhfReader {
       rethrow;
     } catch (ex) {
       ReaderException(ex.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
     }
   }
 
