@@ -1430,10 +1430,10 @@ class UhfReaderGen2 extends UhfReader {
     String error = "";
     try {
       CmdExitCode exitCode = await sendCommand(
-        "AT+ULCK=$memBank,$password${mask != null ? ",$mask" : ''}",
+        "AT+PLCK=$memBank,$password${mask != null ? ",$mask" : ''}",
         1000,
         [
-          ParserResponse("+ULCK", (line) {
+          ParserResponse("+PLCK", (line) {
             final split = line.split(",");
             if (split.last != "OK") {
               error = split.last;
@@ -1458,10 +1458,10 @@ class UhfReaderGen2 extends UhfReader {
     String error = "";
     try {
       CmdExitCode exitCode = await sendCommand(
-        "AT+PLCK=$memBank,$password${mask != null ? ",$mask" : ''}",
+        "AT+ULCK=$memBank,$password${mask != null ? ",$mask" : ''}",
         1000,
         [
-          ParserResponse("+PLCK", (line) {
+          ParserResponse("+ULCK", (line) {
             final split = line.split(",");
             if (split.last != "OK") {
               error = split.last;
