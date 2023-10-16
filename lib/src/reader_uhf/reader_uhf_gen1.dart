@@ -157,4 +157,28 @@ class UhfReaderGen1 extends UhfReader {
     // TODO: implement setPassword
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> killTag(String password, {String? mask}) {
+    // TODO: implement killTag
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> lockMembank(String memBank, String password, {String? mask}) {
+    // TODO: implement lockMembank
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> lockMembankPermanently(String memBank, String password, {String? mask}) {
+    // TODO: implement lockMembankPermanently
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> unlockMembank(String memBank, String password, {String? mask}) {
+    // TODO: implement unlockMembank
+    throw UnimplementedError();
+  }
 }

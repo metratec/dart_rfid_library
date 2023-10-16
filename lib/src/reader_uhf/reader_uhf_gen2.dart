@@ -1369,6 +1369,118 @@ class UhfReaderGen2 extends UhfReader {
     return res;
   }
 
+  @override
+  Future<void> killTag(String password, {String? mask}) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+KILL=$password${mask != null ? ",$mask" : ''}",
+        1000,
+        [
+          ParserResponse("+KILL", (line) {
+            final split = line.split(",");
+            if (split.last != "OK") {
+              error = split.last;
+            }
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+  }
+
+  @override
+  Future<void> lockMembank(String memBank, String password, {String? mask}) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+LCK=$memBank,$password${mask != null ? ",$mask" : ''}",
+        1000,
+        [
+          ParserResponse("+LCK", (line) {
+            final split = line.split(",");
+            if (split.last != "OK") {
+              error = split.last;
+            }
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+  }
+
+  @override
+  Future<void> lockMembankPermanently(String memBank, String password, {String? mask}) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+ULCK=$memBank,$password${mask != null ? ",$mask" : ''}",
+        1000,
+        [
+          ParserResponse("+ULCK", (line) {
+            final split = line.split(",");
+            if (split.last != "OK") {
+              error = split.last;
+            }
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+  }
+
+  @override
+  Future<void> unlockMembank(String memBank, String password, {String? mask}) async {
+    String error = "";
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+PLCK=$memBank,$password${mask != null ? ",$mask" : ''}",
+        1000,
+        [
+          ParserResponse("+PLCK", (line) {
+            final split = line.split(",");
+            if (split.last != "OK") {
+              error = split.last;
+            }
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (ex) {
+      ReaderException(ex.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+  }
+
   /// Type should either be LCK or KILL
   @override
   Future<void> setPassword(String type, String oldPassword, String newPassword, {String? mask}) async {

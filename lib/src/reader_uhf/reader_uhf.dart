@@ -386,6 +386,14 @@ abstract class UhfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<List<UhfRwResult>> read(String memBank, int start, int length, {String? mask});
 
+  Future<void> lockMembank(String memBank, String password, {String? mask});
+
+  Future<void> unlockMembank(String memBank, String password, {String? mask});
+
+  Future<void> lockMembankPermanently(String memBank, String password, {String? mask});
+
+  Future<void> killTag(String password, {String? mask});
+
   Future<void> setPassword(String type, String oldPassword, String newPassword, {String? mask});
 
   Future<void> playFeedback(int feedbackId);
