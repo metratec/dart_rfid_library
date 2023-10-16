@@ -1318,7 +1318,11 @@ class UhfReaderGen2 extends UhfReader {
           }
 
           List<String> tokens = line.split(',');
-          res.add(UhfRwResult(tokens.first, tokens.last == "OK", Uint8List(0)));
+          final isOk = tokens.last == "OK";
+          res.add(UhfRwResult(tokens.first, isOk, Uint8List(0)));
+          if (!isOk) {
+            error = tokens.last;
+          }
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -1326,6 +1330,10 @@ class UhfReaderGen2 extends UhfReader {
       rethrow;
     } catch (ex) {
       ReaderException(ex.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
     }
 
     return res;
