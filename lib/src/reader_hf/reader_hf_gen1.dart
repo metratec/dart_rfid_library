@@ -133,6 +133,89 @@ class HfReaderGen1 extends HfReader {
   // endregion Mifare Classic Commands
 
   // region NTAG / Mifare Ultralight Commands
+  @override
+  Future<String> authNtag(String password) {
+    // TODO: implement npAuth
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> setNtagAuth(String password, String acknowledge) {
+    // TODO: implement setNpAuth
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<(int, bool, int)> getNtagAccessConfiguration() {
+    // TODO: implement getNtagAccessConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<(bool, bool)> getNtagCounterConfiguration() {
+    // TODO: implement getNtagCounterConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<(NtagMirrorMode, int, int)> getNtagMirrorConfiguration() {
+    // TODO: implement getNtagMirrorConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> getNtagModulationConfiguration() {
+    // TODO: implement getNtagModulationConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> lockNtagConfiguration() {
+    // TODO: implement lockNtagConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> lockNtagPagePermanently(int page) {
+    // TODO: implement lockNtagPagePermanently
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> readNtagNfcCounter() {
+    // TODO: implement readNtagNfcCounter
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setNtagAccessConfiguration(int auth, bool readProtection, int authLimit) {
+    // TODO: implement setNtagAccessConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setNtagBlockLock(int page) {
+    // TODO: implement setNtagBlockLock
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setNtagCounterConfiguration(bool enableNfcCounter, bool enablePasswordProtection) {
+    // TODO: implement setNtagCounterConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setNtagMirrorConfiguration(NtagMirrorMode mode, int page, int byte) {
+    // TODO: implement setNtagMirrorConfiguration
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setNtagModulationConfiguration(bool enableModulation) {
+    // TODO: implement setNtagModulationConfiguration
+    throw UnimplementedError();
+  }
   // endregion NTAG / Mifare Ultralight Commands
   // endregion ISO14A Commands
 

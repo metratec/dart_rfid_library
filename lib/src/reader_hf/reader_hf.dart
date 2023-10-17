@@ -142,6 +142,109 @@ abstract class HfReader extends Reader {
   // endregion Mifare Classic Commands
 
   // region NTAG / Mifare Ultralight Commands
+  /// Used to authenticate with an NTAG after the authentication password protected pages can be accessed.
+  /// [password] must be an exactly 4 bytes long hex string.
+  /// Will return the configured password acknowledge. See [setNtagAuth]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<String> authNtag(String password);
+
+  /// Used to set the password and the password acknowledge for NTAG.
+  /// [password] must be an exactly 4 bytes long hex string.
+  /// [acknowledge] must be an exactly 2 bytes long hex string.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setNtagAuth(String password, String acknowledge);
+
+  /// Used to get the NTAG access configuration.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(int, bool, int)> getNtagAccessConfiguration();
+
+  /// Used to set the NTAG access configuration.
+  /// Note that the changes are only activated after a power cycle of the tag.
+  ///
+  /// If [readProtection] is true both read and write are password protected.
+  /// Otherwise only write is password protected
+  ///
+  /// [auth] must be an integer between 4 and 255 (including)
+  /// [authLimit] must be an integer between 0 and 7 (including)
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setNtagAccessConfiguration(int auth, bool readProtection, int authLimit);
+
+  /// Used to get the NTAG mirror configuration.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(NtagMirrorMode, int, int)> getNtagMirrorConfiguration();
+
+  /// Used to set the NTAG mirror configuration.
+  /// Note that the changes are only activated after a power cycle of the tag.
+  ///
+  /// [page] must be an integer between 4 and (Last Page - 3)
+  /// [byte] must be an integer between 0 and 3 (including)
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setNtagMirrorConfiguration(NtagMirrorMode mode, int page, int byte);
+
+  /// Used to get the NTAG counter configuration.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(bool, bool)> getNtagCounterConfiguration();
+
+  /// Used to get or set the NTAG counter configuration.
+  /// Note that the changes are only activated after a power cycle of the tag.
+  ///
+  /// [enableNfcCounter] Set to true to enable the NFC counter.
+  /// [enabledPasswordProtection] Set to 1 to enable password protection for the NFC counter.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setNtagCounterConfiguration(bool enableNfcCounter, bool enablePasswordProtection);
+
+  /// Used to get the NTAG modulation configuration.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<bool> getNtagModulationConfiguration();
+
+  /// Used to get or set the NTAG modulation configuration.
+  /// The parameter is boolean. If set to 1 strong modulation is enabled, otherwise it is disabled.
+  /// Note that the changes are only activated after a power cycle of the tag.
+  ///
+  /// [enableModulation] Set to true to enable strong modulation.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setNtagModulationConfiguration(bool enableModulation);
+
+  /// Used to permanently lock the NTAG configuration.
+  /// Note that the changes are only activated after a power cycle of the tag.
+  Future<void> lockNtagConfiguration();
+
+  /// Used to read the NFC counter of an NTAG.
+  ///
+  /// !: If password protection is enabled (see [getNtagAccessConfiguration]) for the counter [authNtag]
+  /// must be called before calling this.
+  Future<void> readNtagNfcCounter();
+
+  /// Used to lock a NTAG page. Page 3 to 15 can be locked individually.
+  /// All other pages are then grouped and can only be locked as groups.
+  /// The group size depends on the NTAG type. Refer to the NTAG datasheet for details.
+  ///
+  /// !: This lock is irreversible.
+  Future<void> lockNtagPagePermanently(int page);
+
+  /// Used to set the block-lock bits. The block-lock bits are used to lock the lock bits.
+  /// Refer to the NTAG datasheet for details.
+  Future<void> setNtagBlockLock(int page);
   // endregion NTAG / Mifare Ultralight Commands
   // endregion ISO14A Commands
 
@@ -205,3 +308,5 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 }
 
 enum MfcKeyType { A, B }
+
+enum NtagMirrorMode { OFF, UID, CNT, BOTH }
