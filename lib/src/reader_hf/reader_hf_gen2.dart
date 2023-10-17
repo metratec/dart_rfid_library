@@ -53,120 +53,34 @@ class HfReaderGen2 extends HfReader {
     }
   }
 
+  // region Device Settings
   @override
-  Future<List<HfInventoryResult>> inventory() async {
-    List<HfInventoryResult> inv = [];
-    String error = "";
+  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout) async {
+    heartbeat.stop();
 
     try {
-      final availableTagTypes = await detectTagTypes();
+      CmdExitCode exitCode = await sendCommand("AT+HBT=$seconds", 1000, []);
+      _handleExitCode(exitCode, "");
 
-      CmdExitCode exitCode = await sendCommand("AT+INV", 2000, [
-        ParserResponse("+INV", (line) {
-          if (line.contains("<")) {
-            error = line;
-            return;
-          }
-
-          inv.add(HfInventoryResult(
-            tag: HfTag(
-              line,
-              availableTagTypes[line] ?? TagType.unknown,
-            ),
-            timestamp: DateTime.now(),
-          ));
-        })
-      ]);
-      _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-
-    return inv;
-  }
-
-  @override
-  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType) async {
-    if (key.length != 6) {
-      throw ReaderException("Wrong key size for MFC");
-    }
-
-    String typeString = keyType.toString().split('.').last;
-    String keyString = key.toHexString();
-    String error = "";
-
-    try {
-      CmdExitCode exitCode = await sendCommand("AT+AUT=$block,$keyString,$typeString", 1000, [
-        ParserResponse("+AUT", (line) {
-          error = line;
-        })
-      ]);
-      _handleExitCode(exitCode, error);
+      heartbeat.start(seconds * 1000 + 2000, onHbt, onTimeout);
     } catch (e) {
       throw ReaderException(e.toString());
     }
   }
 
   @override
-  Future<void> write(int block, String data) async {
-    if (!hexRegEx.hasMatch(data)) {
-      throw ReaderException("Unsupported data! Must be a hex string");
-    }
-
-    String error = "";
-
+  Future<void> stopHeartBeat() async {
+    heartbeat.stop();
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$data", 2000, [
-        ParserResponse("+WRT", (line) {
-          error = line;
-        })
-      ]);
-      _handleExitCode(exitCode, error);
+      CmdExitCode exitCode = await sendCommand("AT+HBT=0", 1000, []);
+      _handleExitCode(exitCode, "");
     } catch (e) {
       throw ReaderException(e.toString());
     }
   }
+  // endregion Device Settings
 
-  @override
-  Future<String> read(int block) async {
-    String data = "";
-    String error = "";
-
-    try {
-      CmdExitCode exitCode = await sendCommand("AT+READ=$block", 2000, [
-        ParserResponse("+READ", (line) {
-          if (line.contains("<")) {
-            error = line;
-            return;
-          }
-
-          data = line;
-        })
-      ]);
-      _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-
-    return data;
-  }
-
-  @override
-  Future<void> selectTag(HfTag tag) async {
-    String error = "";
-
-    try {
-      CmdExitCode exitCode = await sendCommand("AT+SEL=${tag.uid}", 1000, [
-        ParserResponse("+SEL", (line) {
-          error = line;
-        })
-      ]);
-      _handleExitCode(exitCode, error);
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-  }
-
+  // region RFID Settings
   @override
   Future<void> setMode(String mode) async {
     if (HfReaderMode.values.none((e) => e.protocolString == mode)) {
@@ -223,7 +137,160 @@ class HfReaderGen2 extends HfReader {
 
     return settings.mode;
   }
+  // endregion RFID Settings
 
+  // region Tag Operations
+  @override
+  Future<List<HfInventoryResult>> inventory() async {
+    List<HfInventoryResult> inv = [];
+    String error = "";
+
+    try {
+      final availableTagTypes = await detectTagTypes();
+
+      CmdExitCode exitCode = await sendCommand("AT+INV", 2000, [
+        ParserResponse("+INV", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          inv.add(HfInventoryResult(
+            tag: HfTag(
+              line,
+              availableTagTypes[line] ?? TagType.unknown,
+            ),
+            timestamp: DateTime.now(),
+          ));
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return inv;
+  }
+
+  @override
+  Future<void> startContinuousInventory() async {
+    try {
+      await detectTagTypes();
+      CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
+      _handleExitCode(exitCode, "");
+      unawaited(_startDetectTagTypeLoop());
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> stopContinuousInventory() async {
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+BINV", 3000, []);
+      _handleExitCode(exitCode, "");
+      _stopDetectTagTypeLoop();
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> selectTag(HfTag tag) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+SEL=${tag.uid}", 1000, [
+        ParserResponse("+SEL", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<String> read(int block) async {
+    String data = "";
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+READ=$block", 2000, [
+        ParserResponse("+READ", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          data = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return data;
+  }
+
+  @override
+  Future<void> write(int block, String data) async {
+    if (!hexRegEx.hasMatch(data)) {
+      throw ReaderException("Unsupported data! Must be a hex string");
+    }
+
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$data", 2000, [
+        ParserResponse("+WRT", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
+  Future<Map<String, TagType>> detectTagTypes() async {
+    String error = "";
+    final availableTagTypes = <String, TagType>{};
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+DTT", 1000, [
+        ParserResponse("+DTT", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          final split = line.split(",");
+          if (split.length < 2) {
+            error = line;
+            return;
+          }
+          final tagUid = split[0];
+          final tagTypeString = split[1];
+          final tagType = TagType.values.firstWhereOrNull((e) => e.protocolString == tagTypeString) ?? TagType.unknown;
+
+          availableTagTypes[tagUid] = tagType;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.availableTagTypes = availableTagTypes;
+    return settings.availableTagTypes;
+  }
+  // endregion Tag Operations
+
+  // region ISO15693 Commands
   @override
   Future<void> setAfi(int afi) async {
     if (afi < 0 || afi > 255) {
@@ -352,101 +419,38 @@ class HfReaderGen2 extends HfReader {
       throw ReaderException(e.toString());
     }
   }
+  // endregion ISO15693 Commands
 
+  // region ISO14A Commands
+  // region Mifare Classic Commands
   @override
-  Future<Map<String, TagType>> detectTagTypes() async {
+  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType) async {
+    if (key.length != 6) {
+      throw ReaderException("Wrong key size for MFC");
+    }
+
+    String typeString = keyType.toString().split('.').last;
+    String keyString = key.toHexString();
     String error = "";
-    final availableTagTypes = <String, TagType>{};
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+DTT", 1000, [
-        ParserResponse("+DTT", (line) {
-          if (line.contains("<")) {
-            error = line;
-            return;
-          }
-
-          final split = line.split(",");
-          if (split.length < 2) {
-            error = line;
-            return;
-          }
-          final tagUid = split[0];
-          final tagTypeString = split[1];
-          final tagType = TagType.values.firstWhereOrNull((e) => e.protocolString == tagTypeString) ?? TagType.unknown;
-
-          availableTagTypes[tagUid] = tagType;
+      CmdExitCode exitCode = await sendCommand("AT+AUT=$block,$keyString,$typeString", 1000, [
+        ParserResponse("+AUT", (line) {
+          error = line;
         })
       ]);
       _handleExitCode(exitCode, error);
     } catch (e) {
       throw ReaderException(e.toString());
     }
-
-    settings.availableTagTypes = availableTagTypes;
-    return settings.availableTagTypes;
   }
+  // endregion Mifare Classic Commands
 
-  @override
-  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout) async {
-    heartbeat.stop();
+  // region NTAG / Mifare Ultralight Commands
+  // endregion NTAG / Mifare Ultralight Commands
+  // endregion ISO14A Commands
 
-    try {
-      CmdExitCode exitCode = await sendCommand("AT+HBT=$seconds", 1000, []);
-      _handleExitCode(exitCode, "");
-
-      heartbeat.start(seconds * 1000 + 2000, onHbt, onTimeout);
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-  }
-
-  @override
-  Future<void> stopHeartBeat() async {
-    heartbeat.stop();
-    try {
-      CmdExitCode exitCode = await sendCommand("AT+HBT=0", 1000, []);
-      _handleExitCode(exitCode, "");
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-  }
-
-  @override
-  Future<void> startContinuousInventory() async {
-    try {
-      await detectTagTypes();
-      CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
-      _handleExitCode(exitCode, "");
-      unawaited(_startDetectTagTypeLoop());
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-  }
-
-  Future<void> _startDetectTagTypeLoop() async {
-    _runDetectionLoop = true;
-    while (_runDetectionLoop) {
-      await detectTagTypes();
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-  }
-
-  @override
-  Future<void> stopContinuousInventory() async {
-    try {
-      CmdExitCode exitCode = await sendCommand("AT+BINV", 3000, []);
-      _handleExitCode(exitCode, "");
-      _stopDetectTagTypeLoop();
-    } catch (e) {
-      throw ReaderException(e.toString());
-    }
-  }
-
-  void _stopDetectTagTypeLoop() {
-    _runDetectionLoop = false;
-  }
-
+  // region Feedback
   @override
   Future<void> playFeedback(int feedbackId) async {
     if (!settings.hasBeeper) {
@@ -459,6 +463,19 @@ class HfReaderGen2 extends HfReader {
     } catch (e) {
       throw ReaderException(e.toString());
     }
+  }
+  // endregion Feedback
+
+  Future<void> _startDetectTagTypeLoop() async {
+    _runDetectionLoop = true;
+    while (_runDetectionLoop) {
+      await detectTagTypes();
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+  }
+
+  void _stopDetectTagTypeLoop() {
+    _runDetectionLoop = false;
   }
 
   @override

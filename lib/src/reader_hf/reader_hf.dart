@@ -26,34 +26,24 @@ abstract class HfReader extends Reader {
 
   // TODO: add all hf functions here
 
-  /// Perform a single inventory.
-  ///
-  /// Returns a list of discovered tags.
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  @override
-  Future<List<HfInventoryResult>> inventory();
-
-  /// Authenticate a [block] on a mifare classic tag with [key] of
-  /// [keyType].
+  // region Device Settings
+  /// Enable heartbeats events of the reader.
+  /// The reader will send a heartbeat every x [seconds].
+  /// If a heartbeat is received [onHbt] is called.
+  /// If no heartbeat is received [onTimeout] will be called.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType);
+  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout);
 
-  /// Read a hex string [data] of a [block] from a tag. Depending on the mode the tag has to be selected
-  /// and authenticated.
+  /// Stop the heartbeat events.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<String> read(int block);
+  Future<void> stopHeartBeat();
+  // endregion Device Settings
 
-  /// Select a given [tag].
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> selectTag(HfTag tag);
-
+  // region RFID Settings
   /// Set the reader [mode].
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
@@ -65,7 +55,45 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<String?> getMode();
+  // endregion RFID Settings
 
+  // region Tag Operations
+  /// Perform a single inventory.
+  ///
+  /// Returns a list of discovered tags.
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  @override
+  Future<List<HfInventoryResult>> inventory();
+
+  /// Select a given [tag].
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> selectTag(HfTag tag);
+
+  /// Read a hex string [data] of a [block] from a tag. Depending on the mode the tag has to be selected
+  /// and authenticated.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<String> read(int block);
+
+  /// Write a hex string [data] to a tag at [block]. Depending on the mode the tag has to be selected
+  /// and authenticated.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> write(int block, String data);
+
+  /// Set the reader [availableTagTypes]. and returns them
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<Map<String, TagType>> detectTagTypes();
+  // endregion Tag Operations
+
+  // region ISO15693 Commands
   /// Set the reader [afi] value.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
@@ -101,36 +129,25 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> lockDsfid(bool optionsFlag);
+  // endregion ISO15693 Commands
 
-  /// Set the reader [availableTagTypes]. and returns them
+  // region ISO14A Commands
+  // region Mifare Classic Commands
+  /// Authenticate a [block] on a mifare classic tag with [key] of
+  /// [keyType].
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<Map<String, TagType>> detectTagTypes();
+  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType);
+  // endregion Mifare Classic Commands
 
-  /// Enable heartbeats events of the reader.
-  /// The reader will send a heartbeat every x [seconds].
-  /// If a heartbeat is received [onHbt] is called.
-  /// If no heartbeat is received [onTimeout] will be called.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout);
+  // region NTAG / Mifare Ultralight Commands
+  // endregion NTAG / Mifare Ultralight Commands
+  // endregion ISO14A Commands
 
-  /// Stop the heartbeat events.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> stopHeartBeat();
-
-  /// Write a hex string [data] to a tag at [block]. Depending on the mode the tag has to be selected
-  /// and authenticated.
-  ///
-  /// !: Will throw [ReaderTimeoutException] on timeout.
-  /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> write(int block, String data);
-
+  // region Feedback
   Future<void> playFeedback(int feedbackId);
+  // endregion Feedback
 
   @override
   Future<void> loadDeviceSettings() async {

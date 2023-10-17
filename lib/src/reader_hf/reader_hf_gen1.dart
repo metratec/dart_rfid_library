@@ -13,123 +13,134 @@ class HfReaderGen1 extends HfReader {
   HfReaderGen1(CommInterface commInterface, HfGen1ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {}
 
-  @override
-  Future<List<HfInventoryResult>> inventory() {
-    // TODO: implement inventory
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> loadDeviceSettings() {
-    // TODO: implement loadDeviceSettings
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType) {
-    // TODO: implement mfcAuth
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String> read(int block) {
-    // TODO: implement read
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> selectTag(HfTag tag) {
-    // TODO: implement selectTag
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> setMode(String mode) {
-    // TODO: implement setMode
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String?> getMode() {
-    // TODO: implement getMode
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> setAfi(int afi) {
-    // TODO: implement setMode
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<int?> getAfi() {
-    // TODO: implement getMode
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> lockAfi(bool optionsFlag) {
-    // TODO: implement lockAfi
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> lockDsfid(bool optionsFlag) {
-    // TODO: implement lockDsfid
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> writeAfi(int afi, bool optionsFlag) {
-    // TODO: implement writeAfi
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> writeDsfid(int dsfid, bool optionsFlag) {
-    // TODO: implement writeDsfid
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> startContinuousInventory() {
-    // TODO: implement startContinuousInventory
-    throw UnimplementedError();
-  }
-
+  // region Device Settings
   @override
   Future<void> startHeartBeat(int seconds, Function onHbt, Function onTimeout) {
-    // TODO: implement startHeartBeat
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> stopContinuousInventory() {
-    // TODO: implement stopContinuousInventory
+    // TODO: implement
     throw UnimplementedError();
   }
 
   @override
   Future<void> stopHeartBeat() {
-    // TODO: implement stopHeartBeat
+    // TODO: implement
+    throw UnimplementedError();
+  }
+  // endregion Device Settings
+
+  // region RFID Settings
+  @override
+  Future<void> setMode(String mode) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String?> getMode() {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+  // endregion RFID Settings
+
+  // region Tag Operations
+  @override
+  Future<List<HfInventoryResult>> inventory() {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> startContinuousInventory() {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> stopContinuousInventory() {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> selectTag(HfTag tag) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> read(int block) {
+    // TODO: implement
     throw UnimplementedError();
   }
 
   @override
   Future<void> write(int block, String data) {
-    // TODO: implement write
+    // TODO: implement
     throw UnimplementedError();
   }
 
   @override
   Future<Map<String, TagType>> detectTagTypes() {
-    // TODO: implement detectTagType
+    // TODO: implement
+    throw UnimplementedError();
+  }
+  // endregion Tag Operations
+
+  // region ISO15693 Commands
+  @override
+  Future<void> setAfi(int afi) {
+    // TODO: implement
     throw UnimplementedError();
   }
 
   @override
-  Future<void> playFeedback(int feedbackId) {
-    // TODO: implement playFeedback
+  Future<int?> getAfi() {
+    // TODO: implement
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> writeAfi(int afi, bool optionsFlag) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> lockAfi(bool optionsFlag) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> writeDsfid(int dsfid, bool optionsFlag) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> lockDsfid(bool optionsFlag) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+  // endregion ISO15693 Commands
+
+  // region ISO14A Commands
+  // region Mifare Classic Commands
+  @override
+  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+  // endregion Mifare Classic Commands
+
+  // region NTAG / Mifare Ultralight Commands
+  // endregion NTAG / Mifare Ultralight Commands
+  // endregion ISO14A Commands
+
+  // region Feedback
+  @override
+  Future<void> playFeedback(int feedbackId) {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+  // endregion Feedback
 }
