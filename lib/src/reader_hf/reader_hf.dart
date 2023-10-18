@@ -146,6 +146,8 @@ abstract class HfReader extends Reader {
   /// [password] must be an exactly 4 bytes long hex string.
   /// Will return the configured password acknowledge. See [setNtagAuth]
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<String> authNtag(String password);
@@ -154,11 +156,15 @@ abstract class HfReader extends Reader {
   /// [password] must be an exactly 4 bytes long hex string.
   /// [acknowledge] must be an exactly 2 bytes long hex string.
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setNtagAuth(String password, String acknowledge);
 
   /// Used to get the NTAG access configuration.
+  ///
+  /// !: You must use [selectTag] before calling
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
@@ -173,11 +179,15 @@ abstract class HfReader extends Reader {
   /// [auth] must be an integer between 4 and 255 (including)
   /// [authLimit] must be an integer between 0 and 7 (including)
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setNtagAccessConfiguration(int auth, bool readProtection, int authLimit);
 
   /// Used to get the NTAG mirror configuration.
+  ///
+  /// !: You must use [selectTag] before calling
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
@@ -189,11 +199,15 @@ abstract class HfReader extends Reader {
   /// [page] must be an integer between 4 and (Last Page - 3)
   /// [byte] must be an integer between 0 and 3 (including)
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setNtagMirrorConfiguration(NtagMirrorMode mode, int page, int byte);
 
   /// Used to get the NTAG counter configuration.
+  ///
+  /// !: You must use [selectTag] before calling
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
@@ -205,21 +219,27 @@ abstract class HfReader extends Reader {
   /// [enableNfcCounter] Set to true to enable the NFC counter.
   /// [enabledPasswordProtection] Set to 1 to enable password protection for the NFC counter.
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setNtagCounterConfiguration(bool enableNfcCounter, bool enablePasswordProtection);
 
   /// Used to get the NTAG modulation configuration.
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<bool> getNtagModulationConfiguration();
 
-  /// Used to get or set the NTAG modulation configuration.
+  /// Used to set the NTAG modulation configuration.
   /// The parameter is boolean. If set to 1 strong modulation is enabled, otherwise it is disabled.
   /// Note that the changes are only activated after a power cycle of the tag.
   ///
   /// [enableModulation] Set to true to enable strong modulation.
+  ///
+  /// !: You must use [selectTag] before calling
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
@@ -227,9 +247,15 @@ abstract class HfReader extends Reader {
 
   /// Used to permanently lock the NTAG configuration.
   /// Note that the changes are only activated after a power cycle of the tag.
+  ///
+  /// !: You must use [selectTag] before calling
+  ///
+  /// !: This lock is irreversible.
   Future<void> lockNtagConfigurationPermanently();
 
   /// Used to read the NFC counter of an NTAG.
+  ///
+  /// !: You must use [selectTag] before calling
   ///
   /// !: If password protection is enabled (see [getNtagAccessConfiguration]) for the counter [authNtag]
   /// must be called before calling this.
@@ -239,11 +265,15 @@ abstract class HfReader extends Reader {
   /// All other pages are then grouped and can only be locked as groups.
   /// The group size depends on the NTAG type. Refer to the NTAG datasheet for details.
   ///
+  /// !: You must use [selectTag] before calling
+  ///
   /// !: This lock is irreversible.
   Future<void> lockNtagPagePermanently(int page);
 
   /// Used to set the block-lock bits. The block-lock bits are used to lock the lock bits.
   /// Refer to the NTAG datasheet for details.
+  ///
+  /// !: You must use [selectTag] before calling
   Future<void> setNtagBlockLock(int page);
   // endregion NTAG / Mifare Ultralight Commands
   // endregion ISO14A Commands
