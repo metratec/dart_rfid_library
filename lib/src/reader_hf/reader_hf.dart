@@ -336,26 +336,3 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
   @override
   bool get isActive => super.isActive && mode != null;
 }
-
-enum MfcKeyType { A, B }
-
-enum NtagMirrorMode {
-  off,
-  uid,
-  cnt,
-  both;
-
-  String toProtocolString() => switch (this) {
-        NtagMirrorMode.off => "OFF",
-        NtagMirrorMode.uid => "UID",
-        NtagMirrorMode.cnt => "CNT",
-        NtagMirrorMode.both => "BOTH",
-      };
-
-  static NtagMirrorMode fromProtocolString(String protocolString) => switch (protocolString) {
-        "UID" => uid,
-        "CNT" => cnt,
-        "BOTH" => both,
-        _ => off,
-      };
-}
