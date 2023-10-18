@@ -140,7 +140,7 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
-  Future<String> setNtagAuth(String password, String acknowledge) {
+  Future<void> setNtagAuth(String password, String acknowledge) {
     // TODO: implement setNpAuth
     throw UnimplementedError();
   }
@@ -170,7 +170,7 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
-  Future<void> lockNtagConfiguration() {
+  Future<void> lockNtagConfigurationPermanently() {
     // TODO: implement lockNtagConfiguration
     throw UnimplementedError();
   }
@@ -182,7 +182,7 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
-  Future<void> readNtagNfcCounter() {
+  Future<int> getNtagNfcCounter() {
     // TODO: implement readNtagNfcCounter
     throw UnimplementedError();
   }

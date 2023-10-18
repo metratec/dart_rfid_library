@@ -449,87 +449,329 @@ class HfReaderGen2 extends HfReader {
 
   // region NTAG / Mifare Ultralight Commands
   @override
-  Future<String> authNtag(String password) {
-    // TODO: implement npAuth
-    throw UnimplementedError();
+  Future<String> authNtag(String password) async {
+    String error = "";
+    String ack = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NPAUTH=$password", 1000, [
+        ParserResponse("+NPAUTH", (line) {
+          if (line.contains("<") || line.length != 4) {
+            error = line;
+            return;
+          }
+
+          ack = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return ack;
   }
 
   @override
-  Future<String> setNtagAuth(String password, String acknowledge) {
-    // TODO: implement setNpAuth
-    throw UnimplementedError();
+  Future<(int, bool, int)> getNtagAccessConfiguration() async {
+    String error = "";
+    (int, bool, int)? accessConfig;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NACFG?", 1000, [
+        ParserResponse("+NACFG", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          final split = line.split(",");
+          if (split.length != 3) {
+            error = line;
+            return;
+          }
+
+          accessConfig = (int.parse(split.first), split[1] == "1", int.parse(split.last));
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return accessConfig!;
   }
 
   @override
-  Future<(int, bool, int)> getNtagAccessConfiguration() {
-    // TODO: implement getNtagAccessConfiguration
-    throw UnimplementedError();
+  Future<(bool, bool)> getNtagCounterConfiguration() async {
+    String error = "";
+    (bool, bool)? counterConfig;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NCCFG?", 1000, [
+        ParserResponse("+NCCFG", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          final split = line.split(",");
+          if (split.length != 2) {
+            error = line;
+            return;
+          }
+
+          counterConfig = (split[0] == "1", split[1] == "1");
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return counterConfig!;
   }
 
   @override
-  Future<(bool, bool)> getNtagCounterConfiguration() {
-    // TODO: implement getNtagCounterConfiguration
-    throw UnimplementedError();
+  Future<(NtagMirrorMode, int, int)> getNtagMirrorConfiguration() async {
+    String error = "";
+    (NtagMirrorMode, int, int)? mirrorConfig;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NMCFG?", 1000, [
+        ParserResponse("+NMCFG", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          final split = line.split(",");
+          if (split.length != 3) {
+            error = line;
+            return;
+          }
+
+          mirrorConfig = (NtagMirrorMode.fromProtocolString(split[0]), int.parse(split[1]), int.parse(split[2]));
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return mirrorConfig!;
   }
 
   @override
-  Future<(NtagMirrorMode, int, int)> getNtagMirrorConfiguration() {
-    // TODO: implement getNtagMirrorConfiguration
-    throw UnimplementedError();
+  Future<bool> getNtagModulationConfiguration() async {
+    String error = "";
+    bool modulationConfig = false;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NDCFG?", 1000, [
+        ParserResponse("+NDCFG", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          modulationConfig = line == "1";
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return modulationConfig;
   }
 
   @override
-  Future<bool> getNtagModulationConfiguration() {
-    // TODO: implement getNtagModulationConfiguration
-    throw UnimplementedError();
+  Future<int> getNtagNfcCounter() async {
+    String error = "";
+    int? nfcCounter;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NCNT?", 1000, [
+        ParserResponse("+NCNT", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          nfcCounter = int.parse(line);
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return nfcCounter!;
   }
 
   @override
-  Future<void> lockNtagConfiguration() {
-    // TODO: implement lockNtagConfiguration
-    throw UnimplementedError();
+  Future<void> lockNtagConfigurationPermanently() async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NCLK", 1000, [
+        ParserResponse("+NCLK", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> lockNtagPagePermanently(int page) {
-    // TODO: implement lockNtagPagePermanently
-    throw UnimplementedError();
+  Future<void> lockNtagPagePermanently(int page) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NLK=$page", 1000, [
+        ParserResponse("+NLK", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> readNtagNfcCounter() {
-    // TODO: implement readNtagNfcCounter
-    throw UnimplementedError();
+  Future<void> setNtagAccessConfiguration(int auth, bool readProtection, int authLimit) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NACFG=$auth,${readProtection.toProtocolString()},$authLimit", 1000, [
+        ParserResponse("+NACFG", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setNtagAccessConfiguration(int auth, bool readProtection, int authLimit) {
-    // TODO: implement setNtagAccessConfiguration
-    throw UnimplementedError();
+  Future<void> setNtagAuth(String password, String acknowledge) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NPWD=$password,$acknowledge", 1000, [
+        ParserResponse("+NPWD", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setNtagBlockLock(int page) {
-    // TODO: implement setNtagBlockLock
-    throw UnimplementedError();
+  Future<void> setNtagBlockLock(int page) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NBLK=$page", 1000, [
+        ParserResponse("+NBLK", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setNtagCounterConfiguration(bool enableNfcCounter, bool enablePasswordProtection) {
-    // TODO: implement setNtagCounterConfiguration
-    throw UnimplementedError();
+  Future<void> setNtagCounterConfiguration(bool enableNfcCounter, bool enablePasswordProtection) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+NCCFG=${enableNfcCounter.toProtocolString()},${enablePasswordProtection.toProtocolString()}",
+        1000,
+        [
+          ParserResponse("+NCCFG", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setNtagMirrorConfiguration(NtagMirrorMode mode, int page, int byte) {
-    // TODO: implement setNtagMirrorConfiguration
-    throw UnimplementedError();
+  Future<void> setNtagMirrorConfiguration(NtagMirrorMode mode, int page, int byte) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+NMCFG=${mode.toProtocolString()},$page,$byte",
+        1000,
+        [
+          ParserResponse("+NMCFG", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setNtagModulationConfiguration(bool enableModulation) {
-    // TODO: implement setNtagModulationConfiguration
-    throw UnimplementedError();
+  Future<void> setNtagModulationConfiguration(bool enableModulation) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand(
+        "AT+NDCFG=${enableModulation.toProtocolString()}",
+        1000,
+        [
+          ParserResponse("+NDCFG", (line) {
+            error = line;
+          })
+        ],
+      );
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
   // endregion NTAG / Mifare Ultralight Commands
   // endregion ISO14A Commands

@@ -227,13 +227,13 @@ abstract class HfReader extends Reader {
 
   /// Used to permanently lock the NTAG configuration.
   /// Note that the changes are only activated after a power cycle of the tag.
-  Future<void> lockNtagConfiguration();
+  Future<void> lockNtagConfigurationPermanently();
 
   /// Used to read the NFC counter of an NTAG.
   ///
   /// !: If password protection is enabled (see [getNtagAccessConfiguration]) for the counter [authNtag]
   /// must be called before calling this.
-  Future<void> readNtagNfcCounter();
+  Future<int> getNtagNfcCounter();
 
   /// Used to lock a NTAG page. Page 3 to 15 can be locked individually.
   /// All other pages are then grouped and can only be locked as groups.
@@ -309,4 +309,23 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 
 enum MfcKeyType { A, B }
 
-enum NtagMirrorMode { OFF, UID, CNT, BOTH }
+enum NtagMirrorMode {
+  off,
+  uid,
+  cnt,
+  both;
+
+  String toProtocolString() => switch (this) {
+        NtagMirrorMode.off => "OFF",
+        NtagMirrorMode.uid => "UID",
+        NtagMirrorMode.cnt => "CNT",
+        NtagMirrorMode.both => "BOTH",
+      };
+
+  static NtagMirrorMode fromProtocolString(String protocolString) => switch (protocolString) {
+        "UID" => uid,
+        "CNT" => cnt,
+        "BOTH" => both,
+        _ => off,
+      };
+}
