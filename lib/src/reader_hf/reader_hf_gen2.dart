@@ -39,9 +39,6 @@ class HfReaderGen2 extends HfReader {
 
     final uid = line.split(': ').last;
     final tagType = settings.availableTagTypes[uid] ?? TagType.unknown;
-    if (tagType == TagType.unknown) {
-      print("No TagType for detected for: $uid");
-    }
     _inventory.add(HfTag(uid, tagType));
   }
 
@@ -280,9 +277,6 @@ class HfReaderGen2 extends HfReader {
           final tagUid = split[0];
           final tagTypeString = split[1];
           final tagType = TagType.values.firstWhereOrNull((e) => e.protocolString == tagTypeString) ?? TagType.unknown;
-          if (tagType == TagType.unknown) {
-            print("Could not get tag type for $tagTypeString");
-          }
 
           availableTagTypes[tagUid] = tagType;
         })
