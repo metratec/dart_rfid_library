@@ -152,6 +152,12 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
+  Future<bool> getNtagConfigurationLock() {
+    // TODO: implement getNtagConfigurationLock
+    throw UnimplementedError();
+  }
+
+  @override
   Future<(bool, bool)> getNtagCounterConfiguration() {
     // TODO: implement getNtagCounterConfiguration
     throw UnimplementedError();

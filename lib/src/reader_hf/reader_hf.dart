@@ -245,12 +245,23 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setNtagModulationConfiguration(bool enableModulation);
 
+  /// Used to get the lock state the NTAG configurations.
+  ///
+  /// !: You must use [selectTag] before calling
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<bool> getNtagConfigurationLock();
+
   /// Used to permanently lock the NTAG configuration.
   /// Note that the changes are only activated after a power cycle of the tag.
   ///
   /// !: You must use [selectTag] before calling
   ///
   /// !: This lock is irreversible.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
   Future<void> lockNtagConfigurationPermanently();
 
   /// Used to read the NFC counter of an NTAG.
@@ -259,6 +270,9 @@ abstract class HfReader extends Reader {
   ///
   /// !: If password protection is enabled (see [getNtagAccessConfiguration]) for the counter [authNtag]
   /// must be called before calling this.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
   Future<int> getNtagNfcCounter();
 
   /// Used to lock a NTAG page. Page 3 to 15 can be locked individually.
@@ -268,12 +282,18 @@ abstract class HfReader extends Reader {
   /// !: You must use [selectTag] before calling
   ///
   /// !: This lock is irreversible.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
   Future<void> lockNtagPagePermanently(int page);
 
   /// Used to set the block-lock bits. The block-lock bits are used to lock the lock bits.
   /// Refer to the NTAG datasheet for details.
   ///
   /// !: You must use [selectTag] before calling
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
   Future<void> setNtagBlockLock(int page);
   // endregion NTAG / Mifare Ultralight Commands
   // endregion ISO14A Commands

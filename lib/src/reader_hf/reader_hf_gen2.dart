@@ -7,7 +7,6 @@ import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
-import 'package:reader_library/src/reader_hf/reader_hf.dart';
 
 class HfGen2ReaderSettings extends HfReaderSettings {
   @override
@@ -508,6 +507,34 @@ class HfReaderGen2 extends HfReader {
     }
 
     return accessConfig!;
+  }
+
+  @override
+  Future<bool> getNtagConfigurationLock() async {
+    String error = "";
+    bool isLocked = false;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+NCLK?", 1000, [
+        ParserResponse("+NCLK", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          isLocked = int.parse(line) == 1;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return isLocked;
   }
 
   @override
