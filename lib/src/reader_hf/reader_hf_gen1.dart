@@ -39,6 +39,18 @@ class HfReaderGen1 extends HfReader {
     // TODO: implement
     throw UnimplementedError();
   }
+
+  @override
+  Future<(int?, String?)> getRadioInterface() {
+    // TODO: implement getRadioInterface
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setRadioInterface(int modulation, String subcarrier) {
+    // TODO: implement setRadioInterface
+    throw UnimplementedError();
+  }
   // endregion RFID Settings
 
   // region Tag Operations

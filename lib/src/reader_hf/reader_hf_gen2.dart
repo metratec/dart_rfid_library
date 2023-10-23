@@ -130,13 +130,82 @@ class HfReaderGen2 extends HfReader {
       } catch (ex, stack) {
         // Could not read AFI but we want to return the mode nevertheless
         log("Failed to get afi", error: ex, stackTrace: stack);
+        // We set afi to 0 as default value so its not null
+        settings.afi = 0;
+      }
+
+      try {
+        await getRadioInterface();
+      } catch (ex, stack) {
+        log("Failed to get radio interface", error: ex, stackTrace: stack);
+        settings.criModulation = 100;
+        settings.criSubcarrier = "SINGLE";
       }
     } else {
       // We set afi to 0 as default value so its not null
       settings.afi = 0;
+      settings.criModulation = 100;
+      settings.criSubcarrier = "SINGLE";
     }
 
     return settings.mode;
+  }
+
+  @override
+  Future<(int?, String?)> getRadioInterface() async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+CRI?", 1000, [
+        ParserResponse("+CRI", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          final split = line.split(",");
+          if (split.length != 2) {
+            error = line;
+            return;
+          }
+
+          settings.criSubcarrier = split[0];
+          settings.criModulation = int.tryParse(split[1]);
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return (settings.criModulation, settings.criSubcarrier);
+  }
+
+  @override
+  Future<void> setRadioInterface(int modulation, String subcarrier) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+CRI=${subcarrier.toUpperCase()},$modulation", 1000, [
+        ParserResponse("+CRI", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    settings.criSubcarrier = subcarrier;
+    settings.criModulation = modulation;
   }
   // endregion RFID Settings
 
@@ -839,6 +908,7 @@ class HfReaderGen2 extends HfReader {
     } catch (ex, stack) {
       log("Failed to get mode", error: ex, stackTrace: stack);
     }
+
     await super.loadDeviceSettings();
   }
 }

@@ -55,6 +55,18 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<String?> getMode();
+
+  /// Set the reader [radio interface]. Only available if [mode] is [HfReaderMode.iso15]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setRadioInterface(int modulation, String subcarrier);
+
+  /// Get the reader [radio interface]. Only available if [mode] is [HfReaderMode.iso15]
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(int?, String?)> getRadioInterface();
   // endregion RFID Settings
 
   // region Tag Operations
@@ -328,6 +340,9 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 
   int? afi;
 
+  int? criModulation;
+  String? criSubcarrier;
+
   Map<String, TagType> availableTagTypes = {};
 
   @override
@@ -350,6 +365,43 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
         },
         setter: reader.setAfi,
       ),
+      ConfigElementGroup(
+        name: "CRI",
+        setter: (val) async {
+          final int modulation = val.firstWhereOrNull((e) => e.name == "Radio interface modulation")?.value ?? 100;
+          final String subcarrier =
+              val.firstWhereOrNull((e) => e.name == "Radio interface subcarrier")?.value ?? "SINGLE";
+
+          await reader.setRadioInterface(modulation, subcarrier);
+        },
+        isEnabled: (config) {
+          final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
+          return modeValue == HfReaderMode.iso15.protocolString;
+        },
+        value: [
+          NumConfigElement<int>(
+            name: "Radio interface modulation",
+            value: criModulation,
+            possibleValues: (config) => [10, 100],
+            isEnum: true,
+            setter: (val) async {},
+            isEnabled: (config) {
+              final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
+              return modeValue == HfReaderMode.iso15.protocolString;
+            },
+          ),
+          StringConfigElement(
+            name: "Radio interface subcarrier",
+            value: criSubcarrier,
+            possibleValues: (configs) => ["SINGLE", "DOUBLE"],
+            setter: (val) async {},
+            isEnabled: (config) {
+              final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
+              return modeValue == HfReaderMode.iso15.protocolString;
+            },
+          ),
+        ],
+      )
     ];
   }
 
