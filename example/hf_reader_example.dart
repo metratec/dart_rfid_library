@@ -26,7 +26,7 @@ Future<void> _readTest(HfReader reader) async {
 
   stdout.write("Authenticating with default key...");
   Uint8List mfcKey = Uint8List.fromList([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
-  await reader.mfcAuth(6, mfcKey, MfcKeyType.A);
+  await reader.authMfc(6, mfcKey.toHexString(), MfcKeyType.A);
   stdout.writeln("Done!");
 
   Uint8List data = Uint8List.fromList(

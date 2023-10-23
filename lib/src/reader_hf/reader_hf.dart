@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
@@ -150,7 +149,92 @@ abstract class HfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType);
+  Future<void> authMfc(int block, String key, MfcKeyType keyType);
+
+  /// Used to authenticate with a stored key at [index] in the keystore.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> authMfcStoredKey(int block, int index);
+
+  /// Used to store a key in the internal key store of the DeskID NFC.
+  ///
+  /// - [index] must be in range from 0 to 16.
+  /// - [key] must be exactly 6 bytes long-
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setMfcInternalKey(int index, String key, MfcKeyType keyType);
+
+  /// Used to get the access bits for a Mifare Classic block.
+  /// Returns the access bits for the corresponding block.
+  /// Please refer to the Mifare Classic documentation for the meaning of the access bits.
+  /// Note that the access conditions differ for data blocks and the sector trailer.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(bool, bool, bool)> getMfcAccessBits(int block);
+
+  /// Used to set the keys and access bits for a Mifare Classic Block.
+  /// Note that in Mifare Classic Blocks are grouped in sectors of 4 blocks.
+  /// The keys are set for the whole sector, not for a single block in the sector.
+  /// The access bits however are set block-wise.
+  /// Make sure you are using the same keys if you set the access bits for different blocks in the same sector.
+  /// The parameters of this command are block number, key1, key2 and access bits.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setMfcKeysAndAccessBits(int block, String key1, String key2, (bool, bool, bool) accessBits);
+
+  /// Used to set the keys for a Mifare Classic block.
+  /// Note that in Mifare Classic Blocks are grouped in sectors of 4 blocks.
+  /// The keys are set for the whole sector, not for a single block in the sector.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> setMfcKeys(int block, String key1, String key2);
+
+  /// Used to create a Mifare Classic Value block.
+  ///
+  /// [initialValue] is a signed 32 bit integer.
+  /// The address byte stores the address of a block used for backup.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> writeMfcValueBlock(int block, int initialValue, int address);
+
+  /// Used to read the value of a Mifare Classic value block.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<(int, int)> readMfcBlockValue(int block);
+
+  /// Used to increment the value of a Mifare Classic block.
+  /// Note that this operation only will have an effect after [transferMfcBlockValue] is executed.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> incrementMfcBlockValue(int block, int incrementValue);
+
+  /// Used to decrement the value of a Mifare Classic block.
+  /// Note that this operation only will have an effect after [transferMfcBlockValue] is executed.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> decrementMfcBlockValue(int block, int decrementValue);
+
+  /// Used to restore the value of a Mifare Classic block.
+  /// Note that this operation only will have an effect after [transferMfcBlockValue] is executed.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> restoreMfcBlockValue(int block);
+
+  /// Used to write pending transactions to a block.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> transferMfcBlockValue(int block);
   // endregion Mifare Classic Commands
 
   // region NTAG / Mifare Ultralight Commands

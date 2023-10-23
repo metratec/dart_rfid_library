@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
@@ -138,8 +136,74 @@ class HfReaderGen1 extends HfReader {
   // region ISO14A Commands
   // region Mifare Classic Commands
   @override
-  Future<void> mfcAuth(int block, Uint8List key, MfcKeyType keyType) {
+  Future<void> authMfc(int block, String key, MfcKeyType keyType) {
     // TODO: implement
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> authMfcStoredKey(int block, int index) {
+    // TODO: implement authMfcStoredKey
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> decrementMfcBlockValue(int block, int decrementValue) {
+    // TODO: implement decrementMfcBlockValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<(bool, bool, bool)> getMfcAccessBits(int block) {
+    // TODO: implement getMfcAccessBits
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> incrementMfcBlockValue(int block, int incrementValue) {
+    // TODO: implement incrementMfcBlockValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<(int, int)> readMfcBlockValue(int block) {
+    // TODO: implement readMfcBlockValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> restoreMfcBlockValue(int block) {
+    // TODO: implement restoreMfcBlockValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setMfcInternalKey(int index, String key, MfcKeyType keyType) {
+    // TODO: implement setMfcInternalKey
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setMfcKeys(int block, String key1, String key2) {
+    // TODO: implement setMfcKeys
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setMfcKeysAndAccessBits(int block, String key1, String key2, (bool, bool, bool) accessBits) {
+    // TODO: implement setMfcKeysAndAccessBits
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> transferMfcBlockValue(int block) {
+    // TODO: implement transferMfcBlockValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> writeMfcValueBlock(int block, int initialValue, int address) {
+    // TODO: implement writeMfcValueBlock
     throw UnimplementedError();
   }
   // endregion Mifare Classic Commands
