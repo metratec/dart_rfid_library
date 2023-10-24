@@ -514,69 +514,216 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
-  Future<void> authMfcStoredKey(int block, int index) {
-    // TODO: implement authMfcStoredKey
-    throw UnimplementedError();
+  Future<void> authMfcStoredKey(int block, int index) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+AUTN=$block,$index", 1000, [
+        ParserResponse("+AUTN", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> decrementMfcBlockValue(int block, int decrementValue) {
-    // TODO: implement decrementMfcBlockValue
-    throw UnimplementedError();
+  Future<void> decrementMfcBlockValue(int block, int decrementValue) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+DVL=$block,$decrementValue", 1000, [
+        ParserResponse("+DVL", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<(bool, bool, bool)> getMfcAccessBits(int block) {
-    // TODO: implement getMfcAccessBits
-    throw UnimplementedError();
+  Future<(bool, bool, bool)> getMfcAccessBits(int block) async {
+    String error = "";
+    (bool, bool, bool)? accessBits;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+GAB=$block", 1000, [
+        ParserResponse("+GAB", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          if (line.length != 3) {
+            error = line;
+            return;
+          }
+
+          accessBits = (line[0] == '1', line[1] == '1', line[2] == '1');
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return accessBits!;
   }
 
   @override
-  Future<void> incrementMfcBlockValue(int block, int incrementValue) {
-    // TODO: implement incrementMfcBlockValue
-    throw UnimplementedError();
+  Future<void> incrementMfcBlockValue(int block, int incrementValue) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+IVL=$block,$incrementValue", 1000, [
+        ParserResponse("+IVL", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<(int, int)> readMfcBlockValue(int block) {
-    // TODO: implement readMfcBlockValue
-    throw UnimplementedError();
+  Future<(int, int)> readMfcBlockValue(int block) async {
+    String error = "";
+    (int, int)? blockValue;
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+RVL=$block", 1000, [
+        ParserResponse("+RVL", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          final split = line.split(',');
+          if (split.length != 2) {
+            error = line;
+            return;
+          }
+
+          blockValue = (int.parse(split.first), int.parse(split.last));
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    if (error.isNotEmpty) {
+      throw ReaderException(error);
+    }
+
+    return blockValue!;
   }
 
   @override
-  Future<void> restoreMfcBlockValue(int block) {
-    // TODO: implement restoreMfcBlockValue
-    throw UnimplementedError();
+  Future<void> restoreMfcBlockValue(int block) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+RSVL=$block", 1000, [
+        ParserResponse("+RSVL", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setMfcInternalKey(int index, String key, MfcKeyType keyType) {
-    // TODO: implement setMfcInternalKey
-    throw UnimplementedError();
+  Future<void> setMfcInternalKey(int index, String key, MfcKeyType keyType) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+SIK=$index,$key,${keyType.name}", 1000, [
+        ParserResponse("+SIK", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setMfcKeys(int block, String key1, String key2) {
-    // TODO: implement setMfcKeys
-    throw UnimplementedError();
+  Future<void> setMfcKeys(int block, String key1, String key2) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+SKO=$block,$key1,$key2", 1000, [
+        ParserResponse("+SKO", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> setMfcKeysAndAccessBits(int block, String key1, String key2, (bool, bool, bool) accessBits) {
-    // TODO: implement setMfcKeysAndAccessBits
-    throw UnimplementedError();
+  Future<void> setMfcKeysAndAccessBits(int block, String key1, String key2, (bool, bool, bool) accessBits) async {
+    String error = "";
+
+    try {
+      final accessBitString =
+          accessBits.$1.toProtocolString() + accessBits.$2.toProtocolString() + accessBits.$3.toProtocolString();
+      CmdExitCode exitCode = await sendCommand("AT+SKO=$block,$key1,$key2,$accessBitString", 1000, [
+        ParserResponse("+SKO", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> transferMfcBlockValue(int block) {
-    // TODO: implement transferMfcBlockValue
-    throw UnimplementedError();
+  Future<void> transferMfcBlockValue(int block) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+TXF=$block", 1000, [
+        ParserResponse("+TXF", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
 
   @override
-  Future<void> writeMfcValueBlock(int block, int initialValue, int address) {
-    // TODO: implement writeMfcValueBlock
-    throw UnimplementedError();
+  Future<void> writeMfcValueBlock(int block, int initialValue, int address) async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+WVL=$block,$initialValue,$address", 1000, [
+        ParserResponse("+WVL", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
   }
   // endregion Mifare Classic Commands
 
