@@ -83,6 +83,12 @@ abstract class HfReader extends Reader {
   /// !: Will throw [ReaderException] on other reader related error.
   Future<void> selectTag(HfTag tag);
 
+  /// Deselect the currently selected tag.
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<void> deselectTag();
+
   /// Read a hex string [data] of a [block] from a tag. Depending on the mode the tag has to be selected
   /// and authenticated.
   ///

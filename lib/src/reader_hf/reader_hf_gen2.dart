@@ -281,6 +281,22 @@ class HfReaderGen2 extends HfReader {
   }
 
   @override
+  Future<void> deselectTag() async {
+    String error = "";
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+DEL", 1000, [
+        ParserResponse("+DEL", (line) {
+          error = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+  }
+
+  @override
   Future<String> read(int block) async {
     String data = "";
     String error = "";

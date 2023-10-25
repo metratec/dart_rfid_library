@@ -77,6 +77,12 @@ class HfReaderGen1 extends HfReader {
   }
 
   @override
+  Future<void> deselectTag() {
+    // TODO: implement deselectTag
+    throw UnimplementedError();
+  }
+
+  @override
   Future<String> read(int block) {
     // TODO: implement
     throw UnimplementedError();
