@@ -431,22 +431,17 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 
   @override
   List<ConfigElement> getConfigElements(HfReader reader) {
+    final isIso15Mode = mode == HfReaderMode.iso15;
+    if (!isIso15Mode) {
+      return [];
+    }
+
     return [
-      StringConfigElement(
-        name: "Mode",
-        value: mode,
-        possibleValues: (config) => HfReaderMode.values.map((e) => e.protocolString),
-        isEnabled: (config) => true,
-        setter: reader.setMode,
-      ),
       NumConfigElement<int>(
         name: "AFI",
         value: afi,
         possibleValues: (config) => Iterable.generate(129),
-        isEnabled: (config) {
-          final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
-          return modeValue == HfReaderMode.iso15.protocolString;
-        },
+        isEnabled: (config) => true,
         setter: reader.setAfi,
       ),
       ConfigElementGroup(
@@ -458,10 +453,7 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 
           await reader.setRadioInterface(modulation, subcarrier);
         },
-        isEnabled: (config) {
-          final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
-          return modeValue == HfReaderMode.iso15.protocolString;
-        },
+        isEnabled: (config) => true,
         value: [
           NumConfigElement<int>(
             name: "Radio interface modulation",
@@ -469,20 +461,14 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
             possibleValues: (config) => [10, 100],
             isEnum: true,
             setter: (val) async {},
-            isEnabled: (config) {
-              final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
-              return modeValue == HfReaderMode.iso15.protocolString;
-            },
+            isEnabled: (config) => true,
           ),
           StringConfigElement(
             name: "Radio interface subcarrier",
             value: criSubcarrier,
             possibleValues: (configs) => ["SINGLE", "DOUBLE"],
             setter: (val) async {},
-            isEnabled: (config) {
-              final modeValue = config.firstWhereOrNull((e) => e.name == "Mode")?.value as String?;
-              return modeValue == HfReaderMode.iso15.protocolString;
-            },
+            isEnabled: (config) => true,
           ),
         ],
       )
