@@ -247,7 +247,7 @@ class HfReaderGen2 extends HfReader {
       await detectTagTypes();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
-      unawaited(_startDetectTagTypeLoop());
+      // unawaited(_startDetectTagTypeLoop());
     } catch (e) {
       throw ReaderException(e.toString());
     }
