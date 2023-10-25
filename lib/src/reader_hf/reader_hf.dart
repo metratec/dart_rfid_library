@@ -431,7 +431,7 @@ class HfReaderSettings extends ReaderSettings<HfReader> {
 
   @override
   List<ConfigElement> getConfigElements(HfReader reader) {
-    final isIso15Mode = mode == HfReaderMode.iso15;
+    final isIso15Mode = mode == HfReaderMode.iso15.protocolString;
     if (!isIso15Mode) {
       return [];
     }
