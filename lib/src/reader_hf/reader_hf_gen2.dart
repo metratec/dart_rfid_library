@@ -312,7 +312,6 @@ class HfReaderGen2 extends HfReader {
           if (illegalBlockMatch != null) {
             final minValue = int.tryParse(illegalBlockMatch[3] ?? '');
             final maxValue = int.tryParse(illegalBlockMatch[4] ?? '');
-            print("Matched illegalBlockPattern: [$minValue-$maxValue]");
             exception = ReaderRangeException(line, inner: RangeError.range(block, minValue, maxValue));
           }
 
@@ -952,6 +951,7 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+NCNT?", 1000, [
         ParserResponse("+NCNT", (line) {
+          print("Received NCNT answer: $line");
           if (line.contains("<")) {
             error = line;
             return;
