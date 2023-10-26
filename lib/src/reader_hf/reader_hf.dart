@@ -93,6 +93,7 @@ abstract class HfReader extends Reader {
   /// and authenticated.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderRangeException] on block range error.
   /// !: Will throw [ReaderException] on other reader related error.
   Future<String> read(int block);
 

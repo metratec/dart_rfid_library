@@ -45,8 +45,10 @@ class HfReaderGen2 extends HfReader {
     heartbeat.feed();
   }
 
-  void _handleExitCode(CmdExitCode code, String error) {
-    if (code == CmdExitCode.timeout) {
+  void _handleExitCode(CmdExitCode code, String error, {ReaderException? exception}) {
+    if (exception != null) {
+      throw exception;
+    } else if (code == CmdExitCode.timeout) {
       throw ReaderTimeoutException("Command timed out!");
     } else if (code != CmdExitCode.ok) {
       throw ReaderException("Command failed with: $error");
@@ -298,12 +300,21 @@ class HfReaderGen2 extends HfReader {
 
   @override
   Future<String> read(int block) async {
+    final RegExp illegalBlockPattern = RegExp(r"<Illegal block for (.*): (\d*) \[(\d*)-(\d*)\]>");
     String data = "";
     String error = "";
+    ReaderException? exception;
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+READ=$block", 2000, [
         ParserResponse("+READ", (line) {
+          final illegalBlockMatch = illegalBlockPattern.firstMatch(line);
+          if (illegalBlockMatch != null) {
+            final minValue = int.tryParse(illegalBlockMatch[2] ?? '');
+            final maxValue = int.tryParse(illegalBlockMatch[3] ?? '');
+            exception = ReaderRangeException(line, inner: RangeError.range(block, minValue, maxValue));
+          }
+
           if (line.contains("<")) {
             error = line;
             return;
@@ -312,7 +323,7 @@ class HfReaderGen2 extends HfReader {
           data = line;
         })
       ]);
-      _handleExitCode(exitCode, error);
+      _handleExitCode(exitCode, error, exception: exception);
     } catch (e) {
       throw ReaderException(e.toString());
     }
