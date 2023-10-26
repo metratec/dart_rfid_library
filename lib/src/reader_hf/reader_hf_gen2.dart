@@ -949,9 +949,8 @@ class HfReaderGen2 extends HfReader {
     int? nfcCounter;
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+NCNT?", 1000, [
+      CmdExitCode exitCode = await sendCommand("AT+NCNT", 1000, [
         ParserResponse("+NCNT", (line) {
-          print("Received NCNT answer: $line");
           if (line.contains("<")) {
             error = line;
             return;
