@@ -310,8 +310,8 @@ class HfReaderGen2 extends HfReader {
         ParserResponse("+READ", (line) {
           final illegalBlockMatch = illegalBlockPattern.firstMatch(line);
           if (illegalBlockMatch != null) {
-            final minValue = int.tryParse(illegalBlockMatch[2] ?? '');
-            final maxValue = int.tryParse(illegalBlockMatch[3] ?? '');
+            final minValue = int.tryParse(illegalBlockMatch[3] ?? '');
+            final maxValue = int.tryParse(illegalBlockMatch[4] ?? '');
             exception = ReaderRangeException(line, inner: RangeError.range(block, minValue, maxValue));
           }
 
