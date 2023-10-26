@@ -324,6 +324,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error, exception: exception);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
