@@ -407,7 +407,7 @@ abstract class HfReader extends Reader {
 
   @override
   Future<void> loadDeviceSettings() async {
-    await detectTagTypes();
+    // await detectTagTypes();
   }
 }
 
