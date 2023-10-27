@@ -17,7 +17,6 @@ class HfGen2ReaderSettings extends HfReaderSettings {
 
 class HfReaderGen2 extends HfReader {
   final List<HfTag> _inventory = [];
-  bool _runDetectionLoop = false;
 
   HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
@@ -246,10 +245,8 @@ class HfReaderGen2 extends HfReader {
   @override
   Future<void> startContinuousInventory() async {
     try {
-      await detectTagTypes();
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
-      // unawaited(_startDetectTagTypeLoop());
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -260,7 +257,6 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 3000, []);
       _handleExitCode(exitCode, "");
-      _stopDetectTagTypeLoop();
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1128,18 +1124,6 @@ class HfReaderGen2 extends HfReader {
     }
   }
   // endregion Feedback
-
-  Future<void> _startDetectTagTypeLoop() async {
-    _runDetectionLoop = true;
-    while (_runDetectionLoop) {
-      await detectTagTypes();
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-  }
-
-  void _stopDetectTagTypeLoop() {
-    _runDetectionLoop = false;
-  }
 
   @override
   Future<void> loadDeviceSettings() async {
