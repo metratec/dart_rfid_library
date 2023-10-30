@@ -371,6 +371,10 @@ class HfReaderGen2 extends HfReader {
           final tagTypeString = split[1];
           final tagType = TagType.values.firstWhereOrNull((e) => e.protocolString == tagTypeString) ?? TagType.unknown;
 
+          if (tagType == TagType.unknown) {
+            readerLogger.w("Could not detect tag type of tag $tagUid: $tagTypeString");
+          }
+
           availableTagTypes[tagUid] = tagType;
         })
       ]);
