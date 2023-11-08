@@ -103,6 +103,18 @@ class HfReaderGen1 extends HfReader {
 
   // region ISO15693 Commands
   @override
+  Future<String> readAlike(String timing) {
+    // TODO: implement readAlike
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> writeAlike(String timing) {
+    // TODO: implement writeAlike
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> setAfi(int afi) {
     // TODO: implement
     throw UnimplementedError();

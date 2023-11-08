@@ -64,6 +64,8 @@ class HfReaderGen2 extends HfReader {
       _handleExitCode(exitCode, "");
 
       heartbeat.start(seconds * 1000 + 2000, onHbt, onTimeout);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -75,6 +77,8 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+HBT=0", 1000, []);
       _handleExitCode(exitCode, "");
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -97,6 +101,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -120,6 +126,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -235,6 +243,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -247,6 +257,8 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+CINV", 1000, []);
       _handleExitCode(exitCode, "");
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -257,6 +269,8 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+BINV", 3000, []);
       _handleExitCode(exitCode, "");
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -273,6 +287,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -289,6 +305,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -344,6 +362,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -379,6 +399,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -389,6 +411,66 @@ class HfReaderGen2 extends HfReader {
   // endregion Tag Operations
 
   // region ISO15693 Commands
+  @override
+  Future<String> readAlike(String timing) async {
+    if (!hexRegEx.hasMatch(timing)) {
+      throw ReaderException("Unsupported timing! Must be a hex string");
+    }
+
+    String error = '';
+    String response = '';
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+RRQ?", 1000, [
+        ParserResponse("+RRQ", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          response = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return response;
+  }
+
+  @override
+  Future<String> writeAlike(String timing) async {
+    if (!hexRegEx.hasMatch(timing)) {
+      throw ReaderException("Unsupported timing! Must be a hex string");
+    }
+
+    String error = '';
+    String response = '';
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+WRQ?", 1000, [
+        ParserResponse("+WRQ", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          response = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return response;
+  }
+
   @override
   Future<void> setAfi(int afi) async {
     if (afi < 0 || afi > 255) {
@@ -408,6 +490,8 @@ class HfReaderGen2 extends HfReader {
         ],
       );
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -431,6 +515,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -457,6 +543,8 @@ class HfReaderGen2 extends HfReader {
         ],
       );
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -473,6 +561,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -497,6 +587,8 @@ class HfReaderGen2 extends HfReader {
         ],
       );
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -513,6 +605,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -537,6 +631,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -553,6 +649,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -569,6 +667,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -596,6 +696,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -618,6 +720,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -646,6 +750,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -668,6 +774,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -684,6 +792,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -700,6 +810,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -718,6 +830,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -734,6 +848,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -750,6 +866,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -774,6 +892,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -808,6 +928,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -836,6 +958,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -870,6 +994,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -904,6 +1030,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -932,6 +1060,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -960,6 +1090,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -982,6 +1114,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -998,6 +1132,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1014,6 +1150,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1030,6 +1168,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1046,6 +1186,8 @@ class HfReaderGen2 extends HfReader {
         })
       ]);
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1066,6 +1208,8 @@ class HfReaderGen2 extends HfReader {
         ],
       );
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1086,6 +1230,8 @@ class HfReaderGen2 extends HfReader {
         ],
       );
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1106,6 +1252,8 @@ class HfReaderGen2 extends HfReader {
         ],
       );
       _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
@@ -1123,6 +1271,8 @@ class HfReaderGen2 extends HfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+FDB=$feedbackId", 1000, []);
       _handleExitCode(exitCode, "");
+    } on ReaderException {
+      rethrow;
     } catch (e) {
       throw ReaderException(e.toString());
     }
