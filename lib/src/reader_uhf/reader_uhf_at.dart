@@ -8,11 +8,11 @@ import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 
-class UhfGen2ReaderSettings extends UhfReaderSettings {
-  UhfGen2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
+class UhfAtReaderSettings extends UhfReaderSettings {
+  UhfAtReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 
   @override
-  bool get isUhfGen2Device => true;
+  bool get isUhfAtDevice => true;
 
   @override
   bool get supportsInventoryReport => true;
@@ -53,7 +53,7 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
 
   @override
   List<ConfigElement> getConfigElements(UhfReader reader) {
-    if (reader is! UhfReaderGen2) {
+    if (reader is! UhfReaderAt) {
       return super.getConfigElements(reader);
     }
 
@@ -303,11 +303,11 @@ class UhfGen2ReaderSettings extends UhfReaderSettings {
   }
 }
 
-class UhfReaderGen2 extends UhfReader {
+class UhfReaderAt extends UhfReader {
   UhfInvSettings? _invSettings;
   final List<UhfInventoryResult> _cinv = [];
 
-  UhfReaderGen2(CommInterface commInterface, UhfGen2ReaderSettings settings)
+  UhfReaderAt(CommInterface commInterface, UhfAtReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("+HBT", (_) => heartbeat.feed()));
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
@@ -1007,7 +1007,7 @@ class UhfReaderGen2 extends UhfReader {
   @override
   Future<UhfInvSettings> getInventorySettings() async {
     String error = "";
-    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    final gen2Settings = (settings as UhfAtReaderSettings);
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+INVS?", 1000, [
@@ -1046,7 +1046,7 @@ class UhfReaderGen2 extends UhfReader {
       CmdExitCode exitCode = await sendCommand("AT+EMX?", 1000, [
         ParserResponse("+EMX", (line) {
           final split = line.split(",");
-          (settings as UhfGen2ReaderSettings).currentMultiplexer =
+          (settings as UhfAtReaderSettings).currentMultiplexer =
               split.map((e) => int.tryParse(e)).whereType<int>().toList();
         })
       ]);
@@ -1057,7 +1057,7 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    return (settings as UhfGen2ReaderSettings).currentMultiplexer!;
+    return (settings as UhfAtReaderSettings).currentMultiplexer!;
   }
 
   Future<void> setMultiplexer(List<int> muxValues) async {
@@ -1075,7 +1075,7 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    (settings as UhfGen2ReaderSettings).currentMultiplexer = muxValues;
+    (settings as UhfAtReaderSettings).currentMultiplexer = muxValues;
   }
 
   Future<int> getRfMode() async {
@@ -1083,8 +1083,8 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+RFM?", 1000, [
         ParserResponse("+RFM", (line) {
-          (settings as UhfGen2ReaderSettings).currentRfMode =
-              int.tryParse(line) ?? (settings as UhfGen2ReaderSettings).currentRfMode;
+          (settings as UhfAtReaderSettings).currentRfMode =
+              int.tryParse(line) ?? (settings as UhfAtReaderSettings).currentRfMode;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -1094,7 +1094,7 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    return (settings as UhfGen2ReaderSettings).currentRfMode!;
+    return (settings as UhfAtReaderSettings).currentRfMode!;
   }
 
   Future<void> setRfMode(int value) async {
@@ -1112,7 +1112,7 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    (settings as UhfGen2ReaderSettings).currentRfMode = value;
+    (settings as UhfAtReaderSettings).currentRfMode = value;
   }
 
   Future<String> getSession() async {
@@ -1120,7 +1120,7 @@ class UhfReaderGen2 extends UhfReader {
     try {
       CmdExitCode exitCode = await sendCommand("AT+SES?", 1000, [
         ParserResponse("+SES", (line) {
-          (settings as UhfGen2ReaderSettings).currentSession = line;
+          (settings as UhfAtReaderSettings).currentSession = line;
         })
       ]);
       _handleExitCode(exitCode, error);
@@ -1130,7 +1130,7 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    return (settings as UhfGen2ReaderSettings).currentSession!;
+    return (settings as UhfAtReaderSettings).currentSession!;
   }
 
   Future<void> setSession(String value) async {
@@ -1148,11 +1148,11 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    (settings as UhfGen2ReaderSettings).currentSession = value;
+    (settings as UhfAtReaderSettings).currentSession = value;
   }
 
   Future<(bool, bool)> getImpinjSettings() async {
-    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    final gen2Settings = (settings as UhfAtReaderSettings);
     String error = "";
     try {
       CmdExitCode exitCode = await sendCommand("AT+ICS?", 1000, [
@@ -1199,12 +1199,12 @@ class UhfReaderGen2 extends UhfReader {
       ReaderException(ex.toString());
     }
 
-    (settings as UhfGen2ReaderSettings).fastId = fastIdVal;
-    (settings as UhfGen2ReaderSettings).tagFocus = tagFocusVal;
+    (settings as UhfAtReaderSettings).fastId = fastIdVal;
+    (settings as UhfAtReaderSettings).tagFocus = tagFocusVal;
   }
 
   Future<(bool, int, int)> getHighOnTag() async {
-    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    final gen2Settings = (settings as UhfAtReaderSettings);
     String error = "";
     try {
       CmdExitCode exitCode = await sendCommand("AT+HOT?", 1000, [
@@ -1242,7 +1242,7 @@ class UhfReaderGen2 extends UhfReader {
   }
 
   Future<void> setHighOnTag(bool highOnTagVal, int highOnTagPinVal, int highOnTagDurationVal) async {
-    final gen2Settings = (settings as UhfGen2ReaderSettings);
+    final gen2Settings = (settings as UhfAtReaderSettings);
     String error = "";
     try {
       CmdExitCode exitCode = await sendCommand(
@@ -1534,12 +1534,12 @@ class UhfReaderGen2 extends UhfReader {
 
   @override
   Future<void> loadDeviceSettings() async {
-    if (settings is! UhfGen2ReaderSettings) {
+    if (settings is! UhfAtReaderSettings) {
       await super.loadDeviceSettings();
       return;
     }
 
-    final gen2Settings = settings as UhfGen2ReaderSettings;
+    final gen2Settings = settings as UhfAtReaderSettings;
 
     if (gen2Settings.supportsOutputs) {
       try {

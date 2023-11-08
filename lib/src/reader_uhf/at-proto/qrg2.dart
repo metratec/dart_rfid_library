@@ -1,7 +1,7 @@
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
+import 'package:reader_library/src/reader_uhf/reader_uhf_at.dart';
 
-class QRG2ReaderSettings extends UhfGen2ReaderSettings {
+class QRG2ReaderSettings extends UhfAtReaderSettings {
   QRG2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 
   @override
@@ -11,7 +11,7 @@ class QRG2ReaderSettings extends UhfGen2ReaderSettings {
   bool get supportsInputs => false;
 }
 
-class ReaderQRG2 extends UhfReaderGen2 {
+class ReaderQRG2 extends UhfReaderAt {
   ReaderQRG2(CommInterface commInterface)
       : super(
             commInterface,

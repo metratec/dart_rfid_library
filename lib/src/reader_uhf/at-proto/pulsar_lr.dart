@@ -1,7 +1,7 @@
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
+import 'package:reader_library/src/reader_uhf/reader_uhf_at.dart';
 
-class PulsarLrReaderSettings extends UhfGen2ReaderSettings {
+class PulsarLrReaderSettings extends UhfAtReaderSettings {
   PulsarLrReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 
   @override
@@ -11,7 +11,7 @@ class PulsarLrReaderSettings extends UhfGen2ReaderSettings {
   bool get supportsInputs => true;
 }
 
-class ReaderPulsarLR extends UhfReaderGen2 {
+class ReaderPulsarLR extends UhfReaderAt {
   ReaderPulsarLR(CommInterface commInterface)
       : super(commInterface, PulsarLrReaderSettings(possiblePowerValues: Iterable.generate(31)));
 }

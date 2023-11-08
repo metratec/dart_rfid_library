@@ -4,12 +4,12 @@ import 'package:reader_library/src/parser/parser.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf.dart';
 
-class UhfGen1ReaderSettings extends UhfReaderSettings {
-  UhfGen1ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
+class UhfAsciiReaderSettings extends UhfReaderSettings {
+  UhfAsciiReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 }
 
-class UhfReaderGen1 extends UhfReader {
-  UhfReaderGen1(CommInterface commInterface, UhfGen1ReaderSettings settings)
+class UhfReaderAscii extends UhfReader {
+  UhfReaderAscii(CommInterface commInterface, UhfAsciiReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("HBT", (_) => heartbeat.feed()));
   }

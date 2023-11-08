@@ -10,15 +10,15 @@ import 'package:reader_library/src/reader_exception.dart';
 import 'package:reader_library/src/reader_hf/reader_hf.dart';
 import 'package:reader_library/src/utils/extensions.dart';
 
-class HfGen2ReaderSettings extends HfReaderSettings {
+class HfAtReaderSettings extends HfReaderSettings {
   @override
-  bool get isHfGen2Device => true;
+  bool get isHfAtDevice => true;
 }
 
-class HfReaderGen2 extends HfReader {
+class HfReaderAt extends HfReader {
   final List<HfTag> _inventory = [];
 
-  HfReaderGen2(CommInterface commInterface, HfGen2ReaderSettings settings)
+  HfReaderAt(CommInterface commInterface, HfAtReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {
     registerEvent(ParserResponse("+CINV", _handleCinvUrc));
     registerEvent(ParserResponse("+HBT", _handleHbtUrc));

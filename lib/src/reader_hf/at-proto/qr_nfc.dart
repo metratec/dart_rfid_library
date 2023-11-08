@@ -1,10 +1,10 @@
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
+import 'package:reader_library/src/reader_hf/reader_hf_at.dart';
 
-class QrNfcReaderSettings extends HfGen2ReaderSettings {
+class QrNfcReaderSettings extends HfAtReaderSettings {
   QrNfcReaderSettings();
 }
 
-class ReaderQrNfc extends HfReaderGen2 {
+class ReaderQrNfc extends HfReaderAt {
   ReaderQrNfc(CommInterface commInterface) : super(commInterface, QrNfcReaderSettings());
 }

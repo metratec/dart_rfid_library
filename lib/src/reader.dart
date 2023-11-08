@@ -4,33 +4,36 @@ import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:logger/logger.dart';
 import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser.dart';
-import 'package:reader_library/src/reader_hf/gen1/deskid_iso.dart';
-import 'package:reader_library/src/reader_hf/gen1/dwarf15.dart';
-import 'package:reader_library/src/reader_hf/gen1/quasar_mx.dart';
-import 'package:reader_library/src/reader_hf/gen2/deskid_nfc.dart';
-import 'package:reader_library/src/reader_hf/gen2/dwarf_nfc.dart';
-import 'package:reader_library/src/reader_hf/gen2/qr_nfc.dart';
-import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
-import 'package:reader_library/src/reader_hf/reader_hf_gen2.dart';
+import 'package:reader_library/src/reader_hf/ascii-proto/deskid_iso.dart';
+import 'package:reader_library/src/reader_hf/ascii-proto/dwarf15.dart';
+import 'package:reader_library/src/reader_hf/ascii-proto/quasar_mx.dart';
+import 'package:reader_library/src/reader_hf/at-proto/deskid_nfc.dart';
+import 'package:reader_library/src/reader_hf/at-proto/dwarf_nfc.dart';
+import 'package:reader_library/src/reader_hf/at-proto/qr_nfc.dart';
+import 'package:reader_library/src/reader_hf/reader_hf_ascii.dart';
+import 'package:reader_library/src/reader_hf/reader_hf_at.dart';
 import 'package:reader_library/src/reader_library_base.dart';
-import 'package:reader_library/src/reader_uhf/gen1/deskid_uhf.dart';
-import 'package:reader_library/src/reader_uhf/gen1/dwarf_g2.dart';
-import 'package:reader_library/src/reader_uhf/gen1/pulsar_mx.dart';
-import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_e.dart';
-import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_f.dart';
-import 'package:reader_library/src/reader_uhf/gen2/dwarf_g2_mini.dart';
-import 'package:reader_library/src/reader_uhf/gen2/pulsar_lr.dart';
-import 'package:reader_library/src/reader_uhf/gen2/pulsar_fl.dart';
-import 'package:reader_library/src/reader_uhf/gen2/qrg2.dart';
-import 'package:reader_library/src/reader_uhf/gen2/qrg2_e.dart';
-import 'package:reader_library/src/reader_uhf/gen2/qrg2_f.dart';
-import 'package:reader_library/src/reader_uhf/reader_uhf_gen1.dart';
-import 'package:reader_library/src/reader_uhf/reader_uhf_gen2.dart';
+import 'package:reader_library/src/reader_uhf/ascii-proto/deskid_uhf.dart';
+import 'package:reader_library/src/reader_uhf/ascii-proto/dwarf_g2.dart';
+import 'package:reader_library/src/reader_uhf/ascii-proto/pulsar_mx.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/deskid_uhf_v2_e.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/deskid_uhf_v2_f.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/dwarf_g2_mini.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/pulsar_lr.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/pulsar_fl.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/qrg2.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/qrg2_e.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/qrg2_f.dart';
+import 'package:reader_library/src/reader_uhf/reader_uhf_ascii.dart';
+import 'package:reader_library/src/reader_uhf/reader_uhf_at.dart';
 
 abstract class Reader {
   /// A list of all supported devices.
   static const List<String> supportedDevices = [
     "PULSAR_LR",
+    "PULSAR_FL",
+    "DWARFG2_V2",
+    "DWARFG2-MINI_V2",
     "QRG2",
     "QRG2_E",
     "QRG2_F",
@@ -48,14 +51,14 @@ abstract class Reader {
   ];
 
   /// A list of all devices that are old UHF devices
-  static const List<String> _uhfGen1Devices = [
+  static const List<String> _uhfASCIIDevices = [
     "PULSARMX",
     "DESKID_UHF",
     "DWARFG2",
   ];
 
   /// A list of all devices that are UHF devices with AT protocol
-  static const List<String> _uhfGen2Devices = [
+  static const List<String> _uhfATDevices = [
     "PULSAR_LR",
     "PULSAR_FL",
     "DWARFG2_V2",
@@ -68,14 +71,14 @@ abstract class Reader {
   ];
 
   /// A list of all devices that are old HF devices
-  static const List<String> _hfGen1Devices = [
+  static const List<String> _hfASCIIDevices = [
     "DESKID_ISO",
     "QUASAR_MX",
     "DWARF15",
   ];
 
   /// A list of all devices that are HF devices with AT protocol
-  static const List<String> _hfGen2Devices = [
+  static const List<String> _hfATDevices = [
     "DESKID_NFC",
     "QR_NFC",
     "DWARF_NFC",
@@ -182,14 +185,14 @@ abstract class Reader {
       return specificReader;
     }
 
-    if (_uhfGen2Devices.contains(hardwareName)) {
-      return UhfReaderGen2(commInterface, UhfGen2ReaderSettings());
-    } else if (_uhfGen1Devices.contains(hardwareName)) {
-      return UhfReaderGen1(commInterface, UhfGen1ReaderSettings());
-    } else if (_hfGen2Devices.contains(hardwareName)) {
-      return HfReaderGen2(commInterface, HfGen2ReaderSettings());
-    } else if (_hfGen1Devices.contains(hardwareName)) {
-      throw HfReaderGen1(commInterface, HfGen1ReaderSettings());
+    if (_uhfATDevices.contains(hardwareName)) {
+      return UhfReaderAt(commInterface, UhfAtReaderSettings());
+    } else if (_uhfASCIIDevices.contains(hardwareName)) {
+      return UhfReaderAscii(commInterface, UhfAsciiReaderSettings());
+    } else if (_hfATDevices.contains(hardwareName)) {
+      return HfReaderAt(commInterface, HfAtReaderSettings());
+    } else if (_hfASCIIDevices.contains(hardwareName)) {
+      throw HfReaderAscii(commInterface, HfAsciiReaderSettings());
     } else {
       return null;
     }

@@ -3,12 +3,12 @@ import 'package:metratec_device/metratec_device.dart';
 import 'package:reader_library/src/parser/parser_at.dart';
 import 'package:reader_library/src/reader_hf/reader_hf.dart';
 
-class HfGen1ReaderSettings extends HfReaderSettings {
+class HfAsciiReaderSettings extends HfReaderSettings {
   // Add HfGen1 reader settings here
 }
 
-class HfReaderGen1 extends HfReader {
-  HfReaderGen1(CommInterface commInterface, HfGen1ReaderSettings settings)
+class HfReaderAscii extends HfReader {
+  HfReaderAscii(CommInterface commInterface, HfAsciiReaderSettings settings)
       : super(ParserAt(commInterface, "\r"), settings) {}
 
   // region Device Settings

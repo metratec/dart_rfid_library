@@ -1,10 +1,10 @@
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_hf/reader_hf_gen1.dart';
+import 'package:reader_library/src/reader_hf/reader_hf_ascii.dart';
 
-class DeskIdIsoReaderSettings extends HfGen1ReaderSettings {
+class DeskIdIsoReaderSettings extends HfAsciiReaderSettings {
   DeskIdIsoReaderSettings();
 }
 
-class ReaderDeskIdIso extends HfReaderGen1 {
+class ReaderDeskIdIso extends HfReaderAscii {
   ReaderDeskIdIso(CommInterface commInterface) : super(commInterface, DeskIdIsoReaderSettings());
 }
