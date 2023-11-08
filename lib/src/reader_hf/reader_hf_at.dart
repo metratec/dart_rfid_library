@@ -413,8 +413,8 @@ class HfReaderAt extends HfReader {
 
   // region ISO15693 Commands
   @override
-  Future<String> readAlike(String timing) async {
-    if (!hexRegEx.hasMatch(timing)) {
+  Future<String> readAlike(String command) async {
+    if (!hexRegEx.hasMatch(command)) {
       throw ReaderException("Unsupported timing! Must be a hex string");
     }
 
@@ -422,8 +422,8 @@ class HfReaderAt extends HfReader {
     String response = '';
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+RRQ?", 1000, [
-        ParserResponse("+RRQ", (line) {
+      CmdExitCode exitCode = await sendCommand("AT+RRQ=$command", 1000, [
+        ParserResponse("+REQ", (line) {
           if (line.contains("<")) {
             error = line;
             return;
@@ -443,8 +443,8 @@ class HfReaderAt extends HfReader {
   }
 
   @override
-  Future<String> writeAlike(String timing) async {
-    if (!hexRegEx.hasMatch(timing)) {
+  Future<String> writeAlike(String command) async {
+    if (!hexRegEx.hasMatch(command)) {
       throw ReaderException("Unsupported timing! Must be a hex string");
     }
 
@@ -452,8 +452,8 @@ class HfReaderAt extends HfReader {
     String response = '';
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WRQ?", 1000, [
-        ParserResponse("+WRQ", (line) {
+      CmdExitCode exitCode = await sendCommand("AT+WRQ=$command", 1000, [
+        ParserResponse("+REQ", (line) {
           if (line.contains("<")) {
             error = line;
             return;
