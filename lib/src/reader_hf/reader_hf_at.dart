@@ -615,6 +615,36 @@ class HfReaderAt extends HfReader {
   // endregion ISO15693 Commands
 
   // region ISO14A Commands
+  @override
+  Future<String> sendIso14Request(String command) async {
+    if (!hexRegEx.hasMatch(command)) {
+      throw ReaderException("Unsupported command! Must be a hex string");
+    }
+
+    String error = '';
+    String response = '';
+
+    try {
+      CmdExitCode exitCode = await sendCommand("AT+REQ14=$command", 1000, [
+        ParserResponse("+REQ14", (line) {
+          if (line.contains("<")) {
+            error = line;
+            return;
+          }
+
+          response = line;
+        })
+      ]);
+      _handleExitCode(exitCode, error);
+    } on ReaderException {
+      rethrow;
+    } catch (e) {
+      throw ReaderException(e.toString());
+    }
+
+    return response;
+  }
+
   // region Mifare Classic Commands
   @override
   Future<void> authMfc(int block, String key, MfcKeyType keyType) async {

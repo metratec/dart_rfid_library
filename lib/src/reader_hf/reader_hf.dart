@@ -116,13 +116,13 @@ abstract class HfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<String> readAlike(String timing);
+  Future<String> readAlike(String command);
 
   /// Send a request with write-alike timing
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<String> writeAlike(String timing);
+  Future<String> writeAlike(String command);
 
   /// Set the reader [afi] value.
   ///
@@ -162,6 +162,12 @@ abstract class HfReader extends Reader {
   // endregion ISO15693 Commands
 
   // region ISO14A Commands
+  /// Sends a iso14 request
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<String> sendIso14Request(String command);
+
   // region Mifare Classic Commands
   /// Authenticate a [block] on a mifare classic tag with [key] of
   /// [keyType].

@@ -103,13 +103,13 @@ class HfReaderAscii extends HfReader {
 
   // region ISO15693 Commands
   @override
-  Future<String> readAlike(String timing) {
+  Future<String> readAlike(String command) {
     // TODO: implement readAlike
     throw UnimplementedError();
   }
 
   @override
-  Future<String> writeAlike(String timing) {
+  Future<String> writeAlike(String command) {
     // TODO: implement writeAlike
     throw UnimplementedError();
   }
@@ -152,6 +152,12 @@ class HfReaderAscii extends HfReader {
   // endregion ISO15693 Commands
 
   // region ISO14A Commands
+  @override
+  Future<String> sendIso14Request(String command) {
+    // TODO: implement sendIso14Request
+    throw UnimplementedError();
+  }
+
   // region Mifare Classic Commands
   @override
   Future<void> authMfc(int block, String key, MfcKeyType keyType) {
