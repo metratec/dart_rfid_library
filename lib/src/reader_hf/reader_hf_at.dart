@@ -348,7 +348,7 @@ class HfReaderAt extends HfReader {
   }
 
   @override
-  Future<void> write(int block, String data) async {
+  Future<void> write(int block, String data, {bool? iso15OptionsFlag}) async {
     if (!hexRegEx.hasMatch(data)) {
       throw ReaderException("Unsupported data! Must be a hex string");
     }
@@ -356,7 +356,8 @@ class HfReaderAt extends HfReader {
     String error = "";
 
     try {
-      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$data", 2000, [
+      final optionsFlagString = iso15OptionsFlag != null ? ',${iso15OptionsFlag.toProtocolString()}' : '';
+      CmdExitCode exitCode = await sendCommand("AT+WRT=$block,$data$optionsFlagString", 2000, [
         ParserResponse("+WRT", (line) {
           error = line;
         })

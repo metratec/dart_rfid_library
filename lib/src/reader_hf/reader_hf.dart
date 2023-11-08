@@ -102,7 +102,7 @@ abstract class HfReader extends Reader {
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
   /// !: Will throw [ReaderException] on other reader related error.
-  Future<void> write(int block, String data);
+  Future<void> write(int block, String data, {bool? iso15OptionsFlag});
 
   /// Set the reader [availableTagTypes]. and returns them
   ///

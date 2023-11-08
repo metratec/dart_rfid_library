@@ -89,7 +89,7 @@ class HfReaderAscii extends HfReader {
   }
 
   @override
-  Future<void> write(int block, String data) {
+  Future<void> write(int block, String data, {bool? iso15OptionsFlag}) {
     // TODO: implement
     throw UnimplementedError();
   }
