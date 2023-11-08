@@ -415,7 +415,7 @@ class HfReaderAt extends HfReader {
   @override
   Future<String> readAlike(String command) async {
     if (!hexRegEx.hasMatch(command)) {
-      throw ReaderException("Unsupported timing! Must be a hex string");
+      throw ReaderException("Unsupported command! Must be a hex string");
     }
 
     String error = '';
@@ -445,7 +445,7 @@ class HfReaderAt extends HfReader {
   @override
   Future<String> writeAlike(String command) async {
     if (!hexRegEx.hasMatch(command)) {
-      throw ReaderException("Unsupported timing! Must be a hex string");
+      throw ReaderException("Unsupported command! Must be a hex string");
     }
 
     String error = '';
