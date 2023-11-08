@@ -18,7 +18,9 @@ import 'package:reader_library/src/reader_uhf/gen1/dwarf_g2.dart';
 import 'package:reader_library/src/reader_uhf/gen1/pulsar_mx.dart';
 import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_e.dart';
 import 'package:reader_library/src/reader_uhf/gen2/deskid_uhf_v2_f.dart';
+import 'package:reader_library/src/reader_uhf/gen2/dwarf_g2_mini.dart';
 import 'package:reader_library/src/reader_uhf/gen2/pulsar_lr.dart';
+import 'package:reader_library/src/reader_uhf/gen2/pulsar_fl.dart';
 import 'package:reader_library/src/reader_uhf/gen2/qrg2.dart';
 import 'package:reader_library/src/reader_uhf/gen2/qrg2_e.dart';
 import 'package:reader_library/src/reader_uhf/gen2/qrg2_f.dart';
@@ -55,6 +57,9 @@ abstract class Reader {
   /// A list of all devices that are UHF devices with AT protocol
   static const List<String> _uhfGen2Devices = [
     "PULSAR_LR",
+    "PULSAR_FL",
+    "DWARFG2_V2",
+    "DWARFG2-MINI_V2",
     "QRG2",
     "QRG2_E",
     "QRG2_F",
@@ -156,6 +161,9 @@ abstract class Reader {
       "DESKID_UHF" => ReaderDeskIdUhf(commInterface),
       "DWARFG2" => ReaderDwarfG2(commInterface),
       "PULSAR_LR" => ReaderPulsarLR(commInterface),
+      "PULSAR_FL" => ReaderPulsarFL(commInterface),
+      "DWARFG2_V2" => ReaderDwarfG2(commInterface),
+      "DWARFG2-MINI_V2" => ReaderDwarfG2Mini(commInterface),
       "QRG2" => ReaderQRG2(commInterface),
       "QRG2_E" => ReaderQRG2E(commInterface),
       "QRG2_F" => ReaderQRG2F(commInterface),
