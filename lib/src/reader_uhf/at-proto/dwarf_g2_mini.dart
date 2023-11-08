@@ -1,8 +1,8 @@
 import 'package:reader_library/reader_library.dart';
 import 'package:reader_library/src/reader_uhf/reader_uhf_at.dart';
 
-class DwarfG2MiniReaderSettings extends UhfAtReaderSettings {
-  DwarfG2MiniReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
+class DwarfG2MiniV2ReaderSettings extends UhfAtReaderSettings {
+  DwarfG2MiniV2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});
 
   @override
   bool get supportsOutputs => true;
@@ -11,11 +11,11 @@ class DwarfG2MiniReaderSettings extends UhfAtReaderSettings {
   bool get supportsInputs => true;
 }
 
-class ReaderDwarfG2Mini extends UhfReaderAt {
-  ReaderDwarfG2Mini(CommInterface commInterface)
+class ReaderDwarfG2MiniV2 extends UhfReaderAt {
+  ReaderDwarfG2MiniV2(CommInterface commInterface)
       : super(
             commInterface,
-            DwarfG2MiniReaderSettings(
+            DwarfG2MiniV2ReaderSettings(
               possiblePowerValues: const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             ));
 }

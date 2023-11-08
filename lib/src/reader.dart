@@ -19,8 +19,9 @@ import 'package:reader_library/src/reader_uhf/ascii-proto/pulsar_mx.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/deskid_uhf_v2_e.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/deskid_uhf_v2_f.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/dwarf_g2_mini.dart';
-import 'package:reader_library/src/reader_uhf/at-proto/pulsar_lr.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/dwarf_g2_v2.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/pulsar_fl.dart';
+import 'package:reader_library/src/reader_uhf/at-proto/pulsar_lr.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/qrg2.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/qrg2_e.dart';
 import 'package:reader_library/src/reader_uhf/at-proto/qrg2_f.dart';
@@ -165,8 +166,8 @@ abstract class Reader {
       "DWARFG2" => ReaderDwarfG2(commInterface),
       "PULSAR_LR" => ReaderPulsarLR(commInterface),
       "PULSAR_FL" => ReaderPulsarFL(commInterface),
-      "DWARFG2_V2" => ReaderDwarfG2(commInterface),
-      "DWARFG2-MINI_V2" => ReaderDwarfG2Mini(commInterface),
+      "DWARFG2_V2" => ReaderDwarfG2V2(commInterface),
+      "DWARFG2-MINI_V2" => ReaderDwarfG2MiniV2(commInterface),
       "QRG2" => ReaderQRG2(commInterface),
       "QRG2_E" => ReaderQRG2E(commInterface),
       "QRG2_F" => ReaderQRG2F(commInterface),
