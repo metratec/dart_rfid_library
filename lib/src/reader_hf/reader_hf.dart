@@ -112,6 +112,18 @@ abstract class HfReader extends Reader {
   // endregion Tag Operations
 
   // region ISO15693 Commands
+  /// Sends a request with a read-alike timing
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<String> readAlike(String timing);
+
+  /// Send a request with write-alike timing
+  ///
+  /// !: Will throw [ReaderTimeoutException] on timeout.
+  /// !: Will throw [ReaderException] on other reader related error.
+  Future<String> writeAlike(String timing);
+
   /// Set the reader [afi] value.
   ///
   /// !: Will throw [ReaderTimeoutException] on timeout.
