@@ -1,6 +1,6 @@
 name: reader_library
-description: Implementation of Dart lib for Metratec UHF devices
-version: 3.0.0
+description: Implementation of Dart lib for Metratec RFID devices
+version: 1.1.0
 homepage: https://www.metratec.com
 
 publish_to: none
