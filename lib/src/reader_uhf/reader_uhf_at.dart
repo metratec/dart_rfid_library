@@ -1545,17 +1545,17 @@ class UhfReaderAt extends UhfReader {
       try {
         await getOutputStates();
       } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: output states", ex, stack);
+        readerLogger.e("Failed to load device setting: output states", error: ex, stackTrace: stack);
       }
       try {
         await getMultiplexer();
       } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: multiplexer", ex, stack);
+        readerLogger.e("Failed to load device setting: multiplexer", error: ex, stackTrace: stack);
       }
       try {
         await getHighOnTag();
       } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: high on tag", ex, stack);
+        readerLogger.e("Failed to load device setting: high on tag", error: ex, stackTrace: stack);
       }
     }
 
@@ -1563,26 +1563,26 @@ class UhfReaderAt extends UhfReader {
       try {
         await getInputStates();
       } catch (ex, stack) {
-        readerLogger.e("Failed to load device setting: input states", ex, stack);
+        readerLogger.e("Failed to load device setting: input states", error: ex, stackTrace: stack);
       }
     }
 
     try {
       await getRfMode();
     } catch (ex, stack) {
-      readerLogger.e("Failed to load device setting: rf mode", ex, stack);
+      readerLogger.e("Failed to load device setting: rf mode", error: ex, stackTrace: stack);
     }
 
     try {
       await getSession();
     } catch (ex, stack) {
-      readerLogger.e("Failed to load device setting: session", ex, stack);
+      readerLogger.e("Failed to load device setting: session", error: ex, stackTrace: stack);
     }
 
     try {
       await getImpinjSettings();
     } catch (ex, stack) {
-      readerLogger.e("Failed to load device setting: impinj settings", ex, stack);
+      readerLogger.e("Failed to load device setting: impinj settings", error: ex, stackTrace: stack);
     }
 
     await super.loadDeviceSettings();
