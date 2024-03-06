@@ -423,7 +423,7 @@ class HfReaderAt extends HfReader {
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+RRQ=$command", 1000, [
-        ParserResponse("+REQ", (line) {
+        ParserResponse("+RRQ", (line) {
           if (line.contains("<")) {
             error = line;
             return;
@@ -453,7 +453,7 @@ class HfReaderAt extends HfReader {
 
     try {
       CmdExitCode exitCode = await sendCommand("AT+WRQ=$command", 1000, [
-        ParserResponse("+REQ", (line) {
+        ParserResponse("+WRQ", (line) {
           if (line.contains("<")) {
             error = line;
             return;
