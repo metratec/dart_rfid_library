@@ -35,7 +35,10 @@ class HfReaderAt extends HfReader {
       return;
     }
 
-    final uid = line.split(': ').last;
+    // We split the line as it may contain more information
+    // if inventory setting tag details is enabled
+    final split = line.split(',');
+    final uid = split[0];
     final tagType = settings.availableTagTypes[uid] ?? TagType.unknown;
     _inventory.add(HfTag(uid, tagType));
   }
@@ -233,10 +236,15 @@ class HfReaderAt extends HfReader {
             return;
           }
 
+          // We split the line as it may contain more information
+          // if inventory setting tag details is enabled
+          final split = line.split(',');
+          final tagUid = split[0];
+
           inv.add(HfInventoryResult(
             tag: HfTag(
-              line,
-              availableTagTypes[line] ?? TagType.unknown,
+              tagUid,
+              availableTagTypes[tagUid] ?? TagType.unknown,
             ),
             timestamp: DateTime.now(),
           ));
