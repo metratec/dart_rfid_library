@@ -35,9 +35,12 @@ class HfReaderAt extends HfReader {
       return;
     }
 
+    // For cinv we have to remove the "+CINV: " prefix from the line
+    final lineWithoutCinv = line.split(': ').last;
+
     // We split the line as it may contain more information
     // if inventory setting tag details is enabled
-    final split = line.split(',');
+    final split = lineWithoutCinv.split(',');
     final uid = split[0];
     final tagType = settings.availableTagTypes[uid] ?? TagType.unknown;
     _inventory.add(HfTag(uid, tagType));
