@@ -4,63 +4,23 @@ import 'dart:typed_data';
 
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_uhf/at-proto/pulsar_lr.dart';
-
-Future<void> _heartbeatTest(UhfReader reader) async {
-  stdout.write("Starting heartbeat... ");
-  await reader.startHeartBeat(3, () {
-    print("Heartbeat received");
-  }, () {
-    print("Heartbeat timed out!");
-  });
-  stdout.writeln("Done!");
-
-  await Future.delayed(Duration(seconds: 10));
-
-  stdout.write("Stopping heartbeat... ");
-  await reader.stopHeartBeat();
-  stdout.writeln("Done!");
-}
-
-bool _printCinv = true;
-Future<void> _cinvTest(UhfReader reader) async {
-  _printCinv = true;
-  StreamSubscription sub = reader.getInvStream().listen((event) {
-    if (_printCinv) {
-      print(event);
-    }
-  });
-
-  try {
-    stdout.write("Starting continuous inventory... ");
-    await reader.startContinuousInventory();
-    stdout.writeln("Done!");
-    await Future.delayed(Duration(seconds: 5));
-    _printCinv = false;
-    stdout.write("Stopping continuous inventory... ");
-    await reader.stopContinuousInventory();
-    stdout.writeln("Done!");
-    unawaited(sub.cancel());
-  } catch (e) {
-    unawaited(sub.cancel());
-    rethrow;
-  }
-}
+import 'package:reader_library/src/reader_uhf/at-proto/deskid_uhf_v2_e.dart';
 
 void main() async {
   SerialSettings serialSettings = SerialSettings("/dev/ttyACM0");
   CommInterface commInterface = SerialInterface(serialSettings);
 
-  UhfReader reader = ReaderPulsarLR(commInterface);
+  // UhfReader reader = ReaderPulsarLR(commInterface);
+  UhfReader reader = ReaderDeskIdUhfV2E(commInterface);
 
-  print("Connecting reader");
+  print("Trying to connect to reader");
 
   if (await reader.connect(onError: (ex, stack) => reader.disconnect()) == false) {
     print("Failed to connect");
     return;
   }
 
-  print("Connected");
+  print("Reader connected");
 
   try {
     stdout.write("Setting power... ");
@@ -107,5 +67,47 @@ void main() async {
     print(e);
   }
 
+  // disconnect the reader
   await reader.disconnect();
+}
+
+bool _printCinv = true;
+Future<void> _cinvTest(UhfReader reader) async {
+  _printCinv = true;
+  StreamSubscription sub = reader.getInvStream().listen((event) {
+    if (_printCinv) {
+      print(event);
+    }
+  });
+
+  try {
+    stdout.write("Starting continuous inventory... ");
+    await reader.startContinuousInventory();
+    stdout.writeln("Done!");
+    await Future.delayed(Duration(seconds: 5));
+    _printCinv = false;
+    stdout.write("Stopping continuous inventory... ");
+    await reader.stopContinuousInventory();
+    stdout.writeln("Done!");
+    unawaited(sub.cancel());
+  } catch (e) {
+    unawaited(sub.cancel());
+    rethrow;
+  }
+}
+
+Future<void> _heartbeatTest(UhfReader reader) async {
+  stdout.write("Starting heartbeat... ");
+  await reader.startHeartBeat(3, () {
+    print("Heartbeat received");
+  }, () {
+    print("Heartbeat timed out!");
+  });
+  stdout.writeln("Done!");
+
+  await Future.delayed(Duration(seconds: 10));
+
+  stdout.write("Stopping heartbeat... ");
+  await reader.stopHeartBeat();
+  stdout.writeln("Done!");
 }

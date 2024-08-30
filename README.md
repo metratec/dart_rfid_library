@@ -35,8 +35,10 @@ by the specific reader implementations. See ReaderQrg2 for example.
 Supported readers are:
 
 * PulsarLR
-* QRG2
-* DeskID UHF
+* PulsarFL
+* DwarfG2 v2 Family (Mini, Standard, XR)
+* QRG2 ETSI and FCC
+* DeskID UHF v2 ETSI and FCC
 
 ### Examples
 
