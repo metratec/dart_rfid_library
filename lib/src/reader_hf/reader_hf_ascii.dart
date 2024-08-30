@@ -1,7 +1,7 @@
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:metratec_device/metratec_device.dart';
-import 'package:reader_library/src/parser/parser_at.dart';
-import 'package:reader_library/src/reader_hf/reader_hf.dart';
+import 'package:dart_rfid_library/src/parser/parser_at.dart';
+import 'package:dart_rfid_library/src/reader_hf/reader_hf.dart';
 
 class HfAsciiReaderSettings extends HfReaderSettings {
   // Add HfGen1 reader settings here

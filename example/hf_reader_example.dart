@@ -4,8 +4,8 @@ import 'dart:typed_data';
 
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
 import 'package:logger/logger.dart';
-import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_hf/reader_hf_at.dart';
+import 'package:dart_rfid_library/reader_library.dart';
+import 'package:dart_rfid_library/src/reader_hf/reader_hf_at.dart';
 
 Future<void> _readTest(HfReader reader) async {
   stdout.write("Setting mode to iso14a... ");

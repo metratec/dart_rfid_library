@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
-import 'package:reader_library/src/reader.dart';
-import 'package:reader_library/src/utils/extensions.dart';
-import 'package:reader_library/src/utils/heartbeat.dart';
-import 'package:reader_library/src/utils/reader_settings.dart';
+import 'package:dart_rfid_library/src/reader.dart';
+import 'package:dart_rfid_library/src/utils/extensions.dart';
+import 'package:dart_rfid_library/src/utils/heartbeat.dart';
+import 'package:dart_rfid_library/src/utils/reader_settings.dart';
 
 /// Class for uhf reader settings.
 /// These settings are set by specific reader implementations.

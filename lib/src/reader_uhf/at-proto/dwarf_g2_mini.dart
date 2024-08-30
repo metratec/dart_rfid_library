@@ -1,5 +1,5 @@
-import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_uhf/reader_uhf_at.dart';
+import 'package:dart_rfid_library/reader_library.dart';
+import 'package:dart_rfid_library/src/reader_uhf/reader_uhf_at.dart';
 
 class DwarfG2MiniV2ReaderSettings extends UhfAtReaderSettings {
   DwarfG2MiniV2ReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});

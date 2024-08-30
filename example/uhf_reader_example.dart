@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
-import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/reader_uhf/at-proto/deskid_uhf_v2_e.dart';
+import 'package:dart_rfid_library/reader_library.dart';
+import 'package:dart_rfid_library/src/reader_uhf/at-proto/deskid_uhf_v2_e.dart';
 
 void main() async {
   SerialSettings serialSettings = SerialSettings("/dev/ttyACM0");

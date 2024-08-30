@@ -4,9 +4,9 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
-import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/parser/parser.dart';
-import 'package:reader_library/src/parser/parser_at.dart';
+import 'package:dart_rfid_library/reader_library.dart';
+import 'package:dart_rfid_library/src/parser/parser.dart';
+import 'package:dart_rfid_library/src/parser/parser_at.dart';
 
 class UhfAtReaderSettings extends UhfReaderSettings {
   UhfAtReaderSettings({super.possiblePowerValues, super.possibleQValues, super.possibleRegionValues});

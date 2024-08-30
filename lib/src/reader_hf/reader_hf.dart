@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
-import 'package:reader_library/reader_library.dart';
-import 'package:reader_library/src/utils/heartbeat.dart';
+import 'package:dart_rfid_library/reader_library.dart';
+import 'package:dart_rfid_library/src/utils/heartbeat.dart';
 
 /// Base class for all hf readers.
 /// Needs to be abstract to have a protocol distinction.

@@ -1,4 +1,4 @@
-import 'package:reader_library/src/parser/parser.dart';
+import 'package:dart_rfid_library/src/parser/parser.dart';
 
 class ParserAscii extends Parser {
   ParserAscii(super.commInterface, super.eol);

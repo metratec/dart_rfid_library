@@ -1,5 +1,5 @@
 import 'package:dart_rfid_utils/dart_rfid_utils.dart';
-import 'package:reader_library/src/reader.dart';
+import 'package:dart_rfid_library/src/reader.dart';
 
 abstract class ReaderSettings<T extends Reader> {
   int antennaCount = 1;
