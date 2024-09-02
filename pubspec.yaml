@@ -1,6 +1,6 @@
 name: dart_rfid_library
 description: Implementation of Dart lib for Metratec RFID devices
-version: 2.0.0
+version: 2.1.0
 homepage: https://www.metratec.com
 
 publish_to: none
@@ -21,14 +21,15 @@ dependencies:
 
   metratec_device:
     git:
-      url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
-      ref: 3.2.1
+     url: https://gitlab.metratec.com/dart-libraries/metratec_device.git
+     ref: 3.3.0
+
   dart_rfid_utils:
     git:
       url: https://gitlab.metratec.com/dart-libraries/dart_rfid_utils.git
       ref: 1.0.0
 
-# Path dependencies for development only
+# Path dependencies for development
 #  metratec_device:
 #    path: ../metratec_device
 #  dart_rfid_utils:
