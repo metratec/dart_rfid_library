@@ -1,6 +1,6 @@
 name: dart_rfid_library
 description: Implementation of Dart lib for Metratec RFID devices
-version: 2.1.0
+version: 2.1.1
 homepage: https://www.metratec.com
 
 publish_to: none
@@ -15,14 +15,14 @@ dev_dependencies:
 dependencies:
   async: ^2.11.0
   collection: ^1.17.1
-  libserialport: ^0.3.0+1
+  #libserialport: ^0.3.0+1
   logger: ^2.0.2+1
   string_validator: ^0.3.0
 
   metratec_device:
     git:
      url: https://github.com/metratec/metratec_device.git
-     ref: 3.3.0
+     ref: 3.3.1
 
   dart_rfid_utils:
     git:
