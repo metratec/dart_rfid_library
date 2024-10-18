@@ -728,11 +728,19 @@ class UhfReaderAt extends UhfReader {
   @override
   Future<void> setOutputPower(List<int> val) async {
     final onlyValidPowerValues = val.none((e) => e < settings.minPower || e > settings.maxPower);
-    if (onlyValidPowerValues) {}
 
-    if (val.length > settings.antennaCount) {
-      throw ReaderException("Too many power values received. Must be at most ${settings.antennaCount} values");
+    // check if power is in valid range
+    if (!onlyValidPowerValues) {
+      throw ReaderException(
+          "Power level too high or too low. Output power must be min ${settings.minPower} and max ${settings.maxPower} dBm");
     }
+
+    // FIXME this does not make sense
+    // antennaCount is the currently configured number of antennas, not the max number
+    // EMX also not supported yet
+    // if (val.length > settings.antennaCount) {
+    //   throw ReaderException("Too many power values received. Must be at most ${settings.antennaCount} values");
+    // }
 
     String error = "";
 
